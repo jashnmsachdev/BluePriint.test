@@ -100,6 +100,231 @@
       letter-spacing: 0.01em;
     }
     .nav-links a:hover { opacity: 1; color: var(--blue-light); }
+    .nav-shop {
+      background: var(--blue-pale);
+      color: var(--blue) !important;
+      opacity: 1 !important;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-weight: 600 !important;
+      border: 1.5px solid rgba(26,95,168,0.25);
+      transition: background 0.2s, border-color 0.2s !important;
+    }
+    .nav-shop:hover { background: #d3e4f7 !important; border-color: var(--blue-light) !important; }
+
+    /* ── FEATURED PRODUCTS ── */
+    .products-section {
+      padding: 88px 0 88px 60px;
+      overflow: hidden;
+    }
+    .products-section .section-header {
+      padding-right: 60px;
+      text-align: left;
+    }
+    .products-section .section-header .eyebrow {
+      justify-content: flex-start;
+    }
+    .products-section .section-header .eyebrow::before {
+      display: block;
+    }
+    .products-header-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding-right: 60px;
+      margin-bottom: 40px;
+    }
+    .products-view-all {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--blue-light);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: gap 0.2s;
+    }
+    .products-view-all:hover { gap: 10px; }
+    .products-view-all::after { content: '→'; }
+
+    /* Scrollable row */
+    .products-scroll-wrapper {
+      position: relative;
+    }
+    .products-row {
+      display: flex;
+      gap: 24px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 16px;
+      padding-right: 60px;
+      cursor: grab;
+    }
+    .products-row:active { cursor: grabbing; }
+    .products-row::-webkit-scrollbar { display: none; }
+
+    /* Scroll fade edge */
+    .products-scroll-wrapper::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; bottom: 16px;
+      width: 80px;
+      background: linear-gradient(to left, var(--white), transparent);
+      pointer-events: none;
+    }
+
+    /* Arrow controls */
+    .products-arrows {
+      display: flex;
+      gap: 10px;
+      margin-top: 28px;
+      padding-right: 60px;
+      justify-content: flex-end;
+    }
+    .prod-arrow {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(13,59,110,0.2);
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 17px;
+      color: var(--blue);
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .prod-arrow:hover {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    /* Product card */
+    .product-card {
+      flex: 0 0 260px;
+      scroll-snap-align: start;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid rgba(13,59,110,0.09);
+      box-shadow: 0 2px 12px rgba(13,59,110,0.06);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+
+      /* API-ready: data attributes hook */
+      /* data-product-id, data-sku set on element */
+    }
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(13,59,110,0.14);
+    }
+
+    .product-img-wrap {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      background: var(--blue-pale);
+    }
+    .product-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .product-card:hover .product-img-wrap img {
+      transform: scale(1.07);
+    }
+    .product-badge {
+      position: absolute;
+      top: 12px; left: 12px;
+      background: var(--blue-light);
+      color: #fff;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+    .product-badge.sale { background: #e53935; }
+
+    .product-info {
+      padding: 20px 20px 0;
+      flex: 1;
+    }
+    .product-category {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--blue-light);
+      margin-bottom: 6px;
+    }
+    .product-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .product-desc {
+      font-size: 12.5px;
+      color: var(--grey);
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+    .product-price-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+    .product-price {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--blue);
+    }
+    .product-price-old {
+      font-size: 13px;
+      color: var(--grey);
+      text-decoration: line-through;
+    }
+
+    .product-footer {
+      padding: 0 20px 20px;
+    }
+    .btn-buy-now {
+      display: block;
+      width: 100%;
+      background: var(--blue);
+      color: #fff;
+      text-align: center;
+      padding: 11px 0;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.2s;
+      letter-spacing: 0.03em;
+    }
+    .btn-buy-now:hover {
+      background: var(--blue-light);
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 960px) {
+      .products-section { padding-left: 24px; }
+      .products-header-row { padding-right: 24px; }
+      .products-row { padding-right: 24px; }
+      .products-arrows { padding-right: 24px; }
+      .products-section .section-header { padding-right: 24px; }
+      .product-card { flex: 0 0 230px; }
+    }
+
     .nav-cta {
       background: var(--blue-light);
       color: #fff !important;
@@ -766,7 +991,7 @@
 <div class="topbar">
   <span>📍 B-7, First Floor, Rama Road Industrial Area, New Delhi – 110015 &nbsp;|&nbsp; Kirti Nagar Metro Station</span>
   <div class="topbar-right">
-    <a href="mailto:print@bluepriint.in">✉ print@bluepriint.in</a>
+    <a href="/cdn-cgi/l/email-protection#5a2a2833342e1a38362f3f2a283333342e743334">✉ <span class="__cf_email__" data-cfemail="88f8fae1e6fcc8eae4fdedf8fae1e1e6fca6e1e6">[email&#160;protected]</span></a>
     <a href="tel:+919717027607">📞 +91 9717027607</a>
     <span>🕐 Mon–Fri 10:30–19:30 &nbsp;|&nbsp; Sat till 15:30</span>
   </div>
@@ -781,6 +1006,7 @@
     <li><a href="#">Services</a></li>
     <li><a href="#">Infrastructure</a></li>
     <li><a href="#">Projects</a></li>
+    <li><a href="shop.html" class="nav-shop">🛒 Shop</a></li>
     <li><a href="#">Contact</a></li>
     <li><a href="tel:+919717027607" class="nav-cta">📞 Call Now</a></li>
   </ul>
@@ -1083,6 +1309,138 @@
   </div>
 </div>
 
+<!-- ── FEATURED PRODUCTS ── -->
+<section class="products-section" id="featured-products">
+  <div class="products-header-row">
+    <div>
+      <div class="eyebrow" style="justify-content:flex-start;">Featured Products</div>
+      <h2 class="section-h2" style="margin-bottom:0;">Shop Our <em>Best Sellers</em></h2>
+    </div>
+    <a href="shop.html" class="products-view-all">View All Products</a>
+  </div>
+
+  <div class="products-scroll-wrapper">
+    <div class="products-row" id="productsRow">
+
+      <div class="product-card reveal" data-product-id="BP-001" data-sku="flex-banner-3x2">
+        <div class="product-img-wrap">
+          <span class="product-badge">Popular</span>
+          <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Printing/Backlit-Flex/3.jpg" alt="Backlit Flex Banner" loading="lazy"/>
+        </div>
+        <div class="product-info">
+          <div class="product-category">Printing</div>
+          <div class="product-name">Backlit Flex Banner</div>
+          <div class="product-desc">High-brightness backlit flex for shop fronts, malls and outdoor displays.</div>
+          <div class="product-price-row">
+            <span class="product-price">&#8377;850</span>
+            <span class="product-price-old">&#8377;1,100</span>
+          </div>
+        </div>
+        <div class="product-footer">
+          <button class="btn-buy-now" onclick="addToCart('BP-001')">Buy Now</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal" data-product-id="BP-002" data-sku="acp-signboard-2x1">
+        <div class="product-img-wrap">
+          <span class="product-badge sale">Sale</span>
+          <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Signage Solutions/ACPSignage.JPG" alt="ACP Sign Board" loading="lazy"/>
+        </div>
+        <div class="product-info">
+          <div class="product-category">Signage</div>
+          <div class="product-name">ACP Fascia Sign Board</div>
+          <div class="product-desc">Durable aluminium composite panel signage for shops and offices.</div>
+          <div class="product-price-row">
+            <span class="product-price">&#8377;3,200</span>
+            <span class="product-price-old">&#8377;4,000</span>
+          </div>
+        </div>
+        <div class="product-footer">
+          <button class="btn-buy-now" onclick="addToCart('BP-002')">Buy Now</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal" data-product-id="BP-003" data-sku="canvas-print-a1">
+        <div class="product-img-wrap">
+          <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Printing/canvas/3.jpg" alt="Canvas Print" loading="lazy"/>
+        </div>
+        <div class="product-info">
+          <div class="product-category">Printing</div>
+          <div class="product-name">Premium Canvas Print</div>
+          <div class="product-desc">Gallery-quality canvas prints for offices, showrooms and retail walls.</div>
+          <div class="product-price-row">
+            <span class="product-price">&#8377;1,200</span>
+          </div>
+        </div>
+        <div class="product-footer">
+          <button class="btn-buy-now" onclick="addToCart('BP-003')">Buy Now</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal" data-product-id="BP-004" data-sku="one-way-vision-roll">
+        <div class="product-img-wrap">
+          <span class="product-badge">New</span>
+          <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Printing/one way vison/3.jpg" alt="One Way Vision" loading="lazy"/>
+        </div>
+        <div class="product-info">
+          <div class="product-category">Printing</div>
+          <div class="product-name">One Way Vision Film</div>
+          <div class="product-desc">See-through vinyl for glass facades — privacy outside, visibility inside.</div>
+          <div class="product-price-row">
+            <span class="product-price">&#8377;950</span>
+            <span class="product-price-old">&#8377;1,200</span>
+          </div>
+        </div>
+        <div class="product-footer">
+          <button class="btn-buy-now" onclick="addToCart('BP-004')">Buy Now</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal" data-product-id="BP-005" data-sku="translite-clip-on">
+        <div class="product-img-wrap">
+          <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Internal Branding/Clip on translites/Picture30.jpg" alt="Clip-on Translite" loading="lazy"/>
+        </div>
+        <div class="product-info">
+          <div class="product-category">Internal Branding</div>
+          <div class="product-name">Clip-on Translite</div>
+          <div class="product-desc">Backlit translites for in-store branding, aisle displays and product promotions.</div>
+          <div class="product-price-row">
+            <span class="product-price">&#8377;2,400</span>
+          </div>
+        </div>
+        <div class="product-footer">
+          <button class="btn-buy-now" onclick="addToCart('BP-005')">Buy Now</button>
+        </div>
+      </div>
+
+      <div class="product-card reveal" data-product-id="BP-006" data-sku="acrylic-print-a2">
+        <div class="product-img-wrap">
+          <span class="product-badge sale">Sale</span>
+          <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Printing/Acrylic/3.jpg" alt="Acrylic Print" loading="lazy"/>
+        </div>
+        <div class="product-info">
+          <div class="product-category">Printing</div>
+          <div class="product-name">Acrylic UV Print</div>
+          <div class="product-desc">Vibrant, scratch-resistant UV prints on clear or white acrylic sheets.</div>
+          <div class="product-price-row">
+            <span class="product-price">&#8377;1,800</span>
+            <span class="product-price-old">&#8377;2,200</span>
+          </div>
+        </div>
+        <div class="product-footer">
+          <button class="btn-buy-now" onclick="addToCart('BP-006')">Buy Now</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="products-arrows">
+    <div class="prod-arrow" id="prodPrev">&#8249;</div>
+    <div class="prod-arrow" id="prodNext">&#8250;</div>
+  </div>
+</section>
+
 <!-- ── CTA BANNER ── -->
 <div class="cta-banner">
   <div class="reveal">
@@ -1126,7 +1484,7 @@
       <h4>Contact Us</h4>
       <div class="footer-contact-item">📍 B-7, First Floor, Rama Road Industrial Area, New Delhi – 110015</div>
       <div class="footer-contact-item">📞 <a href="tel:+919717027607" style="color:rgba(255,255,255,0.6)">+91 9717027607</a></div>
-      <div class="footer-contact-item">✉ <a href="mailto:print@bluepriint.in" style="color:rgba(255,255,255,0.6)">print@bluepriint.in</a></div>
+      <div class="footer-contact-item">✉ <a href="/cdn-cgi/l/email-protection#1666647f786256747a637366647f7f7862387f78" style="color:rgba(255,255,255,0.6)"><span class="__cf_email__" data-cfemail="2454564d4a50644648514154564d4d4a500a4d4a">[email&#160;protected]</span></a></div>
     </div>
   </div>
   <div class="footer-bottom">
@@ -1135,7 +1493,7 @@
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // ── Slider ──
   let current = 0;
   const slides = document.querySelectorAll('.slide');
@@ -1164,7 +1522,38 @@
   }, { threshold: 0.08 });
   revealEls.forEach(el => revealObs.observe(el));
 
-  // ── Nav shadow ──
+  // ── Product carousel arrows ──
+  (function() {
+    const row  = document.getElementById('productsRow');
+    const prev = document.getElementById('prodPrev');
+    const next = document.getElementById('prodNext');
+    if (!row || !prev || !next) return;
+    const SCROLL_BY = 284;
+    next.addEventListener('click', () => { row.scrollBy({ left: SCROLL_BY, behavior: 'smooth' }); });
+    prev.addEventListener('click', () => { row.scrollBy({ left: -SCROLL_BY, behavior: 'smooth' }); });
+    let isDown = false, startX, scrollLeft;
+    row.addEventListener('mousedown',  e => { isDown = true; startX = e.pageX - row.offsetLeft; scrollLeft = row.scrollLeft; });
+    row.addEventListener('mouseleave', () => isDown = false);
+    row.addEventListener('mouseup',    () => isDown = false);
+    row.addEventListener('mousemove',  e => {
+      if (!isDown) return;
+      e.preventDefault();
+      row.scrollLeft = scrollLeft - (e.pageX - row.offsetLeft - startX);
+    });
+  })();
+
+  // addToCart stub — wire to POST /api/cart later
+  function addToCart(productId) {
+    const card = document.querySelector('[data-product-id="' + productId + '"]');
+    if (!card) return;
+    const btn = card.querySelector('.btn-buy-now');
+    const orig = btn.textContent;
+    btn.textContent = '\u2713 Added!';
+    btn.style.background = '#22a06b';
+    setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1800);
+  }
+
+  // Nav shadow on scroll
   window.addEventListener('scroll', () => {
     document.querySelector('nav').style.boxShadow =
       window.scrollY > 30 ? '0 4px 24px rgba(13,59,110,0.1)' : '0 2px 16px rgba(13,59,110,0.06)';
