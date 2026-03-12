@@ -1,1067 +1,1174 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BluePriint — Print. Brand. Build. | Delhi NCR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<meta http-equiv="x-ua-compatible" content="ie=edge">
+    :root {
+      --blue:       #0d3b6e;
+      --blue-mid:   #1a5fa8;
+      --blue-light: #2980d9;
+      --blue-pale:  #e8f1fb;
+      --white:      #ffffff;
+      --off:        #f4f7fc;
+      --ink:        #0d1a2b;
+      --grey:       #6b7c93;
+      --gold:       #f0a500;
+      --sans:       'Outfit', sans-serif;
+      --serif:      'Playfair Display', Georgia, serif;
+    }
 
-	<meta content="We Provide Lot’s Of Printing & Branding Service & Always Ready To Print Your Dream Works"
-		name="description">
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); color: var(--ink); background: var(--white); overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
 
-	<meta
-		content="Digital printing , signage solutions , laser cuttings , 3-D letters , router Cuttings, nameplates , events and exibibitions , LED Slim Display Frames , external signage , internal signage , 3D LED signage , digital signage , ATM Kisoks , Frosted Films , retail display , shop in shops , POS , Large format digital printing , meet us , conatct , sigange agency , printing agency , digital printing agency "
-		name="keywords">
+    /* ── FLOATING BUTTONS ── */
+    .float-btns {
+      position: fixed;
+      bottom: 28px; right: 24px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .float-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .float-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.25); }
+    .float-call { background: var(--blue); }
+    .float-wa   { background: #25d366; }
+    .float-btn svg { width: 20px; height: 20px; fill: #fff; flex-shrink: 0; }
 
-	<title>Home | Bluepriint</title>
-	<link rel="shortcut icon" href="assets/images/logo/only-logo.svg">
+    /* ── TOPBAR ── */
+    .topbar {
+      background: var(--blue);
+      color: rgba(255,255,255,0.75);
+      font-size: 12.5px;
+      padding: 8px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .topbar a { color: inherit; }
+    .topbar-right { display: flex; gap: 24px; align-items: center; }
+    .topbar-right a:hover { color: #fff; }
 
-	<!-- fraimwork - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+    /* ── NAV ── */
+    nav {
+      background: #fff;
+      border-bottom: 1px solid rgba(13,59,110,0.1);
+      position: sticky; top: 0; z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 60px;
+      height: 74px;
+      box-shadow: 0 2px 16px rgba(13,59,110,0.06);
+    }
+    .nav-logo {
+      font-family: var(--sans);
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--blue);
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: var(--blue-light); }
+    .nav-links { display: flex; gap: 32px; list-style: none; align-items: center; }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      opacity: 0.75;
+      transition: opacity 0.2s, color 0.2s;
+      letter-spacing: 0.01em;
+    }
+    .nav-links a:hover { opacity: 1; color: var(--blue-light); }
+    .nav-cta {
+      background: var(--blue-light);
+      color: #fff !important;
+      opacity: 1 !important;
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-weight: 600 !important;
+      transition: background 0.2s !important;
+    }
+    .nav-cta:hover { background: var(--blue) !important; }
 
-	<!-- icon - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/flaticon.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/fontawesome.css">
+    /* ── HERO SLIDER ── */
+    .hero {
+      position: relative;
+      height: calc(100vh - 74px - 37px);
+      min-height: 520px;
+      overflow: hidden;
+      background: var(--blue);
+    }
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.9s ease;
+      pointer-events: none;
+    }
+    .slide.active { opacity: 1; pointer-events: auto; }
 
-	<!-- animation - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/animate.css">
+    .slide-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: brightness(0.35);
+    }
+    /* gradient overlay */
+    .slide-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(13,59,110,0.85) 40%, transparent 100%);
+    }
 
-	<!-- carousel - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/owl.carousel.min.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/owl.theme.default.min.css">
+    .slide-content {
+      position: relative;
+      z-index: 2;
+      padding: 0 80px;
+      max-width: 680px;
+    }
+    .slide-tag {
+      display: inline-block;
+      background: var(--blue-light);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+    }
+    .slide-h1 {
+      font-family: var(--serif);
+      font-size: clamp(38px, 5.5vw, 68px);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .slide-h1 em { font-style: italic; color: var(--gold); }
+    .slide-p {
+      font-size: 17px;
+      color: rgba(255,255,255,0.72);
+      line-height: 1.7;
+      margin-bottom: 36px;
+      max-width: 520px;
+    }
+    .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+    .btn-hero-primary {
+      background: var(--blue-light);
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .btn-hero-primary:hover { background: #1565c0; transform: translateY(-2px); }
+    .btn-hero-ghost {
+      border: 2px solid rgba(255,255,255,0.5);
+      color: #fff;
+      padding: 13px 28px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .btn-hero-ghost:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
 
-	<!-- <a href='https://www.freepik.com/vectors/technology'>Technology vector created by pikisuperstar - www.freepik.com</a>
-	<a href='https://www.freepik.com/vectors/business'>Business vector created by pikisuperstar - www.freepik.com</a> -->
-	<!-- nice select - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/nice-select.css">
+    /* Slider controls */
+    .slider-arrows {
+      position: absolute;
+      bottom: 40px; right: 60px;
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+    }
+    .slider-arrow {
+      width: 46px; height: 46px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      background: rgba(255,255,255,0.08);
+      transition: all 0.2s;
+      color: #fff;
+      font-size: 18px;
+      user-select: none;
+    }
+    .slider-arrow:hover { background: var(--blue-light); border-color: var(--blue-light); }
+    .slider-dots {
+      position: absolute;
+      bottom: 52px; left: 80px;
+      z-index: 10;
+      display: flex; gap: 8px;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .dot.active { background: var(--gold); transform: scale(1.3); }
 
-	<!-- magnific popup - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/magnific-popup.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
-	<link rel="stylesheet"
-		href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.css">
-	<!-- custom - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    /* ── TRUST BAR ── */
+    .trust-bar {
+      background: var(--blue-pale);
+      border-bottom: 1px solid rgba(13,59,110,0.1);
+      padding: 18px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--blue);
+    }
+    .trust-item span { font-size: 20px; }
 
-	<style>
-		@media screen and (min-width: 600px) {
-			#hey {
-				margin: 6px;
-			}
-		}
+    /* ── ABOUT STRIP ── */
+    .about-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 0;
+    }
+    .about-img {
+      height: 480px;
+      overflow: hidden;
+    }
+    .about-img img { width: 100%; height: 100%; object-fit: cover; }
+    .about-text {
+      padding: 64px 72px;
+      background: var(--off);
+    }
+    .eyebrow {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--blue-light);
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .eyebrow::before { content: ''; width: 28px; height: 2px; background: var(--blue-light); }
+    .section-h2 {
+      font-family: var(--serif);
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--blue);
+      margin-bottom: 20px;
+    }
+    .section-h2 em { font-style: italic; color: var(--blue-light); }
+    .body-text { font-size: 15px; color: var(--grey); line-height: 1.8; margin-bottom: 28px; }
+    .check-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 36px; }
+    .check-list li {
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--ink);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .check-list li::before {
+      content: '✓';
+      width: 22px; height: 22px;
+      background: var(--blue-light);
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .btn-blue {
+      display: inline-block;
+      background: var(--blue);
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .btn-blue:hover { background: var(--blue-light); transform: translateY(-2px); }
 
-		@media screen and (min-width: 600px) {
-			#fix img {
-				width: 150px;
-			}
-		}
-		#ger img{
-			height: 150px;
-			margin: 6px;
-		}
-	</style>
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--blue);
+      padding: 48px 60px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 16px 0;
+      border-right: 1px solid rgba(255,255,255,0.12);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: var(--serif);
+      font-size: 52px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+    }
+    .stat-num sup { font-size: 28px; vertical-align: super; }
+    .stat-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      margin-top: 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── SERVICES ── */
+    .section { padding: 88px 60px; }
+    .section-header { text-align: center; margin-bottom: 56px; }
+    .section-header .eyebrow { justify-content: center; }
+    .section-header .eyebrow::before { display: none; }
+    .section-header .section-h2 { color: var(--blue); }
+
+    .services-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid transparent;
+      background: var(--blue-pale);
+      color: var(--blue);
+      transition: all 0.2s;
+    }
+    .tab-btn:hover, .tab-btn.active {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .service-card {
+      background: #fff;
+      border: 1px solid rgba(13,59,110,0.1);
+      border-radius: 10px;
+      padding: 32px 24px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--blue-light);
+      transform: scaleX(0);
+      transition: transform 0.3s;
+      transform-origin: left;
+    }
+    .service-card:hover { box-shadow: 0 12px 40px rgba(13,59,110,0.12); transform: translateY(-4px); }
+    .service-card:hover::before { transform: scaleX(1); }
+    .svc-num {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--blue-light);
+      margin-bottom: 16px;
+    }
+    .svc-icon {
+      font-size: 36px;
+      margin-bottom: 16px;
+    }
+    .svc-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+    .svc-desc {
+      font-size: 13.5px;
+      color: var(--grey);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .svc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+    .svc-tag {
+      font-size: 11px;
+      background: var(--blue-pale);
+      color: var(--blue);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    .svc-link {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--blue-light);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .svc-link::after { content: '→'; transition: transform 0.2s; }
+    .service-card:hover .svc-link::after { transform: translateX(4px); }
+
+    /* ── PROCESS ── */
+    .process-section {
+      background: var(--blue);
+      padding: 88px 60px;
+    }
+    .process-section .eyebrow { color: var(--gold); }
+    .process-section .eyebrow::before { background: var(--gold); }
+    .process-section .section-h2 { color: #fff; }
+    .process-section .section-h2 em { color: var(--gold); }
+
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      margin-top: 56px;
+      position: relative;
+    }
+    .process-steps::before {
+      content: '';
+      position: absolute;
+      top: 40px;
+      left: 12.5%; right: 12.5%;
+      height: 2px;
+      background: rgba(255,255,255,0.15);
+    }
+    .process-step {
+      text-align: center;
+      padding: 0 20px;
+      position: relative;
+    }
+    .step-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.2);
+      margin: 0 auto 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      position: relative;
+      z-index: 2;
+      transition: all 0.3s;
+    }
+    .process-step:hover .step-circle {
+      background: var(--blue-light);
+      border-color: var(--blue-light);
+    }
+    .step-num {
+      position: absolute;
+      top: -6px; right: -6px;
+      width: 26px; height: 26px;
+      background: var(--gold);
+      color: var(--blue);
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+    .step-desc {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.7;
+    }
+
+    /* ── PORTFOLIO ── */
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: 280px 280px;
+      gap: 14px;
+      margin-top: 48px;
+    }
+    .port-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      background: var(--blue);
+    }
+    .port-item:first-child { grid-column: span 2; }
+    .port-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+      opacity: 0.8;
+    }
+    .port-item:hover img { transform: scale(1.06); opacity: 0.6; }
+    .port-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(13,59,110,0.9) 0%, transparent 50%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 28px;
+      transform: translateY(10px);
+      transition: transform 0.4s;
+    }
+    .port-item:hover .port-overlay { transform: translateY(0); }
+    .port-cat {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+    .port-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* ── TESTIMONIALS ── */
+    .testi-section {
+      background: var(--blue-pale);
+      padding: 88px 60px;
+    }
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .testi-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 32px 28px;
+      box-shadow: 0 4px 20px rgba(13,59,110,0.07);
+      position: relative;
+    }
+    .testi-stars { color: var(--gold); font-size: 16px; margin-bottom: 16px; }
+    .testi-quote {
+      font-size: 15px;
+      color: var(--ink);
+      line-height: 1.75;
+      margin-bottom: 24px;
+      font-style: italic;
+    }
+    .testi-author { display: flex; align-items: center; gap: 12px; }
+    .testi-avatar {
+      width: 44px; height: 44px;
+      background: var(--blue);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .testi-name { font-weight: 700; font-size: 14px; color: var(--blue); }
+    .testi-role { font-size: 12px; color: var(--grey); margin-top: 2px; }
+    .testi-badge {
+      position: absolute;
+      top: 24px; right: 24px;
+      font-size: 36px;
+      opacity: 0.08;
+      color: var(--blue);
+      font-family: Georgia, serif;
+    }
+
+    /* ── CLIENTS ── */
+    .clients-section { padding: 64px 60px; border-top: 1px solid rgba(13,59,110,0.08); }
+    .clients-label { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey); margin-bottom: 40px; }
+    .clients-scroll { overflow: hidden; }
+    .clients-track {
+      display: flex; gap: 56px;
+      animation: scroll 20s linear infinite;
+      width: max-content;
+    }
+    .clients-track:hover { animation-play-state: paused; }
+    .client-pill {
+      font-family: var(--serif);
+      font-size: 19px;
+      font-weight: 600;
+      color: rgba(13,59,110,0.25);
+      white-space: nowrap;
+      transition: color 0.3s;
+      cursor: default;
+    }
+    .client-pill:hover { color: var(--blue); }
+    @keyframes scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ── CTA BANNER ── */
+    .cta-banner {
+      background: var(--blue);
+      padding: 80px 60px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 40px;
+    }
+    .cta-banner h2 {
+      font-family: var(--serif);
+      font-size: clamp(28px, 3.5vw, 48px);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .cta-banner h2 em { font-style: italic; color: var(--gold); }
+    .cta-banner p { font-size: 16px; color: rgba(255,255,255,0.6); margin-top: 12px; }
+    .cta-btns { display: flex; flex-direction: column; gap: 12px; min-width: 220px; }
+    .btn-gold {
+      background: var(--gold);
+      color: var(--blue);
+      padding: 15px 32px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      transition: filter 0.2s, transform 0.2s;
+    }
+    .btn-gold:hover { filter: brightness(1.1); transform: translateY(-2px); }
+    .btn-ghost-white {
+      border: 2px solid rgba(255,255,255,0.35);
+      color: #fff;
+      padding: 13px 32px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .btn-ghost-white:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #081422;
+      color: rgba(255,255,255,0.5);
+      padding: 72px 60px 32px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1.2fr;
+      gap: 48px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .footer-logo { font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 14px; }
+    .footer-logo span { color: var(--blue-light); }
+    .footer-about { font-size: 13.5px; line-height: 1.75; max-width: 280px; }
+    .footer-col h4 {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a { font-size: 13.5px; color: rgba(255,255,255,0.5); transition: color 0.2s; }
+    .footer-col ul a:hover { color: #fff; }
+    .footer-contact-item { display: flex; gap: 10px; margin-bottom: 12px; font-size: 13.5px; align-items: flex-start; }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 28px;
+      font-size: 12.5px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-bottom a { color: var(--blue-light); }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.65s ease, transform 0.65s ease; }
+    .reveal.up { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 960px) {
+      nav, .topbar, .section, .process-section, .testi-section, .clients-section { padding-left: 24px; padding-right: 24px; }
+      .nav-links { display: none; }
+      .slide-content { padding: 0 32px; }
+      .slider-arrows, .slider-dots { left: 32px; right: 32px; }
+      .about-strip { grid-template-columns: 1fr; }
+      .about-img { height: 300px; }
+      .about-text { padding: 48px 32px; }
+      .stats-bar { grid-template-columns: repeat(2,1fr); padding: 40px 24px; }
+      .services-grid { grid-template-columns: repeat(2,1fr); }
+      .process-steps { grid-template-columns: repeat(2,1fr); gap: 32px; }
+      .process-steps::before { display: none; }
+      .portfolio-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .port-item:first-child { grid-column: span 2; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .cta-banner { grid-template-columns: 1fr; padding: 56px 24px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .trust-bar { padding: 16px 24px; gap: 24px; }
+    }
+  </style>
 </head>
-
-
 <body>
 
-
-	<!-- backtotop - start -->
-	<div id="thetop"></div>
-	<div id="backtotop">
-		<a href="#" id="scroll">
-			<i class="far fa-arrow-up"></i>
-		</a>
-	</div>
-	<!-- backtotop - end -->
-
-	<!-- preloader - start -->
-	
-	<!-- preloader - end -->
-
-
-	<!-- header_section - start
-		================================================== -->
-	<header class="header_section sticky_header secondary_header clearfix">
-		<div class="header_top bg_light clearfix">
-			<div class="maxw_1420 container">
-				<div class="row align-items-center">
-					<div class="col-lg-12">
-						<ul class="header_contact_info ul_li clearfix">
-							<li><i class="far fa-map-marker-alt"></i> <a target="_blank" href="https://www.google.com/maps/place/DEZYNE+HUB/@28.6611169,77.1531076,757m/data=!3m2!1e3!4b1!4m5!3m4!1s0x390d02ff0040059b:0xbb4cd3863f73e6c7!8m2!3d28.661112!4d77.1552959?hl=en" style="color:rgb(27, 26, 26)">B-7, First Floor, Plot No 54,
-								Rama Road Industrial Area,
-								New Delhi - 110015.</a>
-							</li>
-							<li><i class="far fa-envelope-open"></i> <a href="mailto:print@bluepriint.in" style="color:rgb(27, 26, 26)">print@bluepriint.in</a></li>
-							<li style="color: rgb(27, 26, 26);"><i class="far fa-clock"></i> Mon- Friday, 10:30 am-7:30 pm  &  Sat, 10:30 am-3:30 pm</li>
-							<li style="color: rgb(27, 26, 26);"><i class="far fa-phone"></i>+91 9717027607</li>
-							<!-- <li><i class="far fa-clock"></i> Sat,10:30-3:30</li> -->
-						</ul>
-					</div>
-					<!-- Social links -->
-					<!-- <div class="col-lg-3">
-						<ul class="header_items_list ul_li_right clearfix">
-							<li>
-
-
-
-								<ul class="circle_social_links ul_li_right clearfix">
-									<li>
-										<a class="bg_facebook" href="#!">
-											<i class="fab fa-facebook-f"></i>
-											<i class="fab fa-facebook-f"></i>
-										</a>
-									</li>
-									<li>
-										<a class="bg_twitter" href="#!">
-											<i class="fab fa-twitter"></i>
-											<i class="fab fa-twitter"></i>
-										</a>
-									</li>
-									<li>
-										<a class="bg_youtube" href="#!">
-											<i class="fab fa-youtube"></i>
-											<i class="fab fa-youtube"></i>
-										</a>
-									</li>
-									<li>
-										<a class="bg_linkedin" href="#!">
-											<i class="fab fa-linkedin"></i>
-											<i class="fab fa-linkedin"></i>
-										</a>
-									</li>
-								</ul>
-
-
-							</li>
-							<li>
-						
-							</li>
-						</ul>
-					</div> -->
-				</div>
-			</div>
-		</div>
-
-		<div class="header_bottom">
-			<div class="maxw_1420 container">
-				<div class="row align-items-center">
-
-					<div class="col-lg-3">
-						<div class="brand_logo" id="hey">
-							<a href="index.html">
-								<img src="assets/images/logo/logo-with-name.svg"
-									srcset="assets/images/logo/logo-with-name.svg 2x" alt="logo_not_found"
-									style="height: 83px; width: 1593px;">
-							</a>
-
-							<ul class="mobilemenu_btns_group ul_li_right clearfix">
-
-								<li>
-									<button type="button" class="mobile_menu_btn"><i class="fal fa-bars"></i></button>
-								</li>
-							</ul>
-						</div>
-					</div>
-
-					<div class="col-lg-6">
-						<nav class="main_menu clearfix">
-							<ul class="ul_li_center clearfix" >
-								<li >
-									<a href="index.html" style="color: rgb(53, 51, 51)">Home</a>
-
-								</li>
-								<li><a href="about.html"  style="color:  rgb(53, 51, 51)">About</a></li>
-								<li class="has_child">
-									<a href="#" style="color:  rgb(53, 51, 51)">Products</a>
-									<ul class="submenu" style="color: rgb(53, 51, 51)">
-								<li><a href="Printing.html" style="color: rgb(53, 51, 51)">Printing</a></li>
-								<li><a href="LED_Screens.html"  style="color: rgb(53, 51, 51);">LED Screens</a></li>
-								<li><a href="internal_branding.html" style="color: rgb(53, 51, 51);">Internal Branding</a></li>
-								<li><a href="ooh.html" style="color: rgb(53, 51, 51);">OOH</a></li>
-								<li><a href="Signage_Solutions.html" style="color: rgb(53, 51, 51);">Signage Solutions</a></li>
-								<li><a href="BTL.html" style="color: rgb(53, 51, 51);">BTL/Promotions</a></li>
-								<li><a href="promotionalmaterial.html" style="color: rgb(53, 51, 51);">Promotional Materials</a></li>
-								<li><a href="interiorConstruction.html" style="color: rgb(53, 51, 51);">Interior Architecture</a></li>
-								
-									</ul>
-								</li>
-								<li>
-									<a href="infrastruture.html" style="color: rgb(53, 51, 51)">Infrastruture</a>
-
-								</li>
-								<!-- <li>
-									<a href="#!">Clients</a>
-								
-								</li> -->
-
-								<li><a href="contact.html" style="color: rgb(53, 51, 51)">Contact</a></li>
-							</ul>
-						</nav>
-					</div>
-
-
-
-				</div>
-			</div>
-		</div>
-
-
-	</header>
-	<!-- header_section - end
-		================================================== -->
-
-
-	<!-- main body - start
-		================================================== -->
-	<main>
-
-
-		<!-- sidebar mobile menu - start
-			================================================== -->
-		<div class="sidebar-menu-wrapper">
-			<div class="sidebar_mobile_menu">
-				<span class="close_btn"><i class="fal fa-times"></i></span>
-				<div class="mobile_menu_list clearfix">
-					<ul class="ul_li_block clearfix">
-						<li class="active dropdown">
-						<li><a href="index.html">Home</a></li>
-
-						</li>
-						<li><a href="about.html">About</a></li>
-						<li class="dropdown">
-							<a href="#" data-toggle="dropdown" aria-haspopup="true"
-								aria-expanded="false">Products</a>
-							<ul class="dropdown-menu">
-								<li><a href="Printing.html">Printing</a></li>
-								<li><a href="LED_Screens.html">LED Screens</a></li>
-								<li><a href="internal_branding.html">Internal Branding</a></li>
-								<li><a href="ooh.html">OOH</a></li>
-								<li><a href="Signage_Solutions.html">Signage Solutions</a></li>
-								<li><a href="BTL.html">BTL/Promotions</a></li>
-								<li><a href="promotionalmaterial.html">Promotional Materials</a></li>
-								<li><a href="interiorConstruction.html">Interior Architecture</a></li>
-							
-							</ul>
-						</li>
-
-						<li class="dropdown">
-						<li><a href="infrastruture.html">Infrastructure</a></li>
-
-						</li>
-						<li class="dropdown">
-							<!-- <li><a href="#">Clients</a></li> -->
-
-						<li><a href="contact.html">Contact</a></li>
-					</ul>
-					</li>
-					</ul>
-				</div>
-			</div>
-
-
-			<!-- sidebar mobile menu - end
-			================================================== -->
-
-
-			<!-- slider_section - start
-			================================================== -->
-			<section class="slider_section home_three_slider clearfix">
-				<div class="main_slider owl-carousel owl-theme clearfix">
-
-					<div class="item" data-background="assets/images/slider/bg_01.jpg">
-						<div class="container">
-							<div
-								class="row align-items-center justify-content-lg-between justify-content-md-center justify-content-sm-center">
-								<div class="col-lg-5 col-md-8 col-sm-12 col-xs-12 order-last">
-									<div class="slider_image">
-										<img src="assets/images/banner/home_02/printing.svg" alt="image_not_found"
-											style="padding-right: 7rem;">
-									</div>
-								</div>
-
-								<div class="col-lg-7 col-md-8 col-sm-12 col-xs-12">
-									<div class="slider_content text-white">
-										<h4 class="small_title">Welcome to BluePriint</h4>
-										<h3 class="item_title text-uppercase text-white mb-0" >rich Printing</h3>
-										<p >
-											We are here to print your dream works.
-										</p>
-										<ul class="btns_group ul_li clearfix">
-											<li>
-												<a class="custom_btn bg_default_orange" 
-													href="#printing" >
-													Discover more
-													<span><i class="fal fa-arrow-right"></i></span>
-												</a>
-											</li>
-											<li>
-												<a class="custom_btn bg_default_yellow" target="_blank"
-													 
-													href="Printing.html" >
-													Our Services
-													<span><i class="fal fa-arrow-right"></i></span>
-												</a>
-											</li>
-										</ul>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="item" data-background="assets/images/slider/bg_01.jpg">
-						<div class="container">
-							<div
-								class="row align-items-center justify-content-lg-between justify-content-md-center justify-content-sm-center">
-								<div class="col-lg-5 col-md-8 col-sm-12 col-xs-12 order-last">
-									<div class="slider_image">
-										<img src="assets/images/banner/home_02/Fascade Sign.svg" alt="image_not_found"
-											style="padding-right: 0rem;">
-									</div>
-								</div>
-
-								<div class="col-lg-7 col-md-8 col-sm-12 col-xs-12">
-									<div class="slider_content text-white">
-										<h4 class="small_title">Welcome to BluePriint</h4>
-										<h3 class="item_title text-uppercase text-white mb-0" >Signage Solutions</h3>
-										<p >
-											We always thrive to make customer satisfied and customer is our first
-											priority.
-										</p>
-										<ul class="btns_group ul_li clearfix">
-											<li>
-												<a class="custom_btn bg_default_orange" 
-													href="#signage" >
-													Discover more
-													<span><i class="fal fa-arrow-right"></i></span>
-												</a>
-											</li>
-											<li>
-												<a class="custom_btn bg_default_yellow" target="_blank"
-													href="Signage_Solutions.html" >
-													Our Services
-													<span><i class="fal fa-arrow-right"></i></span>
-												</a>
-											</li>
-										</ul>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="item" data-background="assets/images/slider/bg_01.jpg">
-						<div class="container">
-							<div
-								class="row align-items-center justify-content-lg-between justify-content-md-center justify-content-sm-center">
-								<div class="col-lg-5 col-md-8 col-sm-12 col-xs-12 order-last">
-									<div class="slider_image">
-										<img src="assets/images/banner/BTL final.png" alt="image_not_found"
-										style="transform: scale(1.3); padding-right: 7rem;">
-									</div>
-								</div>
-
-								<div class="col-lg-7 col-md-8 col-sm-12 col-xs-12">
-									<div class="slider_content text-white">
-										<h4 class="small_title">Welcome to BluePriint</h4>
-										<h3 class="item_title text-uppercase text-white mb-0">BTL/ Promotions</h3>
-										<p>
-											We work with full dedication try to make our products best.
-										</p>
-										<ul class="btns_group ul_li clearfix">
-											<li>
-												<a class="custom_btn bg_default_orange" 
-													href="#btl">
-													Discover more
-													<span><i class="fal fa-arrow-right"></i></span>
-												</a>
-											</li>
-											<li>
-												<a class="custom_btn bg_default_yellow" target="_blank"
-													href="BTL.html">
-													Our Services
-													<span><i class="fal fa-arrow-right"></i></span>
-												</a>
-											</li>
-										</ul>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<div class="item" data-background="assets/images/slider/bg_01.jpg">
-						<div class="container">
-							<div
-								class="row align-items-center justify-content-lg-between justify-content-md-center justify-content-sm-center">
-								<div class="col-lg-5 col-md-8 col-sm-12 col-xs-12 order-last">
-									<div class="slider_image">
-										<img src="assets/images/banner/home_02/banner 4 construction.svg" alt="image_not_found"
-											style="padding-right: 1rem; margin-left: 3 rem;">
-									</div>
-								</div>
-
-								<div class="col-lg-7 col-md-8 col-sm-12 col-xs-12">
-									<div class="slider_content text-white">
-										<h4 class="small_title">Welcome to BluePriint</h4>
-										<h3 class="item_title text-uppercase text-white mb-0">Interior Architecture</h3>
-										<p>
-											We always work with new technologies to provide top notch services to our
-											customers.
-										</p>
-										<ul class="btns_group ul_li clearfix">
-											<li>
-												<a class="custom_btn bg_default_orange" 
-													href="#construction">
-													Discover more
-													<span><i class="fal fa-arrow-right"></i></span>
-												</a>
-											</li>
-											<li>
-												<a class="custom_btn bg_default_yellow" target="_blank"
-													href="interiorConstruction.html">
-													Our Services
-													<span><i class="fal fa-arrow-right"></i></span>
-												</a>
-											</li>
-										</ul>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
-				</div>
-			</section>
-			<!-- slider_section - end
-			================================================== -->
-			<section class="product_medium sec_ptb_130 clearfix">
-				<div class="container">
-
-					<div class="row justify-content-center">
-						<div class="col-lg-8 col-md-8 col-sm-10 col-xs-12">
-							<div class="section_title text-center mb_50 wow fadeInUp2" data-wow-delay=".1s">
-								<h4 class="small_title">What We Offer</h4>
-								<h2 class="big_title mb-0">
-									We Provide vast range of services and products
-								</h2>
-								<span class="biggest_title">Services</span>
-							</div>
-						</div>
-					</div>
-
-					<div class="row no-gutters justify-content-lg-between">
-						<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 wow fadeIn" data-wow-delay=".3s">
-							<div class="service_split clearfix">
-								<div class="item_content">
-									<div class="service_boxed bg_default_yellow text-center" style="height: 330px;">
-
-										<h3 class="item_title"><a name="printing">Printing</a></h3>
-									
-										<p> For the best results from creating a
-											design to printing we use the latest
-											softwares & machines to print
-											directly onto the wide range of
-											material</p>
-											<br>
-										<a class="text_btn" target="_blank" href="Printing.html">
-											<span>Know More</span>
-											<i class="far fa-arrow-right"></i>
-										</a>
-									</div>
-								</div>
-								<a class="item_image" target="_blank" href="Printing.html">
-									<img src="assets/images/categories/Category Printing.png"
-										alt="image_not_found">
-								</a>
-							</div>
-						</div>
-		
-
-						<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 wow fadeIn" data-wow-delay=".4s">
-							<div class="service_split clearfix">
-								<div class="item_content">
-									<div class="service_boxed bg_default_blue text-center text-white"
-										style="height: 330px;">
-
-										<h3 class="item_title">LED Screen</h3>
-										<p> The use of latest technologies such as
-											LED, LCD or Projection format etc. to
-											display digital images, videos, live
-											streaming information in real
-											time 
-											</p>
-											<br>
-										<a class="text_btn" target="_blank" href="LED_Screens.html">
-											<span>Know More</span>
-											<i class="far fa-arrow-right"></i>
-										</a>
-									</div>
-								</div>
-								<a class="item_image" target="_blank" href="LED_Screens.html">
-									<img src="assets/images/categories/Category LED Screens.png"
-										alt="image_not_found">
-								</a>
-							</div>
-						</div>
-
-						<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 wow fadeIn" data-wow-delay=".5s">
-							<div class="service_split clearfix">
-								<div class="item_content">
-									<div class="service_boxed bg_default_orange text-center text-white"
-										style="height: 330px;">
-
-										<h3 class="item_title">Internal Branding </h3>
-									
-										<p>Indoor branding has a wide array of
-											creativity attached to it
-											such as Danglers, Sunboard Mount-ups,
-											Translites, Floor Vinyls etc.
-											</p>
-											<br>
-										<a class="text_btn" target="_blank" href="internal_branding.html">
-											<span>Know More</span>
-											<i class="far fa-arrow-right"></i>
-										</a>
-									</div>
-								</div>
-								<a class="item_image" target="_blank" href="internal_branding.html">
-									<img src="assets/images/categories/Category Internal.png"
-										alt="image_not_found">
-								</a>
-							</div>
-						</div>
-
-						<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 wow fadeIn" data-wow-delay=".6s">
-							<div class="service_split clearfix">
-								<div class="item_content">
-									<div class="service_boxed bg_default_past text-center text-white"
-										style="height: 330px;">
-
-										<h3 class="item_title">OOH</h3>
-									
-										<p>Out of Home advertising also known as OOH is
-											one of the most preferred choice to increase
-											the brand visibility 
-										</p>
-										<br>
-										<a class="text_btn" target="_blank" href="ooh.html">
-											<span>Know More</span>
-											<i class="far fa-arrow-right"></i>
-										</a>
-									</div>
-								</div>
-								<a class="item_image" target="_blank" href="ooh.html">
-									<img src="assets/images/categories/Category OOH.png" alt="image_not_found">
-								</a>
-							</div>
-						</div>
-
-						<div class="row no-gutters justify-content-lg-between">
-							<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 wow fadeIn" data-wow-delay=".3s">
-								<div class="service_split clearfix">
-									<div class="item_content">
-										<div class="service_boxed bg_default_yellow text-center" style="height: 330px;">
-	
-											<h3 class="item_title"><a name="btl">BTL/Promotions</a></h3>
-											<p> We at Blue Priint present & represent several aspects of business
-												 advertisement and promotions.</p>
-											<br>
-											<a class="text_btn" target="_blank" href="BTL.html">
-												<span>Know More</span>
-												<i class="far fa-arrow-right"></i>
-											</a>
-										</div>
-									</div>
-									<a class="item_image" target="_blank" href="BTL.html">
-										<img src="assets/images/categories/Category BTL.png"
-											alt="image_not_found">
-									</a>
-								</div>
-							</div>
-
-						<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 wow fadeIn" data-wow-delay=".6s">
-							<div class="service_split clearfix">
-								<div class="item_content">
-									<div class="service_boxed bg_default_blue text-center text-white"
-										style="height: 330px;">
-
-										<h3 class="item_title"><a name="construction">Interiors</a></h3>
-										<p>Interior is a combination of interior design and architecture. We assist our clients in reconstructing and
-											 reshaping the retail spaces.
-										</p>
-										<br>
-										<a class="text_btn" target="_blank" href="interiorConstruction.html">
-											<span>Know More</span>
-											<i class="far fa-arrow-right"></i>
-										</a>
-									</div>
-								</div>
-								<a class="item_image" target="_blank" href="interiorConstruction.html">
-									<img src="assets/images/categories/Interiors.jpg" alt="image_not_found">
-								</a>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 wow fadeIn" data-wow-delay=".5s">
-						<div class="service_split clearfix">
-							<div class="item_content">
-								<div class="service_boxed bg_default_orange text-center text-white"
-									style="height: 330px;">
-
-									<h3 class="item_title"><a name="signage">Signage Solutions</a> </h3>
-									<p>We create 3D-LED letter sign, Backlit / Nonlit
-										Signs, Flenges etc. that encourage buyers
-										to visit your store.
-										</p>
-										<br>
-									<a class="text_btn" target="_blank" href="Signage_Solutions.html">
-										<span>Know More</span>
-										<i class="far fa-arrow-right"></i>
-									</a>
-								</div>
-							</div>
-							<a class="item_image" target="_blank" href="Signage_Solutions.html">
-								<img src="assets/images/categories/Category Signage .png"
-									alt="image_not_found">
-							</a>
-						</div>
-					</div>
-
-					<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 wow fadeIn" data-wow-delay=".6s">
-						<div class="service_split clearfix">
-							<div class="item_content">
-								<div class="service_boxed bg_default_past text-center text-white"
-									style="height: 330px;">
-
-									<h3 class="item_title">Promotional Material</h3>
-									<p>Promotional Material is the basic element of marketing.
-										It can bring about a huge impact on the sale of the company product. 
-									
-									</p>
-									<br>
-									<a class="text_btn" target="_blank" href="promotionalmaterial.html">
-										<span>Know More</span>
-										<i class="far fa-arrow-right"></i>
-									</a>
-								</div>
-							</div>
-							<a class="item_image" target="_blank" href="promotionalmaterial.html">
-								<img src="assets/images/categories/promotional items.png" alt="image_not_found">
-							</a>
-						</div>
-					</div>
-			</section>
-			<!--What we do -start ================================================================================-->
-
-			<section class="whatwedo_section bg_gray clearfix">
-				<div class="container-fluid p-0">
-					<div
-						class="row no-gutters align-items-center justify-content-lg-between justify-content-md-center justify-content-sm-center">
-
-						<div class="col-lg-6 col-md-7 col-sm-9 col-xs-12">
-							<div class="whatwedo_image wow fadeIn" data-wow-delay=".1s">
-								<img src="assets/images/banner/home_02/not a banner.svg" alt="image_not_found">
-							</div>
-						</div>
-
-						<div class="col-lg-6 col-md-7 col-sm-9 col-xs-12">
-							<div class="whatwedo_content">
-								<div class="section_title mb_30 wow fadeInUp2" data-wow-delay=".2s">
-									<h4 class="small_title">What We Do</h4>
-									<h2 class="big_title mb-0">
-										Why People Choose Our Blue Priint
-									</h2>
-									<span class="biggest_title">We Do</span>
-								</div>
-
-								<p class="wow fadeInUp2">
-									<!-- <span class="big_text">M</span> -->
-									<span>
-										We assist our clients in reaching their strategic goals by creating a sense of
-										place,reinforcing their brand and identity and promoting their uniqueness
-										through our in-house expertise to design, develop and deliver.
-									</span>
-								</p>
-
-								<ul class="circle_check_info_list ul_li_block mb_50 wow fadeInUp2 clearfix"
-									data-wow-delay=".3s">
-									<li>Professional & Experienced</li>
-									<li>Low Cost & Digital Printing Agency</li>
-									<li>Pixel Perfect and Accurate Printing</li>
-									<li>Transport & Low Transportations Cost</li>
-									<li>Exclusive Team Members</li>
-								</ul>
-								<a class="custom_btn bg_default_yellow wow fadeInUp2" data-wow-delay=".4s"
-									target="_blank" href="about.html">
-									Learn more
-									<span><i class="fal fa-arrow-right"></i></span>
-								</a>
-							</div>
-						</div>
-
-					</div>
-				</div>
-			</section>
-
-			<!--What we do -end ================================================================================-->
-
-			<!--  feature_section - start -->
-			<section class="portfolio_section sec_ptb_130 clearfix">
-				<div class="container">
-
-					<div class="row justify-content-center">
-						<div class="col-lg-8 col-md-8 col-sm-10 col-xs-12">
-							<div class="section_title text-center mb_50 wow fadeInUp2" data-wow-delay=".1s">
-								<h4 class="small_title">Glimpes of our work</h4>
-								<h2 class="big_title mb-0">
-									Let’s See Our Latest Project That Recently Done
-								</h2>
-								
-							</div>
-						</div>
-					</div>
-
-					<div class="portfolio_carousel w_1545 owl-carousel owl-theme wow fadeInUp2" data-wow-delay=".3s">
-						<div class="item">
-							<div class="portfolio_fullimage">
-								<img src="assets/images/Bluepriint Images/Signage Solutions/ACPSignage.JPG"
-												alt="image_not_found" id="100" onclick="enlarge(this.id)">
-								
-							</div>
-						</div>
-						<div class="item">
-							<div class="portfolio_fullimage">
-								<img src="assets/images/Bluepriint Images/Signage Solutions/Facade Signage/3 night.jpg"
-												alt="image_not_found" id="100" onclick="enlarge(this.id)">
-								
-							</div>
-						</div>
-						<div class="item">
-							<div class="portfolio_fullimage">
-								<img src="assets/images/Bluepriint Images/Printing/one way vison/3.jpg"
-												alt="image_not_found" id="100" onclick="enlarge(this.id)">
-								
-							</div>
-						</div>
-						<div class="item">
-							<div class="portfolio_fullimage">
-								<img src="assets/images/Bluepriint Images/Printing/Backlit-Flex/3.jpg"
-												alt="image_not_found" id="100" onclick="enlarge(this.id)">
-								
-							</div>
-						</div>
-						<div class="item">
-							<div class="portfolio_fullimage">
-								<img src="assets/images/Bluepriint Images/Printing/canvas/3.jpg"
-												alt="image_not_found" id="100" onclick="enlarge(this.id)">
-								
-							</div>
-						</div>
-						<div class="item">
-							<div class="portfolio_fullimage">
-								<img src="assets/images/Bluepriint Images/Internal Branding/Clip on translites/Picture30.jpg"
-												alt="image_not_found" id="100" onclick="enlarge(this.id)">
-								
-							</div>
-						</div>
-						<div class="item">
-							<div class="portfolio_fullimage">
-								<img src="assets/images/Bluepriint Images/Printing/image11.jpg"
-												alt="image_not_found" id="100" onclick="enlarge(this.id)">
-								
-							</div>
-						</div>
-						<div class="item">
-							<div class="portfolio_fullimage">
-								<img src="assets/images/Bluepriint Images/Printing/Acrylic/3.jpg"
-												alt="image_not_found" id="100" onclick="enlarge(this.id)">
-								
-							</div>
-						</div>
-					
-						
-						
-
-						
-
-				</div>
-			</section>		
-			<section class="product_medium sec_ptb_130 clearfix">
-				<div class="container">
-
-					<div class="row justify-content-center">
-						<div class="col-lg-8 col-md-8 col-sm-10 col-xs-12">
-							<div class="section_title text-center mb_50 wow fadeInUp2" data-wow-delay=".1s">
-								<h4 class="small_title" style="font-size: 40px;">Our Clients</h4>
-								<!-- <h2 class="big_title mb-0">
-									We Provide Lot’s Of Printing & Branding Service
-								</h2>
-								<span class="biggest_title">Services</span> -->
-							</div>
-						</div>
-					</div>
-				</div>
-				<marquee behavior="scroll" width="100%" direction="left" scrollamount="13">
-					<div id="ger">
-
-
-						<img src="assets/images/brands/AECC (1).jpg" alt="">
-						<img src="assets/images/brands/AFFINITY EXPRESS.jpg" alt="">
-						<img src="assets/images/brands/Aiwa.jpg" alt="">
-						<img src="assets/images/brands/anchor.jpg" alt="">
-						<img src="assets/images/brands/Bajaj.jpg" alt="">
-						<img src="assets/images/brands/Bikaner.jpg" alt="">
-						<img src="assets/images/brands/Blackberry.jpg" alt="">
-						<img src="assets/images/brands/Crystal.jpg" alt="">
-						<img src="assets/images/brands/Cut _ style.jpg" alt="">
-						<img src="assets/images/brands/Hero.jpg" alt="">
-						<img src="assets/images/brands/WOK.jpg" alt="">
-						<img src="assets/images/brands/ICONIC 1.jpg" alt="">
-						<img src="assets/images/brands/ISBF.jpg" alt="">
-						<img src="assets/images/brands/Kastros.jpg" alt="">
-						<img src="assets/images/brands/kings 1.jpg" alt="">
-						<img src="assets/images/brands/Lal MAhal.jpg" alt="">
-						<img src="assets/images/brands/Mother dairy.jpg" alt="">
-						<img src="assets/images/brands/pepsi.png" alt="">
-						<img src="assets/images/brands/sebastian.jpg" alt="">
-						<img src="assets/images/brands/system.jpg" alt="">
-						<img src="assets/images/brands/valvolin.jpg" alt="">
-						<img src="assets/images/brands/Varun.jpg" alt="">
-						<img src="assets/images/brands/Wella 1.jpg" alt="">
-
-					</div>
-				</marquee>
-
-
-			</section>
-
-
-
-
-
-
-			<!-- cta_section - start
-			================================================== -->
-			<section class="cta_section sec_ptb_130 deco_wrap clearfix"
-				data-background="assets/images/backgrounds/bg_02.jpg">
-				<div class="container" id="fix1">
-					<div class="row align-items-center justify-content-lg-start">
-						<div class="col-lg-6 col-md-7 col-sm-9 col-xs-12">
-							<div class="cta_content ml__30 text-white">
-								<div class="section_title mb_30 wow fadeInUp2" data-wow-delay=".1s">
-									<h4 class="small_title">Need Any Help</h4>
-									<h2 class=" mb-0 text-black-50">
-										Find the solution that's right for you so you can boost sales, grow your business, and start selling in minutes
-									</h2>
-									<span class="biggest_title">Quote</span>
-								</div>
-								<p class="mb_30 border_left_yellow text-black-50 wow fadeInUp2" data-wow-delay=".2s">
-
-								</p>
-								<a class="custom_btn bg_default_yellow wow fadeInUp2" data-wow-delay=".3s"
-									target="_blank" href="contact.html">
-									meet us
-									<span><i class="fal fa-arrow-right"></i></span>
-								</a>
-							</div>
-						</div>
-
-					</div>
-				</div>
-
-				<div class="deco_image hand_image wow fadeInRight" data-wow-delay=".1s">
-					<img src="assets/images/banner/home_02/not a banner.png" alt="shape_not_found">
-				</div>
-
-			</section>
-			<!-- cta_section - end
-			================================================== -->
-
-
-
-
-
-	</main>
-	<!-- main body - end
-		================================================== -->
-
-
-
-
-
-
-
-
-	<!-- footer_section - start
-		================================================== -->
-	<footer class="footer_section bg_default_blue text-white clearfix">
-		<div class="container">
-
-
-
-			<div class="footer_widget_area clearfix">
-				<div class="row justify-content-lg-between justify-content-md-center justify-content-sm-center">
-					<div class="col-lg-2 col-md-4 col-sm-12 col-xs-12">
-						<div class="widget footer_useful_links">
-							<h3 class="footer_widget_title">Quick Links</h3>
-							<ul class="ul_li_block clearfix">
-								<li><a href="index.html">Home</a></li>
-								<li><a href="about.html">About </a></li>
-								<li><a href="Printing.html">Products</a></li>
-								<li><a href="infrastruture.html">Infrastructure</a></li>
-								<li><a href="contact.html">Contact Us</a></li>
-							</ul>
-						</div>
-					</div>
-
-					<div class="col-lg-2 col-md-4 col-sm-12 col-xs-12">
-						<div class="widget footer_useful_links">
-							<h3 class="footer_widget_title">Products</h3>
-							<ul class="ul_li_block clearfix">
-								<li><a href="#!">Printing & Branding</a></li>
-								<li><a href="#!">LED Screens & OOH</a></li>
-								
-								<li><a href="#!">Signage Solutions</a></li>
-							
-								<li><a href="#!">Interior Architecture</a></li>
-								<li><a href="#!">Promotions & BTL</a></li>
-								
-							</ul>
-						</div>
-					</div>
-
-					<div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-						<div class="widget footer_useful_links">
-							<h3 class="footer_widget_title">Contact Us</h3>
-							<p class="mb_30 ul_li_block clearfix" >
-								B-7, First Floor, Plot No 54,<br>
-								Rama Road Industrial Area,<br>
-								New Delhi - 110015.<br>
-								Kirti Nagar Metro Station - Blue line
-							</p>
-
-							<span class="footer_hotline"><i class="far fa-phone"></i>+91 9717027607</span>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="footer_bottom_boxed clearfix">
-				<div class="row align-items-center justify-content-lg-between justify-content-md-between">
-					<div class="col-lg-6 col-md-6">
-						<p class="copyright_text mb-0">© Copyright 2020 All Right Reserved Design By <a
-								class="author_links" href="#">Blue
-								Priint</a>
-						</p>
-					</div>
-					<!-- 
-					<div class="col-lg-6 col-md-6">
-						<ul class="circle_social_links ul_li_right clearfix">
-							<li>
-								<a class="bg_facebook" href="#!">
-									<i class="fab fa-facebook-f"></i>
-									<i class="fab fa-facebook-f"></i>
-								</a>
-							</li>
-							<li>
-								<a class="bg_twitter" href="#!">
-									<i class="fab fa-twitter"></i>
-									<i class="fab fa-twitter"></i>
-								</a>
-							</li>
-							<li>
-								<a class="bg_youtube" href="#!">
-									<i class="fab fa-youtube"></i>
-									<i class="fab fa-youtube"></i>
-								</a>
-							</li>
-							<li>
-								<a class="bg_linkedin" href="#!">
-									<i class="fab fa-linkedin"></i>
-									<i class="fab fa-linkedin"></i>
-								</a>
-							</li>
-						</ul>
-					</div> -->
-				</div>
-			</div>
-
-		</div>
-	</footer>
-	<!-- footer_section - end
-		================================================== -->
-
-
-	<!-- fraimwork - jquery include -->
-	<script src="assets/js/jquery-3.5.1.min.js"></script>
-	<script src="assets/js/popper.min.js"></script>
-	<script src="assets/js/bootstrap.min.js"></script>
-
-	<!-- carousel - jquery include -->
-	<script src="assets/js/owl.carousel.min.js"></script>
-
-	<!-- mobile menu - jquery include -->
-	<script src="assets/js/mCustomScrollbar.js"></script>
-
-	<!-- google map - jquery include -->
-	
-
-	<!-- nice select - jquery include -->
-	<script src="assets/js/nice-select.min.js"></script>
-
-	<!-- circle progress - jquery include -->
-	<script src="assets/js/circle-progress.min.js"></script>
-
-	<!-- magnific popup - jquery include -->
-	<script src="assets/js/magnific-popup.min.js"></script>
-
-	<!-- filter & masonry js -->
-	<script src="assets/js/isotope.pkgd.js"></script>
-	<script src="assets/js/imagesloaded.pkgd.min.js"></script>
-	<script src="assets/js/masonry.pkgd.min.js"></script>
-
-	<!-- counter - jquery include -->
-	<script src="assets/js/countto.js"></script>
-
-	<!-- pricing range - jquery include -->
-
-
-	<!-- animation - jquery include -->
-	<script src="assets/js/parallax.min.js"></script>
-	<script src="assets/js/wow.min.js"></script>
-
-	<!-- custom - jquery include -->
-	<script src="assets/js/custom.js"></script>
-
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-	<script src="custom.js"></script>
-
-
-	<script>
-		$('.client-carousel1').owlCarousel({
-			margin: 30,
-			autoplay: false,
-
-			responsive: {
-				0: {
-					items: 1
-				},
-				600: {
-					items: 3
-				},
-				1000: {
-					items: 5
-				}
-
-			}
-		})
-
-
-	</script>
+<!-- ── FLOATING BTNS ── -->
+<div class="float-btns">
+  <a href="tel:+919717027607" class="float-btn float-call">
+    <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+    Call Now
+  </a>
+  <a href="https://wa.me/919717027607?text=Hello%20BluePriint%2C%20I%20need%20a%20quote" target="_blank" class="float-btn float-wa">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.107.549 4.09 1.508 5.813L.057 23.75c-.072.266.168.49.428.402l5.74-1.497A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.916 0-3.716-.5-5.277-1.374l-.379-.214-3.93 1.025 1.057-3.826-.234-.38A9.97 9.97 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+    WhatsApp
+  </a>
+</div>
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <span>📍 B-7, First Floor, Rama Road Industrial Area, New Delhi – 110015 &nbsp;|&nbsp; Kirti Nagar Metro Station</span>
+  <div class="topbar-right">
+    <a href="mailto:print@bluepriint.in">✉ print@bluepriint.in</a>
+    <a href="tel:+919717027607">📞 +91 9717027607</a>
+    <span>🕐 Mon–Fri 10:30–19:30 &nbsp;|&nbsp; Sat till 15:30</span>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-logo">Blue<span>Priint</span></div>
+  <ul class="nav-links">
+    <li><a href="#">Home</a></li>
+    <li><a href="#">About Us</a></li>
+    <li><a href="#">Services</a></li>
+    <li><a href="#">Infrastructure</a></li>
+    <li><a href="#">Projects</a></li>
+    <li><a href="#">Contact</a></li>
+    <li><a href="tel:+919717027607" class="nav-cta">📞 Call Now</a></li>
+  </ul>
+</nav>
+
+<!-- ── HERO SLIDER ── -->
+<section class="hero" id="hero">
+  <div class="slide active">
+    <div class="slide-bg" style="background-image:url('https://blue-priint.github.io/assets/images/Bluepriint Images/Signage Solutions/ACPSignage.JPG')"></div>
+    <div class="slide-content">
+      <span class="slide-tag">Printing & Branding</span>
+      <h1 class="slide-h1">Your Brand Deserves<br>to <em>Stand Out</em></h1>
+      <p class="slide-p">From precision printing to monumental signage — we design, produce and install solutions that command attention across Delhi NCR.</p>
+      <div class="hero-btns">
+        <a href="tel:+919717027607" class="btn-hero-primary">📞 Call Now</a>
+        <a href="https://wa.me/919717027607" class="btn-hero-ghost" target="_blank">WhatsApp for Quote</a>
+      </div>
+    </div>
+  </div>
+  <div class="slide">
+    <div class="slide-bg" style="background-image:url('https://blue-priint.github.io/assets/images/Bluepriint Images/Signage Solutions/Facade Signage/3 night.jpg')"></div>
+    <div class="slide-content">
+      <span class="slide-tag">Signage Solutions</span>
+      <h1 class="slide-h1">Premium Signage<br>for Brands That <em>Matter</em></h1>
+      <p class="slide-p">3D-LED letters, backlit signs, facade signage and ACP boards — crafted with high-quality materials and flawless execution.</p>
+      <div class="hero-btns">
+        <a href="tel:+919717027607" class="btn-hero-primary">Get a Free Quote</a>
+        <a href="#services" class="btn-hero-ghost">Our Services</a>
+      </div>
+    </div>
+  </div>
+  <div class="slide">
+    <div class="slide-bg" style="background-image:url('https://blue-priint.github.io/assets/images/Bluepriint Images/Printing/Backlit-Flex/3.jpg')"></div>
+    <div class="slide-content">
+      <span class="slide-tag">BTL & Promotions</span>
+      <h1 class="slide-h1">From Concept<br>to <em>Installation</em></h1>
+      <p class="slide-p">One team. One seamless process. We handle your complete branding and printing needs — on time, every time.</p>
+      <div class="hero-btns">
+        <a href="tel:+919717027607" class="btn-hero-primary">📞 +91 9717027607</a>
+        <a href="#portfolio" class="btn-hero-ghost">View Our Work</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="slider-dots">
+    <div class="dot active" onclick="goSlide(0)"></div>
+    <div class="dot" onclick="goSlide(1)"></div>
+    <div class="dot" onclick="goSlide(2)"></div>
+  </div>
+  <div class="slider-arrows">
+    <div class="slider-arrow" onclick="prevSlide()">‹</div>
+    <div class="slider-arrow" onclick="nextSlide()">›</div>
+  </div>
+</section>
+
+<!-- ── TRUST BAR ── -->
+<div class="trust-bar">
+  <div class="trust-item"><span>🏅</span> 20+ Years in Business</div>
+  <div class="trust-item"><span>✅</span> 500+ Brand Clients</div>
+  <div class="trust-item"><span>⚡</span> Fast Turnaround</div>
+  <div class="trust-item"><span>🚚</span> Low Transport Cost</div>
+  <div class="trust-item"><span>🎯</span> Free Site Visit & Quotation</div>
+</div>
+
+<!-- ── ABOUT ── -->
+<div class="about-strip">
+  <div class="about-img">
+    <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Printing/image11.jpg" alt="BluePriint Workshop" loading="lazy"/>
+  </div>
+  <div class="about-text reveal">
+    <div class="eyebrow">About BluePriint</div>
+    <h2 class="section-h2">Delhi's Complete<br><em>Print & Brand Studio</em></h2>
+    <p class="body-text">BluePriint is a unique design and manufacturing company with a strong focus on Printing, Signage, Branding and Retail solutions that connect people to brands. We design, manufacture and install premium work across Delhi NCR — retail, corporate, hospitality and commercial.</p>
+    <ul class="check-list">
+      <li>Professional & highly experienced team</li>
+      <li>Low cost digital & large format printing</li>
+      <li>Pixel perfect, accurate output every time</li>
+      <li>In-house production — faster, cheaper delivery</li>
+      <li>End-to-end: design → produce → install</li>
+    </ul>
+    <a href="#" class="btn-blue">Contact Us</a>
+  </div>
+</div>
+
+<!-- ── STATS ── -->
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-num">20<sup>+</sup></div><div class="stat-label">Years Experience</div></div>
+  <div class="stat-item"><div class="stat-num">500<sup>+</sup></div><div class="stat-label">Brand Clients</div></div>
+  <div class="stat-item"><div class="stat-num">8</div><div class="stat-label">Service Lines</div></div>
+  <div class="stat-item"><div class="stat-num">48<sup>hr</sup></div><div class="stat-label">Fastest Turnaround</div></div>
+</div>
+
+<!-- ── SERVICES ── -->
+<section class="section" id="services">
+  <div class="section-header reveal">
+    <div class="eyebrow">What We Build</div>
+    <h2 class="section-h2">Complete Branding &<br><em>Print Services</em></h2>
+    <p style="font-size:15px;color:var(--grey);max-width:560px;margin:0 auto;line-height:1.75;">From concept to on-site execution — we design and manufacture solutions that strengthen your brand visibility.</p>
+  </div>
+
+  <div class="services-grid">
+    <a class="service-card reveal" href="#">
+      <div class="svc-num">01</div>
+      <div class="svc-icon">🖨️</div>
+      <div class="svc-title">Printing</div>
+      <div class="svc-desc">Latest machines and software for pixel-perfect output on a wide range of materials.</div>
+      <div class="svc-tags"><span class="svc-tag">Backlit Flex</span><span class="svc-tag">Canvas</span><span class="svc-tag">Vinyl</span><span class="svc-tag">Acrylic</span></div>
+      <div class="svc-link">Know More</div>
+    </a>
+    <a class="service-card reveal" href="#">
+      <div class="svc-num">02</div>
+      <div class="svc-icon">🪟</div>
+      <div class="svc-title">Signage Solutions</div>
+      <div class="svc-desc">3D-LED letters, backlit signs, ACP boards and flanges that draw customers in.</div>
+      <div class="svc-tags"><span class="svc-tag">3D LED</span><span class="svc-tag">ACP Board</span><span class="svc-tag">Backlit</span></div>
+      <div class="svc-link">Know More</div>
+    </a>
+    <a class="service-card reveal" href="#">
+      <div class="svc-num">03</div>
+      <div class="svc-icon">📺</div>
+      <div class="svc-title">LED Screens</div>
+      <div class="svc-desc">LED, LCD and projection displays for real-time digital imaging and live streaming.</div>
+      <div class="svc-tags"><span class="svc-tag">Indoor LED</span><span class="svc-tag">Outdoor LED</span><span class="svc-tag">Digital</span></div>
+      <div class="svc-link">Know More</div>
+    </a>
+    <a class="service-card reveal" href="#">
+      <div class="svc-num">04</div>
+      <div class="svc-icon">🏷️</div>
+      <div class="svc-title">Internal Branding</div>
+      <div class="svc-desc">Danglers, sunboard mount-ups, translites and floor vinyls for impactful indoor spaces.</div>
+      <div class="svc-tags"><span class="svc-tag">Danglers</span><span class="svc-tag">Floor Vinyl</span><span class="svc-tag">Translite</span></div>
+      <div class="svc-link">Know More</div>
+    </a>
+    <a class="service-card reveal" href="#">
+      <div class="svc-num">05</div>
+      <div class="svc-icon">🌆</div>
+      <div class="svc-title">OOH Advertising</div>
+      <div class="svc-desc">Out-of-home advertising to maximise brand visibility at scale across the city.</div>
+      <div class="svc-tags"><span class="svc-tag">Hoardings</span><span class="svc-tag">Kiosks</span><span class="svc-tag">Transit</span></div>
+      <div class="svc-link">Know More</div>
+    </a>
+    <a class="service-card reveal" href="#">
+      <div class="svc-num">06</div>
+      <div class="svc-icon">📣</div>
+      <div class="svc-title">BTL / Promotions</div>
+      <div class="svc-desc">Below-the-line promotions and business advertising with full dedication and creativity.</div>
+      <div class="svc-tags"><span class="svc-tag">Events</span><span class="svc-tag">Standees</span><span class="svc-tag">Banners</span></div>
+      <div class="svc-link">Know More</div>
+    </a>
+    <a class="service-card reveal" href="#">
+      <div class="svc-num">07</div>
+      <div class="svc-icon">🎁</div>
+      <div class="svc-title">Promotional Material</div>
+      <div class="svc-desc">Essential marketing materials that drive product sales and create brand impressions.</div>
+      <div class="svc-tags"><span class="svc-tag">Brochures</span><span class="svc-tag">Gifts</span><span class="svc-tag">Packaging</span></div>
+      <div class="svc-link">Know More</div>
+    </a>
+    <a class="service-card reveal" href="#">
+      <div class="svc-num">08</div>
+      <div class="svc-icon">🏗️</div>
+      <div class="svc-title">Interior Architecture</div>
+      <div class="svc-desc">Reconstruct and reshape retail spaces with new technologies and expert design.</div>
+      <div class="svc-tags"><span class="svc-tag">Retail Fit-out</span><span class="svc-tag">Fixtures</span><span class="svc-tag">Decor</span></div>
+      <div class="svc-link">Know More</div>
+    </a>
+  </div>
+</section>
+
+<!-- ── PROCESS ── -->
+<section class="process-section">
+  <div class="reveal">
+    <div class="eyebrow">How We Work</div>
+    <h2 class="section-h2">From Brief to <em>Installation</em></h2>
+  </div>
+  <div class="process-steps">
+    <div class="process-step reveal">
+      <div class="step-circle">💡<span class="step-num">1</span></div>
+      <div class="step-title">Define</div>
+      <div class="step-desc">We understand your brand, goals and site requirements in detail.</div>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-circle">✏️<span class="step-num">2</span></div>
+      <div class="step-title">Design & Estimate</div>
+      <div class="step-desc">Our designers create concepts with transparent cost estimates.</div>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-circle">🏭<span class="step-num">3</span></div>
+      <div class="step-title">Produce</div>
+      <div class="step-desc">In-house manufacturing with strict quality control at every stage.</div>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-circle">🔧<span class="step-num">4</span></div>
+      <div class="step-title">Install & Monitor</div>
+      <div class="step-desc">Professional on-site installation with post-install follow-up.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PORTFOLIO ── -->
+<section class="section" id="portfolio">
+  <div class="section-header reveal">
+    <div class="eyebrow">Our Work</div>
+    <h2 class="section-h2">Recent Projects <em>Done Right</em></h2>
+  </div>
+  <div class="portfolio-grid">
+    <div class="port-item reveal">
+      <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Signage Solutions/ACPSignage.JPG" alt="ACP Signage" loading="lazy"/>
+      <div class="port-overlay"><div class="port-cat">Signage Solutions</div><div class="port-name">ACP Fascia Signage</div></div>
+    </div>
+    <div class="port-item reveal">
+      <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Signage Solutions/Facade Signage/3 night.jpg" alt="Facade Night" loading="lazy"/>
+      <div class="port-overlay"><div class="port-cat">Signage Solutions</div><div class="port-name">Facade Night Signage</div></div>
+    </div>
+    <div class="port-item reveal">
+      <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Printing/one way vison/3.jpg" alt="One Way Vision" loading="lazy"/>
+      <div class="port-overlay"><div class="port-cat">Printing</div><div class="port-name">One Way Vision Print</div></div>
+    </div>
+    <div class="port-item reveal">
+      <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Printing/Backlit-Flex/3.jpg" alt="Backlit Flex" loading="lazy"/>
+      <div class="port-overlay"><div class="port-cat">Printing</div><div class="port-name">Backlit Flex</div></div>
+    </div>
+    <div class="port-item reveal">
+      <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Printing/canvas/3.jpg" alt="Canvas" loading="lazy"/>
+      <div class="port-overlay"><div class="port-cat">Printing</div><div class="port-name">Canvas Print</div></div>
+    </div>
+    <div class="port-item reveal">
+      <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Internal Branding/Clip on translites/Picture30.jpg" alt="Internal Branding" loading="lazy"/>
+      <div class="port-overlay"><div class="port-cat">Internal Branding</div><div class="port-name">Clip-on Translites</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<section class="testi-section">
+  <div class="section-header reveal">
+    <div class="eyebrow">Client Speak</div>
+    <h2 class="section-h2">Trusted by Teams Who Need <em>Flawless Results</em></h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="testi-badge">"</div>
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">BluePriint handled our complete store branding across three outlets without a single issue. Clean finish, sharp timelines.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">AK</div>
+        <div><div class="testi-name">Arjun Kumar</div><div class="testi-role">Retail Expansion Lead, Bajaj</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-badge">"</div>
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">The acrylic signage and internal branding they did for our salon was exceptional. Zero downtime during installation.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">RV</div>
+        <div><div class="testi-name">Rahul Verma</div><div class="testi-role">Operations Head, Cut & Style</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-badge">"</div>
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">Their facade signage work is premium quality. The LED lettering at our showroom entrance looks absolutely stunning.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">VS</div>
+        <div><div class="testi-name">Vikram Singh</div><div class="testi-role">Projects Manager, Hero</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CLIENTS ── -->
+<div class="clients-section">
+  <div class="clients-label">Trusted by leading brands across Delhi NCR</div>
+  <div class="clients-scroll">
+    <div class="clients-track">
+      <span class="client-pill">Bajaj</span><span class="client-pill">·</span>
+      <span class="client-pill">Hero</span><span class="client-pill">·</span>
+      <span class="client-pill">Pepsi</span><span class="client-pill">·</span>
+      <span class="client-pill">Mother Dairy</span><span class="client-pill">·</span>
+      <span class="client-pill">Blackberry</span><span class="client-pill">·</span>
+      <span class="client-pill">Wella</span><span class="client-pill">·</span>
+      <span class="client-pill">Anchor</span><span class="client-pill">·</span>
+      <span class="client-pill">Aiwa</span><span class="client-pill">·</span>
+      <span class="client-pill">Valvoline</span><span class="client-pill">·</span>
+      <span class="client-pill">ISBF</span><span class="client-pill">·</span>
+      <span class="client-pill">Crystal</span><span class="client-pill">·</span>
+      <span class="client-pill">Affinity Express</span><span class="client-pill">·</span>
+      <span class="client-pill">Bajaj</span><span class="client-pill">·</span>
+      <span class="client-pill">Hero</span><span class="client-pill">·</span>
+      <span class="client-pill">Pepsi</span><span class="client-pill">·</span>
+      <span class="client-pill">Mother Dairy</span><span class="client-pill">·</span>
+      <span class="client-pill">Blackberry</span><span class="client-pill">·</span>
+      <span class="client-pill">Wella</span><span class="client-pill">·</span>
+      <span class="client-pill">Anchor</span><span class="client-pill">·</span>
+      <span class="client-pill">Aiwa</span><span class="client-pill">·</span>
+      <span class="client-pill">Valvoline</span><span class="client-pill">·</span>
+      <span class="client-pill">ISBF</span><span class="client-pill">·</span>
+      <span class="client-pill">Crystal</span><span class="client-pill">·</span>
+      <span class="client-pill">Affinity Express</span><span class="client-pill">·</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── CTA BANNER ── -->
+<div class="cta-banner">
+  <div class="reveal">
+    <h2>Get a Quote in <em>24 Hours</em></h2>
+    <p>Share your site photo, size and location — we'll call you back with a detailed estimate.</p>
+  </div>
+  <div class="cta-btns reveal">
+    <a href="tel:+919717027607" class="btn-gold">📞 Call: +91 9717027607</a>
+    <a href="https://wa.me/919717027607?text=Hello%20BluePriint%2C%20I%20need%20a%20quote" target="_blank" class="btn-ghost-white">💬 WhatsApp for Quote</a>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">Blue<span>Priint</span></div>
+      <p class="footer-about">Delhi's trusted print and branding partner. We design, develop and deliver with in-house expertise — signage, printing, LED screens, interior architecture and more.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Infrastructure</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#">Printing & Branding</a></li>
+        <li><a href="#">LED Screens & OOH</a></li>
+        <li><a href="#">Signage Solutions</a></li>
+        <li><a href="#">Interior Architecture</a></li>
+        <li><a href="#">Promotions & BTL</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact Us</h4>
+      <div class="footer-contact-item">📍 B-7, First Floor, Rama Road Industrial Area, New Delhi – 110015</div>
+      <div class="footer-contact-item">📞 <a href="tel:+919717027607" style="color:rgba(255,255,255,0.6)">+91 9717027607</a></div>
+      <div class="footer-contact-item">✉ <a href="mailto:print@bluepriint.in" style="color:rgba(255,255,255,0.6)">print@bluepriint.in</a></div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 BluePriint. All rights reserved.</span>
+    <span>Made with ♥ in New Delhi</span>
+  </div>
+</footer>
+
+<script>
+  // ── Slider ──
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const dots   = document.querySelectorAll('.dot');
+
+  function goSlide(n) {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+  }
+  function nextSlide() { goSlide(current + 1); }
+  function prevSlide() { goSlide(current - 1); }
+  setInterval(nextSlide, 5500);
+
+  // ── Scroll Reveal ──
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('up'), i * 80);
+        revealObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  revealEls.forEach(el => revealObs.observe(el));
+
+  // ── Nav shadow ──
+  window.addEventListener('scroll', () => {
+    document.querySelector('nav').style.boxShadow =
+      window.scrollY > 30 ? '0 4px 24px rgba(13,59,110,0.1)' : '0 2px 16px rgba(13,59,110,0.06)';
+  });
+</script>
 </body>
-
 </html>
