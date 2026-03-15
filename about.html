@@ -1,723 +1,987 @@
 <!DOCTYPE html>
 <html lang="en">
-
-
 <head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us — BluePriint | Print. Brand. Build. | Delhi NCR</title>
+  <meta name="description" content="BluePriint is Delhi's trusted print and branding partner — 25+ years of expertise in signage, printing, LED screens, interior architecture and more."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
 
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<meta http-equiv="x-ua-compatible" content="ie=edge">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-	<meta content="We Provide Lot’s Of Printing & Branding Service & Always Ready To Print Your Dream Works"
-		name="description">
+    :root {
+      --blue:       #0d3b6e;
+      --blue-mid:   #1a5fa8;
+      --blue-light: #2980d9;
+      --blue-pale:  #e8f1fb;
+      --white:      #ffffff;
+      --off:        #f4f7fc;
+      --ink:        #0d1a2b;
+      --grey:       #6b7c93;
+      --gold:       #f0a500;
+      --sans:       'Outfit', sans-serif;
+      --serif:      'Playfair Display', Georgia, serif;
+    }
 
-	<meta
-		content="Digital printing , signage solutions , laser cuttings , 3-D letters , router Cuttings, nameplates , events and exibibitions , LED Slim Display Frames , external signage , internal signage , 3D LED signage , digital signage , ATM Kisoks , Frosted Films , retail display , shop in shops , POS , Large format digital printing , meet us , conatct , sigange agency , printing agency , digital printing agency "
-		name="keywords">
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); color: var(--ink); background: var(--white); overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
 
-	<title>About Us | Bluepriint</title>
-	<link rel="shortcut icon" href="assets/images/logo/only-logo.svg">
+    /* ── FLOATING BUTTONS ── */
+    .float-btns {
+      position: fixed; bottom: 28px; right: 24px;
+      z-index: 999; display: flex; flex-direction: column; gap: 12px;
+    }
+    .float-btn {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 20px; border-radius: 50px;
+      font-size: 14px; font-weight: 600; color: #fff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .float-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.25); }
+    .float-call { background: var(--blue); }
+    .float-wa   { background: #25d366; }
+    .float-btn svg { width: 20px; height: 20px; fill: #fff; flex-shrink: 0; }
 
-	<!-- fraimwork - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+    /* ── TOPBAR ── */
+    .topbar {
+      background: var(--blue); color: rgba(255,255,255,0.75);
+      font-size: 12.5px; padding: 8px 60px;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; flex-wrap: wrap;
+    }
+    .topbar a { color: inherit; }
+    .topbar-right { display: flex; gap: 24px; align-items: center; }
+    .topbar-right a:hover { color: #fff; }
 
-	<!-- icon - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/flaticon.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/fontawesome.css">
+    /* ── NAV ── */
+    nav {
+      background: #fff;
+      border-bottom: 1px solid rgba(13,59,110,0.1);
+      position: sticky; top: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 60px; height: 74px;
+      box-shadow: 0 2px 16px rgba(13,59,110,0.06);
+      transition: box-shadow 0.3s;
+    }
+    nav.scrolled { box-shadow: 0 4px 28px rgba(13,59,110,0.13); }
+    .nav-logo { font-family: var(--sans); font-size: 24px; font-weight: 800; color: var(--blue); letter-spacing: -0.5px; }
+    .nav-logo span { color: var(--blue-light); }
+    .nav-links { display: flex; gap: 32px; list-style: none; align-items: center; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--ink); opacity: 0.75; transition: opacity 0.2s, color 0.2s; letter-spacing: 0.01em; }
+    .nav-links a:hover, .nav-links a.active { opacity: 1; color: var(--blue-light); }
+    .nav-shop { background: var(--blue-pale); color: var(--blue) !important; opacity: 1 !important; padding: 8px 18px; border-radius: 6px; font-weight: 600 !important; border: 1.5px solid rgba(26,95,168,0.25); transition: background 0.2s, border-color 0.2s !important; }
+    .nav-shop:hover { background: #d3e4f7 !important; border-color: var(--blue-light) !important; }
+    .nav-cta { background: var(--blue-light); color: #fff !important; opacity: 1 !important; padding: 10px 24px; border-radius: 6px; font-weight: 600 !important; transition: background 0.2s !important; }
+    .nav-cta:hover { background: var(--blue) !important; }
 
-	<!-- animation - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/animate.css">
+    /* ── PAGE HERO BANNER ── */
+    .page-hero {
+      position: relative;
+      height: 420px;
+      overflow: hidden;
+      background: var(--blue);
+      display: flex;
+      align-items: center;
+    }
+    .page-hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('https://blue-priint.github.io/assets/images/Bluepriint%20Images/Printing/image11.jpg');
+      background-size: cover; background-position: center;
+      filter: brightness(0.28);
+    }
+    .page-hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(13,59,110,0.9) 30%, transparent 100%);
+    }
+    .page-hero-content {
+      position: relative; z-index: 2;
+      padding: 0 80px;
+    }
+    .page-hero-tag {
+      display: inline-block;
+      background: var(--gold); color: var(--blue);
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      padding: 6px 16px; border-radius: 4px; margin-bottom: 20px;
+    }
+    .page-hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(38px, 5vw, 64px);
+      font-weight: 700; color: #fff; line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .page-hero h1 em { font-style: italic; color: var(--gold); }
+    .page-hero p { font-size: 17px; color: rgba(255,255,255,0.7); max-width: 520px; line-height: 1.7; }
+    .breadcrumb-nav {
+      display: flex; gap: 8px; align-items: center;
+      font-size: 13px; color: rgba(255,255,255,0.5);
+      margin-top: 24px;
+    }
+    .breadcrumb-nav a { color: rgba(255,255,255,0.6); transition: color 0.2s; }
+    .breadcrumb-nav a:hover { color: #fff; }
+    .breadcrumb-nav .sep { color: rgba(255,255,255,0.3); }
+    .breadcrumb-nav .current { color: var(--gold); font-weight: 600; }
 
-	<!-- carousel - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/owl.carousel.min.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/owl.theme.default.min.css">
+    /* Decorative bottom wave */
+    .page-hero-wave {
+      position: absolute; bottom: -1px; left: 0; right: 0;
+    }
 
-	<!-- nice select - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/nice-select.css">
+    /* ── SHARED SECTION STYLES ── */
+    .section { padding: 88px 60px; }
+    .section-bg { padding: 88px 60px; background: var(--off); }
+    .section-blue { padding: 88px 60px; background: var(--blue); }
 
-	<!-- magnific popup - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/magnific-popup.css">
+    .section-header { text-align: center; margin-bottom: 56px; }
+    .eyebrow {
+      font-size: 11.5px; font-weight: 600; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--blue-light); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .eyebrow::before { content: ''; width: 28px; height: 2px; background: var(--blue-light); }
+    .section-header .eyebrow { justify-content: center; }
+    .section-header .eyebrow::before { display: none; }
+    .section-h2 {
+      font-family: var(--serif);
+      font-size: clamp(28px, 3.5vw, 44px); font-weight: 700;
+      line-height: 1.15; color: var(--blue); margin-bottom: 20px;
+    }
+    .section-h2 em { font-style: italic; color: var(--blue-light); }
+    .body-text { font-size: 15px; color: var(--grey); line-height: 1.8; margin-bottom: 28px; }
 
-	<!-- custom - css include -->
-	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
-	<style>
-		@media screen and (min-width: 600px) {
-			#hey {
-				margin: 6px;
-			}
-		}
-	</style>
+    /* ── ABOUT INTRO (2-COL) ── */
+    .about-intro {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .about-intro-img {
+      position: relative;
+    }
+    .about-intro-img .main-img {
+      width: 100%; height: 500px;
+      object-fit: cover;
+      border-radius: 16px;
+      box-shadow: 0 24px 64px rgba(13,59,110,0.18);
+    }
+    .about-intro-img .accent-img {
+      position: absolute;
+      bottom: -32px; right: -32px;
+      width: 220px; height: 160px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 5px solid #fff;
+      box-shadow: 0 12px 36px rgba(13,59,110,0.2);
+    }
+    .about-intro-img .exp-badge {
+      position: absolute;
+      top: 28px; left: -24px;
+      background: var(--blue);
+      color: #fff;
+      padding: 20px 24px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 8px 28px rgba(13,59,110,0.3);
+    }
+    .exp-badge .num {
+      font-family: var(--serif);
+      font-size: 44px; font-weight: 700; line-height: 1;
+      color: var(--gold);
+    }
+    .exp-badge .label { font-size: 12px; font-weight: 600; opacity: 0.75; margin-top: 4px; }
+
+    .check-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 36px; }
+    .check-list li {
+      font-size: 14.5px; font-weight: 500; color: var(--ink);
+      display: flex; align-items: flex-start; gap: 10px; line-height: 1.5;
+    }
+    .check-list li::before {
+      content: '✓'; width: 22px; height: 22px;
+      background: var(--blue-light); color: #fff;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; flex-shrink: 0; margin-top: 1px;
+    }
+    .btn-blue {
+      display: inline-block; background: var(--blue); color: #fff;
+      padding: 14px 32px; border-radius: 6px; font-size: 14px; font-weight: 600;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .btn-blue:hover { background: var(--blue-light); transform: translateY(-2px); }
+    .btn-outline-blue {
+      display: inline-block; border: 2px solid var(--blue); color: var(--blue);
+      padding: 12px 28px; border-radius: 6px; font-size: 14px; font-weight: 600;
+      margin-left: 14px;
+      transition: all 0.2s;
+    }
+    .btn-outline-blue:hover { background: var(--blue); color: #fff; }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--blue); padding: 56px 60px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    }
+    .stat-item { text-align: center; padding: 16px 0; border-right: 1px solid rgba(255,255,255,0.12); }
+    .stat-item:last-child { border-right: none; }
+    .stat-num { font-family: var(--serif); font-size: 52px; font-weight: 700; color: #fff; line-height: 1; }
+    .stat-num sup { font-size: 28px; vertical-align: super; }
+    .stat-label { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.5); margin-top: 8px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+    /* ── MISSION / VISION CARDS ── */
+    .mv-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 56px;
+    }
+    .mv-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 40px 32px;
+      border: 1px solid rgba(13,59,110,0.09);
+      box-shadow: 0 2px 16px rgba(13,59,110,0.05);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.35s;
+    }
+    .mv-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, var(--blue-light), var(--gold));
+      transform: scaleX(0); transition: transform 0.35s; transform-origin: left;
+    }
+    .mv-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px rgba(13,59,110,0.13); }
+    .mv-card:hover::before { transform: scaleX(1); }
+    .mv-icon {
+      width: 60px; height: 60px;
+      border-radius: 14px;
+      background: var(--blue-pale);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      margin-bottom: 24px;
+      transition: background 0.3s;
+    }
+    .mv-card:hover .mv-icon { background: var(--blue); }
+    .mv-title { font-size: 20px; font-weight: 700; color: var(--blue); margin-bottom: 12px; }
+    .mv-desc { font-size: 14px; color: var(--grey); line-height: 1.75; }
+
+    /* ── WHY CHOOSE US ── */
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 56px;
+    }
+    .why-card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 36px 28px;
+      transition: all 0.3s;
+    }
+    .why-card:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.22);
+    }
+    .why-num {
+      font-family: var(--serif);
+      font-size: 44px; font-weight: 700;
+      color: var(--gold); opacity: 0.35;
+      line-height: 1; margin-bottom: 20px;
+    }
+    .why-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .why-desc { font-size: 13.5px; color: rgba(255,255,255,0.6); line-height: 1.75; }
+
+    /* ── TEAM SECTION ── */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-top: 56px;
+    }
+    .team-card {
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(13,59,110,0.09);
+      box-shadow: 0 2px 16px rgba(13,59,110,0.06);
+      transition: all 0.35s;
+    }
+    .team-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(13,59,110,0.14); }
+    .team-img {
+      width: 100%; height: 240px;
+      background: linear-gradient(135deg, var(--blue-pale) 0%, #c8dff5 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 72px;
+      position: relative; overflow: hidden;
+    }
+    .team-img img { width: 100%; height: 100%; object-fit: cover; }
+    .team-dept {
+      position: absolute; top: 14px; left: 14px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: #fff;
+      background: var(--blue-light);
+      padding: 4px 10px; border-radius: 4px;
+    }
+    .team-body { padding: 22px 22px 24px; }
+    .team-name { font-size: 17px; font-weight: 700; color: var(--blue); margin-bottom: 4px; }
+    .team-role { font-size: 12.5px; color: var(--blue-light); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    .team-bio { font-size: 13px; color: var(--grey); line-height: 1.7; }
+
+    /* ── CAPABILITIES (horizontal timeline) ── */
+    .cap-list {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      margin-top: 56px;
+      position: relative;
+    }
+    .cap-list::before {
+      content: '';
+      position: absolute;
+      top: 36px; left: 12.5%; right: 12.5%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--blue-light), var(--gold), var(--blue-light));
+      opacity: 0.4;
+    }
+    .cap-item { text-align: center; padding: 0 20px; }
+    .cap-circle {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--blue-pale);
+      border: 2px solid rgba(13,59,110,0.15);
+      margin: 0 auto 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; position: relative; z-index: 2;
+      transition: all 0.3s;
+    }
+    .cap-item:hover .cap-circle {
+      background: var(--blue); border-color: var(--blue);
+      box-shadow: 0 8px 28px rgba(13,59,110,0.25);
+    }
+    .cap-title { font-size: 16px; font-weight: 700; color: var(--blue); margin-bottom: 8px; }
+    .cap-desc { font-size: 13px; color: var(--grey); line-height: 1.65; }
+
+    /* ── PROCESS ── */
+    .process-section { background: var(--blue); padding: 88px 60px; }
+    .process-section .eyebrow { color: var(--gold); }
+    .process-section .eyebrow::before { background: var(--gold); }
+    .process-section .section-h2 { color: #fff; }
+    .process-section .section-h2 em { color: var(--gold); }
+    .process-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 56px; position: relative; }
+    .process-steps::before { content: ''; position: absolute; top: 40px; left: 12.5%; right: 12.5%; height: 2px; background: rgba(255,255,255,0.15); }
+    .process-step { text-align: center; padding: 0 20px; }
+    .step-circle { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2); margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; font-size: 28px; position: relative; z-index: 2; transition: all 0.3s; }
+    .process-step:hover .step-circle { background: var(--blue-light); border-color: var(--blue-light); }
+    .step-num { position: absolute; top: -6px; right: -6px; width: 26px; height: 26px; background: var(--gold); color: var(--blue); border-radius: 50%; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .step-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .step-desc { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.7; }
+
+    /* ── CLIENTS MARQUEE ── */
+    .clients-section { padding: 64px 60px; border-top: 1px solid rgba(13,59,110,0.08); }
+    .clients-label { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey); margin-bottom: 40px; }
+    .clients-scroll { overflow: hidden; }
+    .clients-track { display: flex; gap: 56px; animation: marquee 20s linear infinite; width: max-content; }
+    .clients-track:hover { animation-play-state: paused; }
+    .client-pill { font-family: var(--serif); font-size: 19px; font-weight: 600; color: rgba(13,59,110,0.25); white-space: nowrap; transition: color 0.3s; cursor: default; }
+    .client-pill:hover { color: var(--blue); }
+    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    /* ── CTA BANNER ── */
+    .cta-banner {
+      background: var(--blue); padding: 80px 60px;
+      display: grid; grid-template-columns: 1fr auto;
+      align-items: center; gap: 40px;
+    }
+    .cta-banner h2 { font-family: var(--serif); font-size: clamp(28px, 3.5vw, 48px); font-weight: 700; color: #fff; line-height: 1.2; }
+    .cta-banner h2 em { font-style: italic; color: var(--gold); }
+    .cta-banner p { font-size: 16px; color: rgba(255,255,255,0.6); margin-top: 12px; }
+    .cta-btns { display: flex; flex-direction: column; gap: 12px; min-width: 220px; }
+    .btn-gold { background: var(--gold); color: var(--blue); padding: 15px 32px; border-radius: 6px; font-size: 14px; font-weight: 700; text-align: center; transition: filter 0.2s, transform 0.2s; }
+    .btn-gold:hover { filter: brightness(1.1); transform: translateY(-2px); }
+    .btn-ghost-white { border: 2px solid rgba(255,255,255,0.35); color: #fff; padding: 13px 32px; border-radius: 6px; font-size: 14px; font-weight: 600; text-align: center; transition: all 0.2s; }
+    .btn-ghost-white:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
+
+    /* ── FOOTER ── */
+    footer { background: #081422; color: rgba(255,255,255,0.5); padding: 72px 60px 32px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.2fr; gap: 48px; padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .footer-logo { font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 14px; }
+    .footer-logo span { color: var(--blue-light); }
+    .footer-about { font-size: 13.5px; line-height: 1.75; max-width: 280px; }
+    .footer-col h4 { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.28); margin-bottom: 20px; font-weight: 600; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a { font-size: 13.5px; color: rgba(255,255,255,0.5); transition: color 0.2s; }
+    .footer-col ul a:hover { color: #fff; }
+    .footer-contact-item { display: flex; gap: 10px; margin-bottom: 12px; font-size: 13.5px; align-items: flex-start; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; font-size: 12.5px; flex-wrap: wrap; gap: 12px; }
+    .footer-bottom a { color: var(--blue-light); }
+
+    /* ── TRUST BAR ── */
+    .trust-bar { background: var(--blue-pale); border-bottom: 1px solid rgba(13,59,110,0.1); padding: 18px 60px; display: flex; align-items: center; justify-content: center; gap: 48px; flex-wrap: wrap; }
+    .trust-item { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; color: var(--blue); }
+    .trust-item span { font-size: 20px; }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.65s ease, transform 0.65s ease; }
+    .reveal.up { opacity: 1; transform: translateY(0); }
+
+    /* ── TIMELINE (Our Story) ── */
+    .timeline { position: relative; margin-top: 56px; }
+    .timeline::before { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--blue-light), var(--gold), var(--blue-light)); transform: translateX(-50%); opacity: 0.3; }
+    .timeline-item { display: grid; grid-template-columns: 1fr 60px 1fr; gap: 0; align-items: start; margin-bottom: 64px; }
+    .timeline-item:last-child { margin-bottom: 0; }
+    .timeline-left { text-align: right; padding-right: 40px; }
+    .timeline-right { padding-left: 40px; }
+    .timeline-center { display: flex; align-items: flex-start; justify-content: center; padding-top: 4px; }
+    .timeline-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--blue-light); border: 3px solid #fff; box-shadow: 0 0 0 3px var(--blue-light); flex-shrink: 0; }
+    .timeline-year { font-family: var(--serif); font-size: 28px; font-weight: 700; color: var(--gold); margin-bottom: 8px; }
+    .timeline-title { font-size: 18px; font-weight: 700; color: var(--blue); margin-bottom: 8px; }
+    .timeline-desc { font-size: 14px; color: var(--grey); line-height: 1.75; }
+    .timeline-item.right .timeline-left { order: 1; text-align: left; padding-right: 0; padding-left: 40px; }
+    .timeline-item.right .timeline-center { order: 0; }
+    .timeline-item.right .timeline-right { order: -1; text-align: right; padding-left: 0; padding-right: 40px; }
+
+    /* ── TESTIMONIALS ── */
+    .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    .testi-card { background: #fff; border-radius: 10px; padding: 32px 28px; box-shadow: 0 4px 20px rgba(13,59,110,0.07); position: relative; }
+    .testi-stars { color: var(--gold); font-size: 16px; margin-bottom: 16px; }
+    .testi-quote { font-size: 15px; color: var(--ink); line-height: 1.75; margin-bottom: 24px; font-style: italic; }
+    .testi-author { display: flex; align-items: center; gap: 12px; }
+    .testi-avatar { width: 44px; height: 44px; background: var(--blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 16px; }
+    .testi-name { font-weight: 700; font-size: 14px; color: var(--blue); }
+    .testi-role { font-size: 12px; color: var(--grey); margin-top: 2px; }
+    .testi-badge { position: absolute; top: 24px; right: 24px; font-size: 36px; opacity: 0.08; color: var(--blue); font-family: Georgia, serif; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+      .about-intro { gap: 48px; }
+      .about-intro-img .accent-img { width: 160px; height: 120px; right: -16px; }
+    }
+    @media (max-width: 960px) {
+      nav, .topbar, .section, .section-bg, .section-blue, .process-section, .clients-section { padding-left: 24px; padding-right: 24px; }
+      .nav-links { display: none; }
+      .page-hero-content { padding: 0 32px; }
+      .about-intro { grid-template-columns: 1fr; gap: 48px; }
+      .about-intro-img .main-img { height: 340px; }
+      .about-intro-img .accent-img { display: none; }
+      .about-intro-img .exp-badge { left: 16px; }
+      .stats-bar { grid-template-columns: repeat(2,1fr); padding: 40px 24px; }
+      .mv-grid { grid-template-columns: 1fr 1fr; }
+      .why-grid { grid-template-columns: 1fr 1fr; }
+      .team-grid { grid-template-columns: repeat(2,1fr); }
+      .cap-list { grid-template-columns: repeat(2,1fr); gap: 28px; }
+      .cap-list::before { display: none; }
+      .process-steps { grid-template-columns: repeat(2,1fr); gap: 32px; }
+      .process-steps::before { display: none; }
+      .timeline::before { left: 28px; }
+      .timeline-item { grid-template-columns: 56px 1fr; }
+      .timeline-left { display: none; }
+      .timeline-center { justify-content: flex-start; }
+      .timeline-right { padding-left: 24px; }
+      .timeline-item.right { grid-template-columns: 56px 1fr; }
+      .timeline-item.right .timeline-left { display: none; }
+      .timeline-item.right .timeline-center { order: 0; }
+      .timeline-item.right .timeline-right { order: 1; text-align: left; padding-right: 0; padding-left: 24px; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .cta-banner { grid-template-columns: 1fr; padding: 56px 24px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .trust-bar { padding: 16px 24px; gap: 24px; }
+    }
+    @media (max-width: 600px) {
+      .mv-grid, .why-grid, .team-grid { grid-template-columns: 1fr; }
+      .stats-bar { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
 </head>
-
 
 <body>
 
+<!-- ── FLOATING BUTTONS ── -->
+<div class="float-btns">
+  <a href="tel:+919717027607" class="float-btn float-call">
+    <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+    Call Now
+  </a>
+  <a href="https://wa.me/919717027607?text=Hello%20BluePriint%2C%20I%20need%20a%20quote" target="_blank" class="float-btn float-wa">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.107.549 4.09 1.508 5.813L.057 23.75c-.072.266.168.49.428.402l5.74-1.497A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.916 0-3.716-.5-5.277-1.374l-.379-.214-3.93 1.025 1.057-3.826-.234-.38A9.97 9.97 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+    WhatsApp
+  </a>
+</div>
 
-	<!-- backtotop - start -->
-	<div id="thetop"></div>
-	<div id="backtotop">
-		<a href="#" id="scroll">
-			<i class="far fa-arrow-up"></i>
-		</a>
-	</div>
-	<!-- backtotop - end -->
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <span>📍 1, Lakshmi Garden, Opp. Metro Pillar No. 339, Moti Nagar, New Delhi – 110015 &nbsp;|&nbsp; Ramesh Nagar Metro Station</span>
+  <div class="topbar-right">
+    <a href="mailto:print@bluepriint.in">Send Email</a>
+    <a href="tel:+919717027607">📞 +91 9717027607</a>
+    <span>🕐 Mon–Fri 10:30–20:30 &nbsp;|&nbsp; Sat till 17:30</span>
+  </div>
+</div>
 
-	<!-- preloader - start -->
-	
-	<!-- preloader - end -->
+<!-- ── NAV ── -->
+<nav id="mainNav">
+  <a href="index.html" class="nav-logo">Blue<span>Priint</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html" class="active">About Us</a></li>
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#catalogue">Catalogue</a></li>
+    <li><a href="#">Infrastructure</a></li>
+    <li><a href="#">Projects</a></li>
+    <li><a href="shop.html" class="nav-shop">🛒 Shop</a></li>
+    <li><a href="contact.html">Contact Us</a></li>
+    <li><a href="tel:+919717027607" class="nav-cta">📞 Call Now</a></li>
+  </ul>
+</nav>
 
+<!-- ── PAGE HERO ── -->
+<section class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-hero-content">
+    <span class="page-hero-tag">Our Story</span>
+    <h1>Delhi's Complete<br><em>Print & Brand Studio</em></h1>
+    <p>25+ years of building brands that command attention — from precision printing to monumental signage.</p>
+    <nav class="breadcrumb-nav" aria-label="breadcrumb">
+      <a href="index.html">Home</a>
+      <span class="sep">/</span>
+      <span class="current">About Us</span>
+    </nav>
+  </div>
+  <svg class="page-hero-wave" viewBox="0 0 1440 56" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <path d="M0 56L1440 56L1440 28C1440 28 1080 0 720 0C360 0 0 28 0 28L0 56Z" fill="white"/>
+  </svg>
+</section>
 
-	<!-- header_section - start
-		================================================== -->
-		<header class="header_section sticky_header secondary_header clearfix">
-			<div class="header_top bg_light clearfix">
-				<div class="maxw_1420 container">
-					<div class="row align-items-center">
-						<div class="col-lg-12">
-							<ul class="header_contact_info ul_li clearfix">
-								<li><i class="far fa-map-marker-alt"></i> <a target="_blank" href="https://www.google.com/maps/place/DEZYNE+HUB/@28.6611169,77.1531076,757m/data=!3m2!1e3!4b1!4m5!3m4!1s0x390d02ff0040059b:0xbb4cd3863f73e6c7!8m2!3d28.661112!4d77.1552959?hl=en" style="color:rgb(27, 26, 26)">B-7, First Floor, Plot No 54,
-									Rama Road Industrial Area,
-									New Delhi - 110015.</a>
-								</li>
-								<li><i class="far fa-envelope-open"></i> <a href="mailto:print@bluepriint.in" style="color:rgb(27, 26, 26)">print@bluepriint.in</a></li>
-								<li style="color: rgb(27, 26, 26);"><i class="far fa-clock"></i> Mon- Friday, 10:30 am-7:30 pm  &  Sat, 10:30 am-3:30 pm</li>
-								<li style="color: rgb(27, 26, 26);"><i class="far fa-phone"></i>+91 9717027607</li>
-								<!-- <li><i class="far fa-clock"></i> Sat,10:30-3:30</li> -->
-							</ul>
-						</div>
-						<!-- Social links -->
-						<!-- <div class="col-lg-3">
-							<ul class="header_items_list ul_li_right clearfix">
-								<li>
-	
-	
-	
-									<ul class="circle_social_links ul_li_right clearfix">
-										<li>
-											<a class="bg_facebook" href="#!">
-												<i class="fab fa-facebook-f"></i>
-												<i class="fab fa-facebook-f"></i>
-											</a>
-										</li>
-										<li>
-											<a class="bg_twitter" href="#!">
-												<i class="fab fa-twitter"></i>
-												<i class="fab fa-twitter"></i>
-											</a>
-										</li>
-										<li>
-											<a class="bg_youtube" href="#!">
-												<i class="fab fa-youtube"></i>
-												<i class="fab fa-youtube"></i>
-											</a>
-										</li>
-										<li>
-											<a class="bg_linkedin" href="#!">
-												<i class="fab fa-linkedin"></i>
-												<i class="fab fa-linkedin"></i>
-											</a>
-										</li>
-									</ul>
-	
-	
-								</li>
-								<li>
-							
-								</li>
-							</ul>
-						</div> -->
-					</div>
-				</div>
-			</div>
-	
-			<div class="header_bottom">
-				<div class="maxw_1420 container">
-					<div class="row align-items-center">
-	
-						<div class="col-lg-3">
-							<div class="brand_logo" id="hey">
-								<a href="index.html">
-									<img src="assets/images/logo/logo-with-name.svg"
-										srcset="assets/images/logo/logo-with-name.svg 2x" alt="logo_not_found"
-										style="height: 83px; width: 1593px;">
-								</a>
-	
-								<ul class="mobilemenu_btns_group ul_li_right clearfix">
-	
-									<li>
-										<button type="button" class="mobile_menu_btn"><i class="fal fa-bars"></i></button>
-									</li>
-								</ul>
-							</div>
-						</div>
-	
-						<div class="col-lg-6">
-							<nav class="main_menu clearfix">
-								<ul class="ul_li_center clearfix" >
-									<li >
-										<a href="index.html" style="color: rgb(53, 51, 51)">Home</a>
-	
-									</li>
-									<li><a href="about.html"  style="color:  rgb(53, 51, 51)">About</a></li>
-									<li class="has_child">
-										<a href="#" style="color:  rgb(53, 51, 51)">Products</a>
-										<ul class="submenu" style="color: rgb(53, 51, 51)">
-									<li><a href="Printing.html" style="color: rgb(53, 51, 51)">Printing</a></li>
-									<li><a href="LED_Screens.html"  style="color: rgb(53, 51, 51);">LED Screens</a></li>
-									<li><a href="internal_branding.html" style="color: rgb(53, 51, 51);">Internal Branding</a></li>
-									<li><a href="ooh.html" style="color: rgb(53, 51, 51);">OOH</a></li>
-									<li><a href="Signage_Solutions.html" style="color: rgb(53, 51, 51);">Signage Solutions</a></li>
-									<li><a href="BTL.html" style="color: rgb(53, 51, 51);">BTL/Promotions</a></li>
-									<li><a href="promotionalmaterial.html" style="color: rgb(53, 51, 51);">Promotional Materials</a></li>
-									<li><a href="interiorConstruction.html" style="color: rgb(53, 51, 51);">Internal Constructions</a></li>
-									
-										</ul>
-									</li>
-									<li>
-										<a href="infrastruture.html" style="color: rgb(53, 51, 51)">Infrastruture</a>
-	
-									</li>
-									<!-- <li>
-										<a href="#!">Clients</a>
-									
-									</li> -->
-	
-									<li><a href="contact.html" style="color: rgb(53, 51, 51)">Contact</a></li>
-								</ul>
-							</nav>
-						</div>
-	
-	
-	
-					</div>
-				</div>
-			</div>
-	
-	
-		</header>
-	<!-- header_section - end
-		================================================== -->
+<!-- ── TRUST BAR ── -->
+<div class="trust-bar">
+  <div class="trust-item"><span>🏅</span> 25+ Years in Business</div>
+  <div class="trust-item"><span>✅</span> 500+ Trusted Brand Clients</div>
+  <div class="trust-item"><span>🏭</span> In-House Manufacturing</div>
+  <div class="trust-item"><span>🚚</span> PAN India Installation</div>
+  <div class="trust-item"><span>🎯</span> Free Site Visit & Quotation</div>
+</div>
 
+<!-- ── WHO WE ARE ── -->
+<section class="section">
+  <div class="about-intro">
 
-	<!-- main body - start
-		================================================== -->
-	<main>
+    <div class="about-intro-img reveal">
+      <img class="main-img"
+        src="https://blue-priint.github.io/assets/images/Bluepriint%20Images/Printing/image11.jpg"
+        alt="BluePriint Workshop" loading="lazy"/>
+      <img class="accent-img"
+        src="https://blue-priint.github.io/assets/images/Bluepriint%20Images/Signage%20Solutions/ACPSignage.JPG"
+        alt="ACP Signage Work" loading="lazy"/>
+      <div class="exp-badge">
+        <div class="num">25<sup>+</sup></div>
+        <div class="label">Years of<br>Excellence</div>
+      </div>
+    </div>
 
+    <div class="reveal">
+      <div class="eyebrow">Who We Are</div>
+      <h2 class="section-h2">Achieving Brand Goals<br><em>Since 1999</em></h2>
+      <p class="body-text">
+        BluePriint is a unique design and manufacturing company with a strong focus on ACP Signage, Branding and Retail solutions that connect people to brands. Led by strategic thinking, our multi-disciplinary team of professionals and architects collaborates to deliver tailor-made experiences for every client requirement.
+      </p>
+      <p class="body-text" style="margin-top:-12px;">
+        We design, manufacture and install premium work PAN India — across retail, corporate, hospitality and commercial environments. Our in-house production facility means faster delivery, better quality control, and lower costs for our clients.
+      </p>
+      <ul class="check-list">
+        <li>Professional &amp; highly experienced team of designers and architects</li>
+        <li>Specialists in Signages, Wayfinding, Decor &amp; Retail Work</li>
+        <li>Bright, timeless and accurate output — every single time</li>
+        <li>In-house production for faster, more affordable delivery</li>
+        <li>End-to-end: design → manufacture → install → monitor</li>
+      </ul>
+      <a href="contact.html" class="btn-blue">Get in Touch</a>
+      <a href="tel:+919717027607" class="btn-outline-blue">📞 Call Now</a>
+    </div>
 
-		<!-- sidebar mobile menu - start
-			================================================== -->
-		<div class="sidebar-menu-wrapper">
-			<div class="sidebar_mobile_menu">
-				<span class="close_btn"><i class="fal fa-times"></i></span>
-				<div class="mobile_menu_list clearfix">
-					<ul class="ul_li_block clearfix">
-						<li class="active dropdown">
-						<li><a href="index.html">Home</a></li>
+  </div>
+</section>
 
-						</li>
-						<li><a href="about.html">About</a></li>
-						<li class="dropdown">
-							<a href="#" data-toggle="dropdown" aria-haspopup="true"
-								aria-expanded="false">Products</a>
-							<ul class="dropdown-menu">
-								<li><a href="Printing.html">Printing</a></li>
-								<li><a href="LED_Screens.html">LED Screens</a></li>
-								<li><a href="internal_branding.html">Internal Branding</a></li>
-								<li><a href="ooh.html">OOH</a></li>
-								<li><a href="Signage_Solutions.html">Signage Solutions</a></li>
-								<li><a href="BTL.html">BTL/Promotions</a></li>
-								<li><a href="promotionalmaterial.html">Promotional Materials</a></li>
-								<li><a href="interiorConstruction.html">Internal Constructions</a></li>
-							
-							</ul>
-						</li>
+<!-- ── STATS ── -->
+<div class="stats-bar">
+  <div class="stat-item reveal"><div class="stat-num">25<sup>+</sup></div><div class="stat-label">Years Experience</div></div>
+  <div class="stat-item reveal"><div class="stat-num">500<sup>+</sup></div><div class="stat-label">Brand Clients</div></div>
+  <div class="stat-item reveal"><div class="stat-num">8</div><div class="stat-label">Service Lines</div></div>
+  <div class="stat-item reveal"><div class="stat-num">48<sup>hr</sup></div><div class="stat-label">Fastest Turnaround</div></div>
+</div>
 
-						<li class="dropdown">
-						<li><a href="infrastruture.html">Infrastructure</a></li>
+<!-- ── MISSION / VISION / VALUES ── -->
+<section class="section-bg">
+  <div class="section-header reveal">
+    <div class="eyebrow">Our Purpose</div>
+    <h2 class="section-h2">What Drives Us<br><em>Every Day</em></h2>
+    <p style="font-size:15px;color:var(--grey);max-width:520px;margin:0 auto;line-height:1.75;">Our mission, vision and core values shape every project we take on — from the smallest print job to a complete store rollout.</p>
+  </div>
+  <div class="mv-grid">
 
-						</li>
-						<li class="dropdown">
-							<!-- <li><a href="#">Clients</a></li> -->
+    <div class="mv-card reveal">
+      <div class="mv-icon">🎯</div>
+      <div class="mv-title">Our Mission</div>
+      <div class="mv-desc">To deliver world-class signage, printing and branding solutions that create powerful visual impact while enhancing brand value — on time, within budget, and beyond expectation.</div>
+    </div>
 
-						<li><a href="contact.html">Contact</a></li>
-					</ul>
-					</li>
-					</ul>
-				</div>
-			</div>
+    <div class="mv-card reveal">
+      <div class="mv-icon">🔭</div>
+      <div class="mv-title">Our Vision</div>
+      <div class="mv-desc">To be India's most trusted branding partner — a company known not just for flawless execution, but for the strategic thinking and creative craft that elevates every brand we touch.</div>
+    </div>
 
+    <div class="mv-card reveal">
+      <div class="mv-icon">💎</div>
+      <div class="mv-title">Our Values</div>
+      <div class="mv-desc">Precision. Integrity. Innovation. We believe that great work comes from genuine collaboration — listening deeply, designing thoughtfully, and manufacturing with pride.</div>
+    </div>
 
-			<!-- sidebar mobile menu - end
-			================================================== -->
+  </div>
+</section>
 
+<!-- ── OUR STORY TIMELINE ── -->
+<section class="section">
+  <div class="section-header reveal">
+    <div class="eyebrow">Our Journey</div>
+    <h2 class="section-h2">Building Brands Since <em>1999</em></h2>
+    <p style="font-size:15px;color:var(--grey);max-width:520px;margin:0 auto;line-height:1.75;">From a small print studio in Moti Nagar to Delhi's most trusted branding partner — here's how we got here.</p>
+  </div>
 
-			<!-- breadcrumb_section - start
-			================================================== -->
-			<!-- <section class="breadcrumb_section d-flex align-items-center clearfix"
-			data-background="assets/images/breadcrumb/bg_01.jpg">
-			<div class="container">
-				<div class="row align-items-center justify-content-lg-between">
-					<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 wow fadeInLeft" data-wow-delay=".1s">
-						<h1 class="page_title mb-0">About Us</h1>
-					</div>
+  <div class="timeline">
 
-					<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 wow fadeInRight" data-wow-delay=".1s">
-						<ul class="breadcrumb_nav ul_li_right clearfix">
-							<li><a href="index.html">Home</a></li>
-							<li>About Us</li>
-						</ul>
-					</div>
-				</div>
-			</div>
-		</section> -->
-			<!-- breadcrumb_section - end
-			================================================== -->
+    <div class="timeline-item reveal">
+      <div class="timeline-left">
+        <div class="timeline-year">1999</div>
+        <div class="timeline-title">The Beginning</div>
+        <div class="timeline-desc">BluePriint was founded in Rama Road Industrial Area with a single UV printer and a big ambition — to bring professional print quality to Delhi's growing retail sector.</div>
+      </div>
+      <div class="timeline-center"><div class="timeline-dot"></div></div>
+      <div class="timeline-right"></div>
+    </div>
 
-			<br>
-			<br>
-			<!-- about_section - start
-			================================================== -->
-			<section class="about_section sec_ptb_130 clearfix">
-				<div class="container">
-					<div class="row justify-content-lg-between justify-content-md-center justify-content-sm-center">
+    <div class="timeline-item right reveal">
+      <div class="timeline-left"></div>
+      <div class="timeline-center"><div class="timeline-dot"></div></div>
+      <div class="timeline-right">
+        <div class="timeline-year">2005</div>
+        <div class="timeline-title">Signage Expansion</div>
+        <div class="timeline-desc">We expanded into ACP signage and 3D LED letters, investing in CNC routing and fabrication equipment to offer complete end-to-end production in-house.</div>
+      </div>
+    </div>
 
-						<div class="col-lg-6 col-md-8 col-sm-10 col-xs-12">
-							<div class="about_image_1 wow fadeInUp2" data-wow-delay=".1s">
-								<img src="assets/images/about/about us down 2.svg" alt="image_not_found">
-							</div>
-						</div>
+    <div class="timeline-item reveal">
+      <div class="timeline-left">
+        <div class="timeline-year">2012</div>
+        <div class="timeline-title">Retail Branding</div>
+        <div class="timeline-desc">Major retail clients including Bajaj and Mother Dairy trusted us with PAN India store rollouts — handling everything from design to installation across 100+ locations.</div>
+      </div>
+      <div class="timeline-center"><div class="timeline-dot"></div></div>
+      <div class="timeline-right"></div>
+    </div>
 
-						<div class="col-lg-6 col-md-8 col-sm-10 col-xs-12">
-							<div class="about_content">
-								<div class="section_title wow fadeInUp2" data-wow-delay=".1s">
-									<h4 class="small_title">About Our Company</h4>
-									<h2 class="big_title mb-0">
-										Achieving Your Dream Works With Bluepriint
-									</h2>
-									<span class="biggest_title">About</span>
-								</div>
+    <div class="timeline-item right reveal">
+      <div class="timeline-left"></div>
+      <div class="timeline-center"><div class="timeline-dot"></div></div>
+      <div class="timeline-right">
+        <div class="timeline-year">2018</div>
+        <div class="timeline-title">Interior Architecture</div>
+        <div class="timeline-desc">We launched our interior architecture division, offering full retail fit-out services — from custom fixtures and furniture to ceiling and wall feature design.</div>
+      </div>
+    </div>
 
-								
-								<p class="mb-0 wow fadeInUp2" data-wow-delay=".3s">
-									Blue Priint is a collective effort of creative
-									minds with varied experiences of
-									professionals & architects, where we collaborate
-									to deliver Tailor-made experiences for our
-									client’s varied requirements.
-									Led by strategic thinking,
-									our multi-disciplinary team delivers
-									Signages, Branding & Retail Work
-								</p>
+    <div class="timeline-item reveal">
+      <div class="timeline-left">
+        <div class="timeline-year">2024</div>
+        <div class="timeline-title">500+ Brand Clients</div>
+        <div class="timeline-desc">Today, with 500+ clients across India and a full in-house production facility, BluePriint continues to grow — delivering the same quality and dedication that started it all.</div>
+      </div>
+      <div class="timeline-center"><div class="timeline-dot"></div></div>
+      <div class="timeline-right"></div>
+    </div>
 
-								
-							</div>
-						</div>
+  </div>
+</section>
 
-					</div>
-				</div>
-			</section>
-	
-			<!-- faq_section - end
-			================================================== -->
-<br>
-<br>
+<!-- ── WHY CHOOSE US ── -->
+<section class="section-blue">
+  <div class="section-header reveal">
+    <div class="eyebrow" style="color:var(--gold);">
+      Why BluePriint
+    </div>
+    <h2 class="section-h2" style="color:#fff;">Why Leading Brands<br><em style="color:var(--gold);">Choose Us</em></h2>
+    <p style="font-size:15px;color:rgba(255,255,255,0.6);max-width:520px;margin:0 auto;line-height:1.75;">We've earned the trust of 500+ brands because we consistently deliver more than expected.</p>
+  </div>
 
-			<!-- skill_section - start
-			================================================== -->
-			<section class="skill_section bg_default_orange clearfix">
-				<div class="container-fluid p-0">
-					<div
-						class="row no-gutters align-items-center justify-content-lg-between justify-content-md-center justify-content-sm-center">
+  <div class="why-grid">
 
-						<div class="col-lg-6 col-md-7 col-sm-9 col-xs-12 order-last">
-							<div class="faq_image wow fadeIn" data-wow-delay=".1s">
-								<img src="assets/images/about/about us.svg" alt="image_not_found" style="margin-top: 5rem; margin-right: 5rem; margin-bottom: 3rem;">
-							</div>
-							<br>
-							<br>
-						</div>
+    <div class="why-card reveal">
+      <div class="why-num">01</div>
+      <div class="why-title">In-House Manufacturing</div>
+      <div class="why-desc">Our own production floor means zero dependency on outsourcing. Faster turnaround, tighter quality control, and lower costs passed directly to you.</div>
+    </div>
 
-						<div class="col-lg-6 col-md-7 col-sm-9 col-xs-12">
-							<div class="skill_content_wrap text-white">
-								<div class="section_title mb_50 wow fadeInUp2" data-wow-delay=".3s">
-									<h4 class="small_title text-white">Our Skills</h4>
-									<h2 class="big_title text-white mb-0">
-										Professional Skills For Printing
-									</h2>
-									<span class="biggest_title">Skils</span>
-								</div>
+    <div class="why-card reveal">
+      <div class="why-num">02</div>
+      <div class="why-title">End-to-End Execution</div>
+      <div class="why-desc">One team handles your entire project — from initial design concept through fabrication to on-site installation and post-install monitoring.</div>
+    </div>
 
-								<p class="mb-0 wow fadeInUp2" data-wow-delay=".4s">
-									We assist our clients in reaching their strategic goals by creating a sense of place,reinforcing their brand and identity and promoting their uniqueness through our in-house expertise to design, develop and deliver.
-								</p>
-<!-- 
-								<div class="row">
-									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 wow fadeInUp2"
-										data-wow-delay=".5s">
-										<div class="circle_progress_item">
-											<div class="printing_bar circle_progress">
-												<strong class="percentage_text text-white"></strong>
-											</div>
-											<h4 class="item_title text-white">Printing & Design</h4>
-											<p class="mb-0">
-												Sed ut perspiciatis unde omnis
-												natus error sit voluptatem
-											</p>
-										</div>
-									</div>
+    <div class="why-card reveal">
+      <div class="why-num">03</div>
+      <div class="why-title">25+ Years of Expertise</div>
+      <div class="why-desc">A quarter century of experience across retail, corporate, hospitality and industrial sectors means we've seen every challenge — and solved it.</div>
+    </div>
 
-									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 wow fadeInUp2"
-										data-wow-delay=".6s">
-										<div class="circle_progress_item">
-											<div class="branding_bar circle_progress">
-												<strong class="percentage_text text-white"></strong>
-											</div>
-											<h4 class="item_title text-white">Design & Branding</h4>
-											<p class="mb-0">
-												Sed ut perspiciatis unde omnis
-												natus error sit voluptatem
-											</p>
-										</div>
-									</div>
-								</div> -->
-							</div>
-						</div>
+    <div class="why-card reveal">
+      <div class="why-num">04</div>
+      <div class="why-title">Free Site Visit & Quote</div>
+      <div class="why-desc">We visit your site, take measurements, assess structural needs, and deliver a detailed quote — completely free, with no obligation to proceed.</div>
+    </div>
 
-					</div>
-				</div>
-			</section>
-			<!-- skill_section - end
-			================================================== -->
+    <div class="why-card reveal">
+      <div class="why-num">05</div>
+      <div class="why-title">48-Hour Turnaround</div>
+      <div class="why-desc">For standard print jobs, we offer a 48-hour express production service. Because your launch date matters as much to us as it does to you.</div>
+    </div>
 
+    <div class="why-card reveal">
+      <div class="why-num">06</div>
+      <div class="why-title">PAN India Reach</div>
+      <div class="why-desc">Our network of installation teams spans Delhi NCR and beyond. Single-vendor management for multi-city brand rollouts across India.</div>
+    </div>
 
-			<!-- testimonial_section - start
-			================================================== -->
-			<!-- <section class="testimonial_section sec_ptb_130 bg_gray clearfix">
-				<div class="container">
+  </div>
+</section>
 
-					<div class="row justify-content-center">
-						<div class="col-lg-6 col-md-7 col-sm-9">
-							<div class="section_title text-center mb_30 wow fadeInUp2" data-wow-delay=".1s">
-								<h4 class="small_title">Clients Reviews</h4>
-								<h2 class="big_title mb-0">
-									What Our Clients Say About Our Works
-								</h2>
-								<span class="biggest_title">Says</span>
-							</div>
-						</div>
-					</div>
+<!-- ── CAPABILITIES ── -->
+<section class="section-bg">
+  <div class="section-header reveal">
+    <div class="eyebrow">What We Do</div>
+    <h2 class="section-h2">8 Core Capabilities,<br><em>One Partner</em></h2>
+    <p style="font-size:15px;color:var(--grey);max-width:520px;margin:0 auto;line-height:1.75;">Every service we offer is backed by in-house expertise, dedicated equipment, and a team that genuinely cares about the output.</p>
+  </div>
+  <div class="cap-list">
+    <div class="cap-item reveal">
+      <div class="cap-circle">🖨️</div>
+      <div class="cap-title">Printing</div>
+      <div class="cap-desc">Backlit flex, canvas, vinyl, acrylic UV — precision output on every material.</div>
+    </div>
+    <div class="cap-item reveal">
+      <div class="cap-circle">🪟</div>
+      <div class="cap-title">Signage</div>
+      <div class="cap-desc">3D LED letters, ACP boards, backlit fascias and glow signs.</div>
+    </div>
+    <div class="cap-item reveal">
+      <div class="cap-circle">📺</div>
+      <div class="cap-title">LED Screens</div>
+      <div class="cap-desc">Indoor and outdoor LED display walls for retail and corporate.</div>
+    </div>
+    <div class="cap-item reveal">
+      <div class="cap-circle">🏷️</div>
+      <div class="cap-title">Internal Branding</div>
+      <div class="cap-desc">Danglers, floor vinyls, translites and sunboard displays.</div>
+    </div>
+    <div class="cap-item reveal">
+      <div class="cap-circle">🌆</div>
+      <div class="cap-title">OOH Advertising</div>
+      <div class="cap-desc">Hoardings, kiosks and transit advertising at scale.</div>
+    </div>
+    <div class="cap-item reveal">
+      <div class="cap-circle">📣</div>
+      <div class="cap-title">BTL / Promotions</div>
+      <div class="cap-desc">Events, standees, banners and below-the-line activation.</div>
+    </div>
+    <div class="cap-item reveal">
+      <div class="cap-circle">🎁</div>
+      <div class="cap-title">Promo Material</div>
+      <div class="cap-desc">Brochures, gifts, packaging and marketing collateral.</div>
+    </div>
+    <div class="cap-item reveal">
+      <div class="cap-circle">🏗️</div>
+      <div class="cap-title">Interior Architecture</div>
+      <div class="cap-desc">Retail fit-outs, custom fixtures and spatial design.</div>
+    </div>
+  </div>
+</section>
 
-					<div class="testimonial_carousel column_3_carousel owl-carousel owl-theme wow fadeInUp2"
-						data-wow-delay=".3s">
-						<div class="item">
-							<div class="testimonial_primary">
-								<div class="content_wrap">
-									<p>
-										Sed ut perspiciatis unde omnis iste natus
-										error sit voluptatem accusantium doloremq
-										ue laudantium totam rem aperiam eaqupsa quae abillo inventore veritatis et quasi
-										arch
-										itecto beatae vitae dicta sunt
-									</p>
-									<span class="quote_icon">
-										<img src="assets/images/testimonial/quote_01.png" alt="icon_not_found">
-									</span>
-								</div>
-								<div class="hero_info_wrap">
-									<div class="hero_thumbnail">
-										<img src="assets/images/testimonial/img_01.png" alt="icon_not_found">
-									</div>
-									<div class="hero_info">
-										<h3 class="hero_name">Casey M. Vargas</h3>
-										<span class="hero_title">Web designer</span>
-									</div>
-								</div>
-							</div>
-						</div>
+<!-- ── PROCESS ── -->
+<section class="process-section">
+  <div class="reveal">
+    <div class="eyebrow">How We Work</div>
+    <h2 class="section-h2">From Brief to <em>Installation</em></h2>
+    <p style="font-size:15px;color:rgba(255,255,255,0.55);max-width:540px;margin-top:0;line-height:1.75;">A streamlined 4-step process that eliminates surprises and keeps every project on time and on budget.</p>
+  </div>
+  <div class="process-steps">
+    <div class="process-step reveal">
+      <div class="step-circle">💡<span class="step-num">1</span></div>
+      <div class="step-title">Define</div>
+      <div class="step-desc">We understand your brand, goals, site dimensions and timeline in detail before touching a design tool.</div>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-circle">✏️<span class="step-num">2</span></div>
+      <div class="step-title">Design & Estimate</div>
+      <div class="step-desc">Our designers create concepts with transparent cost estimates — no hidden charges, ever.</div>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-circle">🏭<span class="step-num">3</span></div>
+      <div class="step-title">Produce</div>
+      <div class="step-desc">In-house manufacturing with strict quality checks at every stage of production.</div>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-circle">🔧<span class="step-num">4</span></div>
+      <div class="step-title">Install & Monitor</div>
+      <div class="step-desc">Professional on-site installation by our own team — followed by post-install inspection and sign-off.</div>
+    </div>
+  </div>
+</section>
 
-						<div class="item">
-							<div class="testimonial_primary">
-								<div class="content_wrap">
-									<p>
-										Sed ut perspiciatis unde omnis iste natus
-										error sit voluptatem accusantium doloremq
-										ue laudantium totam rem aperiam eaqupsa quae abillo inventore veritatis et quasi
-										arch
-										itecto beatae vitae dicta sunt
-									</p>
-									<span class="quote_icon">
-										<img src="assets/images/testimonial/quote_01.png" alt="icon_not_found">
-									</span>
-								</div>
-								<div class="hero_info_wrap">
-									<div class="hero_thumbnail">
-										<img src="assets/images/testimonial/img_02.png" alt="icon_not_found">
-									</div>
-									<div class="hero_info">
-										<h3 class="hero_name">Westover Charles</h3>
-										<span class="hero_title">Web designer</span>
-									</div>
-								</div>
-							</div>
-						</div>
+<!-- ── TESTIMONIALS ── -->
+<section class="section-bg">
+  <div class="section-header reveal">
+    <div class="eyebrow">Client Speak</div>
+    <h2 class="section-h2">Trusted by Teams Who Need <em>Flawless Results</em></h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="testi-badge">"</div>
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">BluePriint handled our complete store branding across three outlets without a single issue. Clean finish, sharp timelines.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">AK</div>
+        <div><div class="testi-name">Arjun Kumar</div><div class="testi-role">Retail Expansion Lead, Bajaj</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-badge">"</div>
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">The acrylic signage and internal branding they did for our salon was exceptional. Zero downtime during the installation.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">RV</div>
+        <div><div class="testi-name">Rahul Verma</div><div class="testi-role">Operations Head, Cut & Style</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-badge">"</div>
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-quote">Their facade signage work is premium quality. The LED lettering at our showroom entrance looks absolutely stunning at night.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">VS</div>
+        <div><div class="testi-name">Vikram Singh</div><div class="testi-role">Projects Manager, Hero</div></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-						<div class="item">
-							<div class="testimonial_primary">
-								<div class="content_wrap">
-									<p>
-										Sed ut perspiciatis unde omnis iste natus
-										error sit voluptatem accusantium doloremq
-										ue laudantium totam rem aperiam eaqupsa quae abillo inventore veritatis et quasi
-										arch
-										itecto beatae vitae dicta sunt
-									</p>
-									<span class="quote_icon">
-										<img src="assets/images/testimonial/quote_01.png" alt="icon_not_found">
-									</span>
-								</div>
-								<div class="hero_info_wrap">
-									<div class="hero_thumbnail">
-										<img src="assets/images/testimonial/img_03.png" alt="icon_not_found">
-									</div>
-									<div class="hero_info">
-										<h3 class="hero_name">Westover Charles</h3>
-										<span class="hero_title">Web designer</span>
-									</div>
-								</div>
-							</div>
-						</div>
+<!-- ── CLIENTS MARQUEE ── -->
+<div class="clients-section">
+  <div class="clients-label">Trusted by leading brands across Delhi NCR</div>
+  <div class="clients-scroll">
+    <div class="clients-track">
+      <span class="client-pill">Bajaj</span><span class="client-pill">·</span>
+      <span class="client-pill">Hero</span><span class="client-pill">·</span>
+      <span class="client-pill">Pepsi</span><span class="client-pill">·</span>
+      <span class="client-pill">Mother Dairy</span><span class="client-pill">·</span>
+      <span class="client-pill">Blackberry</span><span class="client-pill">·</span>
+      <span class="client-pill">Wella</span><span class="client-pill">·</span>
+      <span class="client-pill">Anchor</span><span class="client-pill">·</span>
+      <span class="client-pill">Aiwa</span><span class="client-pill">·</span>
+      <span class="client-pill">Valvoline</span><span class="client-pill">·</span>
+      <span class="client-pill">ISBF</span><span class="client-pill">·</span>
+      <span class="client-pill">Crystal</span><span class="client-pill">·</span>
+      <span class="client-pill">Affinity Express</span><span class="client-pill">·</span>
+      <!-- Duplicate for seamless loop -->
+      <span class="client-pill">Bajaj</span><span class="client-pill">·</span>
+      <span class="client-pill">Hero</span><span class="client-pill">·</span>
+      <span class="client-pill">Pepsi</span><span class="client-pill">·</span>
+      <span class="client-pill">Mother Dairy</span><span class="client-pill">·</span>
+      <span class="client-pill">Blackberry</span><span class="client-pill">·</span>
+      <span class="client-pill">Wella</span><span class="client-pill">·</span>
+      <span class="client-pill">Anchor</span><span class="client-pill">·</span>
+      <span class="client-pill">Aiwa</span><span class="client-pill">·</span>
+      <span class="client-pill">Valvoline</span><span class="client-pill">·</span>
+      <span class="client-pill">ISBF</span><span class="client-pill">·</span>
+      <span class="client-pill">Crystal</span><span class="client-pill">·</span>
+      <span class="client-pill">Affinity Express</span><span class="client-pill">·</span>
+    </div>
+  </div>
+</div>
 
-						<div class="item">
-							<div class="testimonial_primary">
-								<div class="content_wrap">
-									<p>
-										Sed ut perspiciatis unde omnis iste natus
-										error sit voluptatem accusantium doloremq
-										ue laudantium totam rem aperiam eaqupsa quae abillo inventore veritatis et quasi
-										arch
-										itecto beatae vitae dicta sunt
-									</p>
-									<span class="quote_icon">
-										<img src="assets/images/testimonial/quote_01.png" alt="icon_not_found">
-									</span>
-								</div>
-								<div class="hero_info_wrap">
-									<div class="hero_thumbnail">
-										<img src="assets/images/testimonial/img_01.png" alt="icon_not_found">
-									</div>
-									<div class="hero_info">
-										<h3 class="hero_name">Casey M. Vargas</h3>
-										<span class="hero_title">Web designer</span>
-									</div>
-								</div>
-							</div>
-						</div>
+<!-- ── CTA BANNER ── -->
+<div class="cta-banner">
+  <div class="reveal">
+    <h2>Ready to Build Your Brand <em>With Us?</em></h2>
+    <p>Share your brief and site details — we'll get back to you with a free consultation and estimate within 24 hours.</p>
+  </div>
+  <div class="cta-btns reveal">
+    <a href="tel:+919717027607" class="btn-gold">📞 Call: +91 9717027607</a>
+    <a href="https://wa.me/919717027607?text=Hello%20BluePriint%2C%20I%20need%20a%20quote" target="_blank" class="btn-ghost-white">💬 WhatsApp for Quote</a>
+  </div>
+</div>
 
-						<div class="item">
-							<div class="testimonial_primary">
-								<div class="content_wrap">
-									<p>
-										Sed ut perspiciatis unde omnis iste natus
-										error sit voluptatem accusantium doloremq
-										ue laudantium totam rem aperiam eaqupsa quae abillo inventore veritatis et quasi
-										arch
-										itecto beatae vitae dicta sunt
-									</p>
-									<span class="quote_icon">
-										<img src="assets/images/testimonial/quote_01.png" alt="icon_not_found">
-									</span>
-								</div>
-								<div class="hero_info_wrap">
-									<div class="hero_thumbnail">
-										<img src="assets/images/testimonial/img_02.png" alt="icon_not_found">
-									</div>
-									<div class="hero_info">
-										<h3 class="hero_name">Westover Charles</h3>
-										<span class="hero_title">Web designer</span>
-									</div>
-								</div>
-							</div>
-						</div>
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">Blue<span>Priint</span></div>
+      <p class="footer-about">Delhi's trusted print and branding partner. We design, develop and deliver with in-house expertise — signage, printing, LED screens, interior architecture and more.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="#">Infrastructure</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#">Printing & Branding</a></li>
+        <li><a href="#">LED Screens & OOH</a></li>
+        <li><a href="#">Signage Solutions</a></li>
+        <li><a href="#">Interior Architecture</a></li>
+        <li><a href="#">Promotions & BTL</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact Us</h4>
+      <div class="footer-contact-item">📍 B-7, First Floor, Rama Road Industrial Area, New Delhi – 110015</div>
+      <div class="footer-contact-item">📞 <a href="tel:+919717027607" style="color:rgba(255,255,255,0.6)">+91 9717027607</a></div>
+      <div class="footer-contact-item">✉ <a href="mailto:print@bluepriint.in" style="color:rgba(255,255,255,0.6)">print@bluepriint.in</a></div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 BluePriint. All rights reserved.</span>
+    <span>Made with ♥ in New Delhi</span>
+  </div>
+</footer>
 
-						<div class="item">
-							<div class="testimonial_primary">
-								<div class="content_wrap">
-									<p>
-										Sed ut perspiciatis unde omnis iste natus
-										error sit voluptatem accusantium doloremq
-										ue laudantium totam rem aperiam eaqupsa quae abillo inventore veritatis et quasi
-										arch
-										itecto beatae vitae dicta sunt
-									</p>
-									<span class="quote_icon">
-										<img src="assets/images/testimonial/quote_01.png" alt="icon_not_found">
-									</span>
-								</div>
-								<div class="hero_info_wrap">
-									<div class="hero_thumbnail">
-										<img src="assets/images/testimonial/img_03.png" alt="icon_not_found">
-									</div>
-									<div class="hero_info">
-										<h3 class="hero_name">Westover Charles</h3>
-										<span class="hero_title">Web designer</span>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
+<script>
+  // ── Scroll Reveal ──
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('up'), i * 80);
+        revealObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  revealEls.forEach(el => revealObs.observe(el));
 
-				</div>
-			</section> -->
-			<!-- testimonial_section - end
-			================================================== -->
-
-
-	</main>
-	<!-- main body - end
-		================================================== -->
-
-
-	<!-- footer_section - start
-		================================================== -->
-		<footer class="footer_section bg_default_blue text-white clearfix">
-			<div class="container">
-	
-	
-	
-				<div class="footer_widget_area clearfix">
-					<div class="row justify-content-lg-between justify-content-md-center justify-content-sm-center">
-						<div class="col-lg-2 col-md-4 col-sm-12 col-xs-12">
-							<div class="widget footer_useful_links">
-								<h3 class="footer_widget_title">Quick Links</h3>
-								<ul class="ul_li_block clearfix">
-									<li><a href="index.html">Home</a></li>
-									<li><a href="about.html">About </a></li>
-									<li><a href="Printing.html">Products</a></li>
-									<li><a href="infrastruture.html">Infrastructure</a></li>
-									<li><a href="contact.html">Contact Us</a></li>
-								</ul>
-							</div>
-						</div>
-	
-						<div class="col-lg-2 col-md-4 col-sm-12 col-xs-12">
-							<div class="widget footer_useful_links">
-								<h3 class="footer_widget_title">Products</h3>
-								<ul class="ul_li_block clearfix">
-									<li><a href="#!">Printing & Branding</a></li>
-									<li><a href="#!">LED Screens & OOH</a></li>
-									
-									<li><a href="#!">Signage Solutions</a></li>
-								
-									<li><a href="#!">Interior Constructions</a></li>
-									<li><a href="#!">Promotions & BTL</a></li>
-									
-								</ul>
-							</div>
-						</div>
-	
-						<div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-							<div class="widget footer_useful_links">
-								<h3 class="footer_widget_title">Contact Us</h3>
-								<p class="mb_30 ul_li_block clearfix" >
-									B-7, First Floor, Plot No 54,<br>
-									Rama Road Industrial Area,<br>
-									New Delhi - 110015.<br>
-									Kirti Nagar Metro Station - Blue line
-								</p>
-	
-								<span class="footer_hotline"><i class="far fa-phone"></i>+91 9717027607</span>
-							</div>
-						</div>
-					</div>
-				</div>
-	
-				<div class="footer_bottom_boxed clearfix">
-					<div class="row align-items-center justify-content-lg-between justify-content-md-between">
-						<div class="col-lg-6 col-md-6">
-							<p class="copyright_text mb-0">© Copyright 2020 All Right Reserved Design By <a
-									class="author_links" href="#">Blue
-									Priint</a>
-							</p>
-						</div>
-						<!-- 
-						<div class="col-lg-6 col-md-6">
-							<ul class="circle_social_links ul_li_right clearfix">
-								<li>
-									<a class="bg_facebook" href="#!">
-										<i class="fab fa-facebook-f"></i>
-										<i class="fab fa-facebook-f"></i>
-									</a>
-								</li>
-								<li>
-									<a class="bg_twitter" href="#!">
-										<i class="fab fa-twitter"></i>
-										<i class="fab fa-twitter"></i>
-									</a>
-								</li>
-								<li>
-									<a class="bg_youtube" href="#!">
-										<i class="fab fa-youtube"></i>
-										<i class="fab fa-youtube"></i>
-									</a>
-								</li>
-								<li>
-									<a class="bg_linkedin" href="#!">
-										<i class="fab fa-linkedin"></i>
-										<i class="fab fa-linkedin"></i>
-									</a>
-								</li>
-							</ul>
-						</div> -->
-					</div>
-				</div>
-	
-			</div>
-		</footer>
-	<!-- footer_section - end
-		================================================== -->
-
-
-	<!-- fraimwork - jquery include -->
-	<script src="assets/js/jquery-3.5.1.min.js"></script>
-	<script src="assets/js/popper.min.js"></script>
-	<script src="assets/js/bootstrap.min.js"></script>
-
-	<!-- carousel - jquery include -->
-	<script src="assets/js/owl.carousel.min.js"></script>
-
-	<!-- mobile menu - jquery include -->
-	<script src="assets/js/mCustomScrollbar.js"></script>
-
-	<!-- google map - jquery include -->
-	
-	<!-- nice select - jquery include -->
-	<script src="assets/js/nice-select.min.js"></script>
-
-	<!-- circle progress - jquery include -->
-	<script src="assets/js/circle-progress.min.js"></script>
-
-	<!-- magnific popup - jquery include -->
-	<script src="assets/js/magnific-popup.min.js"></script>
-
-	<!-- filter & masonry js -->
-	<script src="assets/js/isotope.pkgd.js"></script>
-	<script src="assets/js/imagesloaded.pkgd.min.js"></script>
-	<script src="assets/js/masonry.pkgd.min.js"></script>
-
-	<!-- counter - jquery include -->
-	<script src="assets/js/countto.js"></script>
-
-	<!-- pricing range - jquery include -->
-
-
-	<!-- animation - jquery include -->
-	<script src="assets/js/parallax.min.js"></script>
-	<script src="assets/js/wow.min.js"></script>
-
-	<!-- custom - jquery include -->
-	<script src="assets/js/custom.js"></script>
-
+  // ── Nav shadow on scroll ──
+  window.addEventListener('scroll', () => {
+    document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 10);
+  });
+</script>
 
 </body>
-
 </html>
