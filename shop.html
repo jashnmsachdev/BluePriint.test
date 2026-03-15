@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shop — BluePriint | Print. Brand. Build. | Delhi NCR</title>
+  <meta name="description" content="Shop BluePriint's complete range of signage, printing and branding products. Order online or request a custom quote."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:       #0d3b6e;
+      --blue-mid:   #1a5fa8;
+      --blue-light: #2980d9;
+      --blue-pale:  #e8f1fb;
+      --white:      #ffffff;
+      --off:        #f4f7fc;
+      --ink:        #0d1a2b;
+      --grey:       #6b7c93;
+      --grey-light: #e2e8f0;
+      --gold:       #f0a500;
+      --red:        #e53935;
+      --green:      #22a06b;
+      --sans:       'Outfit', sans-serif;
+      --serif:      'Playfair Display', Georgia, serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); color: var(--ink); background: var(--white); overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+    button { font-family: var(--sans); }
+
+    /* ─────────────────────────────────────────
+       FLOATING BUTTONS
+    ───────────────────────────────────────── */
+    .float-btns { position: fixed; bottom: 28px; right: 24px; z-index: 998; display: flex; flex-direction: column; gap: 12px; }
+    .float-btn { display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 50px; font-size: 14px; font-weight: 600; color: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.18); transition: transform 0.2s, box-shadow 0.2s; }
+    .float-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.24); }
+    .float-call { background: var(--blue); }
+    .float-wa   { background: #25d366; }
+    .float-btn svg { width: 20px; height: 20px; fill: #fff; flex-shrink: 0; }
+
+    /* ─────────────────────────────────────────
+       TOPBAR
+    ───────────────────────────────────────── */
+    .topbar { background: var(--blue); color: rgba(255,255,255,0.72); font-size: 12.5px; padding: 8px 60px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .topbar a { color: inherit; }
+    .topbar a:hover { color: #fff; }
+    .topbar-right { display: flex; gap: 24px; align-items: center; }
+
+    /* ─────────────────────────────────────────
+       NAV
+    ───────────────────────────────────────── */
+    nav#mainNav {
+      background: #fff; border-bottom: 1px solid rgba(13,59,110,0.1);
+      position: sticky; top: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 60px; height: 74px;
+      box-shadow: 0 2px 16px rgba(13,59,110,0.06);
+      transition: box-shadow 0.3s;
+    }
+    nav#mainNav.scrolled { box-shadow: 0 4px 28px rgba(13,59,110,0.13); }
+    .nav-logo { font-size: 24px; font-weight: 800; color: var(--blue); letter-spacing: -0.5px; }
+    .nav-logo span { color: var(--blue-light); }
+    .nav-links { display: flex; gap: 32px; list-style: none; align-items: center; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--ink); opacity: 0.72; transition: opacity 0.2s, color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { opacity: 1; color: var(--blue-light); }
+    .nav-shop { background: var(--blue); color: #fff !important; opacity: 1 !important; padding: 8px 18px; border-radius: 6px; font-weight: 600 !important; }
+    .nav-cta { background: var(--blue-light); color: #fff !important; opacity: 1 !important; padding: 10px 24px; border-radius: 6px; font-weight: 600 !important; transition: background 0.2s !important; }
+    .nav-cta:hover { background: var(--blue) !important; }
+
+    /* Cart icon in nav */
+    .nav-cart-btn {
+      position: relative; display: flex; align-items: center; gap: 8px;
+      padding: 9px 18px; border-radius: 6px;
+      background: var(--blue-pale); border: 1.5px solid rgba(13,59,110,0.15);
+      font-size: 13.5px; font-weight: 600; color: var(--blue);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .nav-cart-btn:hover { background: #d3e4f7; }
+    .cart-badge {
+      position: absolute; top: -6px; right: -6px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--red); color: #fff;
+      font-size: 10px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      display: none;
+    }
+    .cart-badge.show { display: flex; }
+
+    /* ─────────────────────────────────────────
+       PAGE HEADER
+    ───────────────────────────────────────── */
+    .shop-header {
+      background: var(--blue);
+      padding: 52px 60px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .shop-header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url('https://blue-priint.github.io/assets/images/Bluepriint%20Images/Printing/Backlit-Flex/3.jpg') center/cover;
+      opacity: 0.07;
+    }
+    .shop-header-inner {
+      position: relative; z-index: 1;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      flex-wrap: wrap; gap: 24px;
+    }
+    .shop-header-text { padding-bottom: 40px; }
+    .shop-header-tag {
+      display: inline-block; background: var(--gold); color: var(--blue);
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+      padding: 5px 14px; border-radius: 4px; margin-bottom: 16px;
+    }
+    .shop-header h1 {
+      font-family: var(--serif); font-size: clamp(30px, 4vw, 52px);
+      font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: 12px;
+    }
+    .shop-header h1 em { font-style: italic; color: var(--gold); }
+    .shop-header p { font-size: 15px; color: rgba(255,255,255,0.65); max-width: 420px; line-height: 1.65; }
+    .breadcrumb-nav { display: flex; gap: 8px; align-items: center; font-size: 13px; color: rgba(255,255,255,0.45); margin-top: 18px; }
+    .breadcrumb-nav a { color: rgba(255,255,255,0.55); transition: color 0.2s; }
+    .breadcrumb-nav a:hover { color: #fff; }
+    .breadcrumb-nav .sep { color: rgba(255,255,255,0.25); }
+    .breadcrumb-nav .current { color: var(--gold); font-weight: 600; }
+
+    /* Stat pills in header */
+    .shop-header-stats {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      padding-bottom: 40px; align-self: flex-end;
+    }
+    .hstat {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 8px; padding: 12px 20px; text-align: center;
+    }
+    .hstat-num { font-family: var(--serif); font-size: 24px; font-weight: 700; color: var(--gold); line-height: 1; }
+    .hstat-label { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 4px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+    /* White wave */
+    .shop-header-wave { display: block; width: 100%; margin-bottom: -2px; }
+
+    /* ─────────────────────────────────────────
+       SHOP TOOLBAR (filter + sort)
+    ───────────────────────────────────────── */
+    .shop-toolbar {
+      background: #fff;
+      border-bottom: 1px solid var(--grey-light);
+      padding: 0 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px; flex-wrap: wrap;
+      position: sticky; top: 74px; z-index: 100;
+    }
+
+    /* Category tabs */
+    .cat-tabs { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
+    .cat-tabs::-webkit-scrollbar { display: none; }
+    .cat-tab {
+      padding: 16px 22px; font-size: 13px; font-weight: 600; color: var(--grey);
+      cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      user-select: none;
+    }
+    .cat-tab:hover { color: var(--blue); }
+    .cat-tab.active { color: var(--blue); border-bottom-color: var(--blue-light); }
+
+    /* Toolbar right controls */
+    .toolbar-right { display: flex; align-items: center; gap: 14px; padding: 12px 0; flex-shrink: 0; }
+    .result-count { font-size: 13px; color: var(--grey); white-space: nowrap; }
+    .result-count strong { color: var(--ink); }
+
+    .sort-select {
+      padding: 8px 14px; border: 1.5px solid var(--grey-light); border-radius: 7px;
+      font-family: var(--sans); font-size: 13px; color: var(--ink);
+      background: #fff; outline: none; cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .sort-select:focus { border-color: var(--blue-light); }
+
+    .view-btns { display: flex; gap: 4px; }
+    .view-btn {
+      width: 34px; height: 34px; border-radius: 6px; border: 1.5px solid var(--grey-light);
+      background: #fff; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--grey); transition: all 0.2s;
+    }
+    .view-btn.active, .view-btn:hover { background: var(--blue-pale); border-color: var(--blue-light); color: var(--blue); }
+
+    /* ─────────────────────────────────────────
+       SHOP BODY
+    ───────────────────────────────────────── */
+    .shop-body {
+      display: grid;
+      grid-template-columns: 256px 1fr;
+      gap: 0;
+      min-height: 60vh;
+    }
+
+    /* ── SIDEBAR ── */
+    .shop-sidebar {
+      padding: 32px 28px;
+      border-right: 1px solid var(--grey-light);
+      position: sticky; top: 127px; /* nav + toolbar */
+      height: fit-content;
+      max-height: calc(100vh - 140px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--grey-light) transparent;
+    }
+    .sidebar-section { margin-bottom: 32px; }
+    .sidebar-title {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--grey);
+      margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--grey-light);
+    }
+
+    /* Filter checkboxes */
+    .filter-list { display: flex; flex-direction: column; gap: 8px; }
+    .filter-item {
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; user-select: none;
+    }
+    .filter-item input[type="checkbox"] { display: none; }
+    .filter-check {
+      width: 17px; height: 17px; border-radius: 4px;
+      border: 1.5px solid rgba(13,59,110,0.25); background: #fff;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .filter-item input:checked + .filter-check {
+      background: var(--blue); border-color: var(--blue);
+    }
+    .filter-item input:checked + .filter-check::after {
+      content: '✓'; color: #fff; font-size: 11px; font-weight: 700; line-height: 1;
+    }
+    .filter-label { font-size: 13.5px; color: var(--ink); }
+    .filter-count { font-size: 11px; color: var(--grey); margin-left: auto; }
+
+    /* Price range display */
+    .price-range { margin-top: 8px; }
+    .price-slider {
+      width: 100%; -webkit-appearance: none; appearance: none;
+      height: 4px; border-radius: 2px; background: var(--grey-light);
+      outline: none; cursor: pointer; accent-color: var(--blue);
+    }
+    .price-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--grey); margin-top: 8px; }
+
+    /* Badge filters */
+    .badge-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge-filter {
+      padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 600;
+      border: 1.5px solid var(--grey-light); color: var(--ink); cursor: pointer;
+      transition: all 0.2s; user-select: none;
+    }
+    .badge-filter:hover, .badge-filter.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+    .sidebar-clear {
+      display: inline-block; font-size: 12.5px; font-weight: 600;
+      color: var(--blue-light); cursor: pointer; margin-top: 6px;
+    }
+    .sidebar-clear:hover { text-decoration: underline; }
+
+    /* ── PRODUCT GRID ── */
+    .shop-grid-area { padding: 28px 36px; }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+    .products-grid.view-list {
+      grid-template-columns: 1fr;
+    }
+
+    /* ── PRODUCT CARD (grid) ── */
+    .product-card {
+      background: #fff;
+      border: 1px solid var(--grey-light);
+      border-radius: 12px; overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+      position: relative;
+    }
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 44px rgba(13,59,110,0.12);
+      border-color: rgba(41,128,217,0.25);
+    }
+
+    .product-img-wrap {
+      position: relative; overflow: hidden;
+      background: var(--off); aspect-ratio: 4/3;
+    }
+    .product-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .product-card:hover .product-img-wrap img { transform: scale(1.05); }
+
+    /* Image overlay on hover */
+    .product-overlay {
+      position: absolute; inset: 0;
+      background: rgba(13,59,110,0.55);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .product-card:hover .product-overlay { opacity: 1; }
+    .ov-btn {
+      padding: 10px 16px; border-radius: 7px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; transition: all 0.2s;
+    }
+    .ov-btn-white { background: #fff; color: var(--blue); }
+    .ov-btn-white:hover { background: var(--gold); color: var(--blue); }
+    .ov-btn-wa { background: #25d366; color: #fff; }
+    .ov-btn-wa:hover { filter: brightness(1.1); }
+
+    /* Badges */
+    .product-badge {
+      position: absolute; top: 12px; left: 12px; z-index: 2;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 4px; color: #fff;
+    }
+    .badge-popular { background: var(--blue-light); }
+    .badge-sale    { background: var(--red); }
+    .badge-new     { background: var(--gold); color: var(--blue); }
+    .badge-custom  { background: var(--blue); }
+
+    /* Wishlist heart */
+    .product-wish {
+      position: absolute; top: 10px; right: 10px; z-index: 2;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(255,255,255,0.9); border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 15px; transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .product-wish:hover { transform: scale(1.15); }
+    .product-wish.wished { color: var(--red); }
+
+    /* Card body */
+    .product-body { padding: 16px 18px 18px; display: flex; flex-direction: column; flex: 1; }
+    .product-cat { font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 6px; }
+    .product-name { font-size: 15px; font-weight: 700; color: var(--blue); margin-bottom: 6px; line-height: 1.3; }
+    .product-desc { font-size: 12.5px; color: var(--grey); line-height: 1.65; margin-bottom: 12px; flex: 1; }
+
+    /* Tags */
+    .product-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+    .product-tag { font-size: 10.5px; background: var(--blue-pale); color: var(--blue); padding: 3px 8px; border-radius: 4px; font-weight: 500; }
+
+    /* Price row */
+    .product-price-row { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+    .product-price { font-size: 20px; font-weight: 800; color: var(--blue); }
+    .product-price-old { font-size: 13px; color: var(--grey); text-decoration: line-through; }
+    .product-discount { font-size: 11px; font-weight: 700; color: var(--green); background: #e8f7f0; padding: 2px 7px; border-radius: 4px; }
+
+    /* Card actions */
+    .product-actions { display: flex; gap: 8px; }
+    .btn-enquire {
+      flex: 1; padding: 11px 0; background: var(--blue); color: #fff;
+      border: none; border-radius: 7px; font-size: 13px; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.03em; transition: background 0.2s, transform 0.15s;
+    }
+    .btn-enquire:hover { background: var(--blue-light); transform: translateY(-1px); }
+    .btn-wa {
+      width: 40px; height: 40px; border-radius: 7px;
+      background: #25d366; border: none; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 17px; flex-shrink: 0; transition: all 0.2s;
+    }
+    .btn-wa:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+    /* ── LIST VIEW CARD ── */
+    .view-list .product-card {
+      flex-direction: row; align-items: stretch;
+      border-radius: 10px;
+    }
+    .view-list .product-img-wrap {
+      width: 200px; flex-shrink: 0; aspect-ratio: unset; height: auto;
+      border-radius: 10px 0 0 10px;
+    }
+    .view-list .product-body { padding: 22px 24px; }
+    .view-list .product-overlay { display: none; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      grid-column: 1 / -1; text-align: center; padding: 80px 0;
+    }
+    .empty-icon { font-size: 56px; margin-bottom: 20px; opacity: 0.4; }
+    .empty-title { font-size: 20px; font-weight: 700; color: var(--blue); margin-bottom: 10px; }
+    .empty-desc { font-size: 14px; color: var(--grey); }
+
+    /* ── PAGINATION ── */
+    .pagination {
+      display: flex; gap: 6px; align-items: center; justify-content: center;
+      margin-top: 40px; padding-bottom: 12px;
+    }
+    .page-btn {
+      width: 38px; height: 38px; border-radius: 7px;
+      border: 1.5px solid var(--grey-light); background: #fff;
+      font-size: 13.5px; font-weight: 600; color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .page-btn:hover { background: var(--blue-pale); border-color: var(--blue-light); color: var(--blue); }
+    .page-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+    .page-btn:disabled { opacity: 0.4; cursor: default; }
+
+    /* ─────────────────────────────────────────
+       CART DRAWER
+    ───────────────────────────────────────── */
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(13,26,43,0.55);
+      z-index: 800; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .cart-overlay.open { opacity: 1; pointer-events: auto; }
+    .cart-drawer {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 420px; max-width: 100vw;
+      background: #fff; z-index: 801;
+      display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+      box-shadow: -8px 0 40px rgba(13,26,43,0.14);
+    }
+    .cart-drawer.open { transform: translateX(0); }
+
+    .cart-header {
+      padding: 22px 24px; border-bottom: 1px solid var(--grey-light);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cart-header-title { font-size: 18px; font-weight: 700; color: var(--blue); }
+    .cart-header-sub { font-size: 12.5px; color: var(--grey); margin-top: 2px; }
+    .cart-close {
+      width: 36px; height: 36px; border-radius: 8px; border: none;
+      background: var(--off); cursor: pointer; font-size: 18px; color: var(--ink);
+      display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+    }
+    .cart-close:hover { background: var(--grey-light); }
+
+    .cart-items { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+    .cart-empty { text-align: center; padding: 60px 0; }
+    .cart-empty-icon { font-size: 48px; opacity: 0.3; margin-bottom: 16px; }
+    .cart-empty p { font-size: 14px; color: var(--grey); }
+
+    .cart-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 14px 0; border-bottom: 1px solid var(--grey-light);
+    }
+    .cart-item:last-child { border-bottom: none; }
+    .cart-item-img {
+      width: 68px; height: 68px; border-radius: 8px; object-fit: cover;
+      background: var(--off); flex-shrink: 0; border: 1px solid var(--grey-light);
+    }
+    .cart-item-info { flex: 1; min-width: 0; }
+    .cart-item-cat { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue-light); margin-bottom: 3px; }
+    .cart-item-name { font-size: 14px; font-weight: 600; color: var(--blue); margin-bottom: 6px; line-height: 1.3; }
+    .cart-item-qty-row { display: flex; align-items: center; gap: 8px; }
+    .qty-btn {
+      width: 24px; height: 24px; border-radius: 5px; border: 1.5px solid var(--grey-light);
+      background: #fff; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--ink); transition: all 0.2s; line-height: 1;
+    }
+    .qty-btn:hover { background: var(--blue-pale); border-color: var(--blue-light); }
+    .qty-val { font-size: 14px; font-weight: 700; color: var(--ink); min-width: 24px; text-align: center; }
+    .cart-item-price { font-size: 15px; font-weight: 800; color: var(--blue); white-space: nowrap; }
+    .cart-item-remove { font-size: 12px; color: var(--grey); cursor: pointer; margin-top: 4px; display: block; transition: color 0.2s; }
+    .cart-item-remove:hover { color: var(--red); }
+
+    .cart-footer { padding: 20px 24px; border-top: 1px solid var(--grey-light); }
+    .cart-subtotal { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .cart-subtotal-label { font-size: 14px; color: var(--grey); }
+    .cart-subtotal-val { font-size: 18px; font-weight: 800; color: var(--blue); }
+    .cart-note { font-size: 12px; color: var(--grey); margin-bottom: 16px; line-height: 1.6; }
+    .btn-checkout {
+      display: block; width: 100%; padding: 15px; border-radius: 9px;
+      background: var(--blue); color: #fff; border: none;
+      font-size: 15px; font-weight: 700; cursor: pointer; letter-spacing: 0.03em;
+      transition: background 0.2s, transform 0.15s; text-align: center; margin-bottom: 10px;
+    }
+    .btn-checkout:hover { background: var(--blue-light); transform: translateY(-2px); }
+    .btn-checkout-wa {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 13px; border-radius: 9px;
+      background: #25d366; color: #fff; border: none;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      transition: filter 0.2s; text-align: center;
+    }
+    .btn-checkout-wa:hover { filter: brightness(1.08); }
+
+    /* ─────────────────────────────────────────
+       PRODUCT QUICK-VIEW MODAL
+    ───────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(13,26,43,0.6);
+      z-index: 900; display: flex; align-items: center; justify-content: center;
+      padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal-box {
+      background: #fff; border-radius: 18px; overflow: hidden;
+      display: grid; grid-template-columns: 1fr 1fr;
+      max-width: 820px; width: 100%; max-height: 90vh;
+      box-shadow: 0 24px 80px rgba(13,26,43,0.25);
+      transform: scale(0.94); transition: transform 0.3s;
+    }
+    .modal-overlay.open .modal-box { transform: scale(1); }
+    .modal-img { position: relative; background: var(--off); }
+    .modal-img img { width: 100%; height: 100%; object-fit: cover; }
+    .modal-body { padding: 36px 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+    .modal-close {
+      position: absolute; top: 14px; right: 14px;
+      width: 34px; height: 34px; border-radius: 50%; border: none;
+      background: rgba(255,255,255,0.92); cursor: pointer; font-size: 18px;
+      display: flex; align-items: center; justify-content: center; z-index: 2;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: #fff; }
+    .modal-badge { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 12px; border-radius: 4px; margin-bottom: 4px; }
+    .modal-cat { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--blue-light); }
+    .modal-name { font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--blue); line-height: 1.2; }
+    .modal-desc { font-size: 14px; color: var(--grey); line-height: 1.75; }
+    .modal-features { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .modal-features li { font-size: 13.5px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+    .modal-features li::before { content: '✓'; width: 18px; height: 18px; background: var(--blue-light); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
+    .modal-price-row { display: flex; align-items: baseline; gap: 10px; }
+    .modal-price { font-size: 28px; font-weight: 800; color: var(--blue); }
+    .modal-price-old { font-size: 15px; color: var(--grey); text-decoration: line-through; }
+    .modal-price-note { font-size: 12px; color: var(--grey); }
+    .modal-qty-row { display: flex; align-items: center; gap: 12px; }
+    .modal-qty-label { font-size: 13px; font-weight: 600; color: var(--ink); }
+    .modal-qty-ctrl { display: flex; align-items: center; gap: 8px; }
+    .mq-btn { width: 32px; height: 32px; border-radius: 7px; border: 1.5px solid var(--grey-light); background: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--ink); transition: all 0.2s; }
+    .mq-btn:hover { background: var(--blue-pale); border-color: var(--blue-light); }
+    .mq-val { font-size: 16px; font-weight: 700; min-width: 28px; text-align: center; }
+    .modal-actions { display: flex; flex-direction: column; gap: 10px; }
+    .modal-btn-add { width: 100%; padding: 14px; background: var(--blue); color: #fff; border: none; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .modal-btn-add:hover { background: var(--blue-light); }
+    .modal-btn-wa { width: 100%; padding: 13px; background: #25d366; color: #fff; border: none; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: filter 0.2s; }
+    .modal-btn-wa:hover { filter: brightness(1.08); }
+
+    /* ─────────────────────────────────────────
+       CUSTOM QUOTE BANNER
+    ───────────────────────────────────────── */
+    .quote-banner {
+      background: linear-gradient(135deg, var(--blue) 0%, #1a5fa8 100%);
+      margin: 0 60px 0; border-radius: 16px;
+      padding: 40px 52px;
+      display: flex; align-items: center; justify-content: space-between; gap: 32px;
+      flex-wrap: wrap;
+    }
+    .quote-banner-text h3 { font-family: var(--serif); font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 8px; line-height: 1.2; }
+    .quote-banner-text h3 em { font-style: italic; color: var(--gold); }
+    .quote-banner-text p { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.65; max-width: 440px; }
+    .quote-banner-btns { display: flex; gap: 12px; flex-wrap: wrap; flex-shrink: 0; }
+    .btn-quote-gold { background: var(--gold); color: var(--blue); padding: 13px 26px; border-radius: 7px; font-size: 13.5px; font-weight: 700; transition: filter 0.2s; }
+    .btn-quote-gold:hover { filter: brightness(1.08); }
+    .btn-quote-ghost { border: 2px solid rgba(255,255,255,0.35); color: #fff; padding: 11px 22px; border-radius: 7px; font-size: 13.5px; font-weight: 600; transition: border-color 0.2s, background 0.2s; }
+    .btn-quote-ghost:hover { border-color: #fff; background: rgba(255,255,255,0.08); }
+
+    /* ─────────────────────────────────────────
+       CLIENTS MARQUEE
+    ───────────────────────────────────────── */
+    .clients-section { padding: 52px 60px; border-top: 1px solid rgba(13,59,110,0.08); margin-top: 60px; }
+    .clients-label { text-align: center; font-size: 11.5px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey); margin-bottom: 36px; }
+    .clients-scroll { overflow: hidden; }
+    .clients-track { display: flex; gap: 56px; animation: marquee 22s linear infinite; width: max-content; }
+    .clients-track:hover { animation-play-state: paused; }
+    .client-pill { font-family: var(--serif); font-size: 18px; font-weight: 600; color: rgba(13,59,110,0.22); white-space: nowrap; transition: color 0.3s; }
+    .client-pill:hover { color: var(--blue); }
+    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    /* ─────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────── */
+    footer { background: #081422; color: rgba(255,255,255,0.5); padding: 64px 60px 32px; margin-top: 60px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.2fr; gap: 48px; padding-bottom: 44px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .footer-logo { font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 14px; }
+    .footer-logo span { color: var(--blue-light); }
+    .footer-about { font-size: 13.5px; line-height: 1.75; max-width: 280px; }
+    .footer-col h4 { font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.28); margin-bottom: 18px; font-weight: 600; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a { font-size: 13.5px; color: rgba(255,255,255,0.5); transition: color 0.2s; }
+    .footer-col ul a:hover { color: #fff; }
+    .footer-contact-item { display: flex; gap: 10px; margin-bottom: 11px; font-size: 13.5px; align-items: flex-start; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 28px; font-size: 12.5px; flex-wrap: wrap; gap: 12px; }
+
+    /* ─────────────────────────────────────────
+       SCROLL REVEAL
+    ───────────────────────────────────────── */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.up { opacity: 1; transform: translateY(0); }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+      .shop-sidebar { display: none; }
+      .shop-body { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 960px) {
+      .topbar, nav#mainNav, .shop-toolbar, .shop-header, .shop-grid-area, .quote-banner, .clients-section, footer { padding-left: 20px; padding-right: 20px; }
+      .nav-links { display: none; }
+      .shop-header { padding-top: 36px; }
+      .shop-header-stats { display: none; }
+      .modal-box { grid-template-columns: 1fr; }
+      .modal-img { height: 240px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .quote-banner { margin: 0 20px; padding: 28px 24px; }
+    }
+    @media (max-width: 600px) {
+      .products-grid { grid-template-columns: 1fr; }
+      .cart-drawer { width: 100vw; }
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ── FLOATING BUTTONS ── -->
+<div class="float-btns">
+  <a href="tel:+919717027607" class="float-btn float-call">
+    <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+    Call Now
+  </a>
+  <a href="https://wa.me/919717027607?text=Hello%20BluePriint%2C%20I%20need%20a%20quote" target="_blank" class="float-btn float-wa">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.107.549 4.09 1.508 5.813L.057 23.75c-.072.266.168.49.428.402l5.74-1.497A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.916 0-3.716-.5-5.277-1.374l-.379-.214-3.93 1.025 1.057-3.826-.234-.38A9.97 9.97 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+    WhatsApp
+  </a>
+</div>
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <span>📍 B-7, First Floor, Rama Road Industrial Area, New Delhi – 110015 &nbsp;|&nbsp; Ramesh Nagar Metro</span>
+  <div class="topbar-right">
+    <a href="mailto:print@bluepriint.in">print@bluepriint.in</a>
+    <a href="tel:+919717027607">📞 +91 9717027607</a>
+    <span>Mon–Fri 10:30–20:30</span>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav id="mainNav">
+  <a href="index.html" class="nav-logo">Blue<span>Priint</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="about.html">About Us</a></li>
+    <li><a href="index.html#services">Services</a></li>
+    <li><a href="index.html#catalogue">Catalogue</a></li>
+    <li><a href="#">Infrastructure</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="shop.html" class="nav-shop active">🛒 Shop</a></li>
+    <li><a href="tel:+919717027607" class="nav-cta">📞 Call Now</a></li>
+  </ul>
+  <button class="nav-cart-btn" id="cartToggle" onclick="openCart()">
+    🛒 Cart
+    <span class="cart-badge" id="cartBadge">0</span>
+  </button>
+</nav>
+
+<!-- ── PAGE HEADER ── -->
+<header class="shop-header">
+  <div class="shop-header-inner">
+    <div class="shop-header-text">
+      <span class="shop-header-tag">Our Products</span>
+      <h1>Shop <em>BluePriint</em></h1>
+      <p>Premium signage, printing and branding products — order online or request a custom quote tailored to your space.</p>
+      <nav class="breadcrumb-nav" aria-label="breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="sep">/</span>
+        <span class="current">Shop</span>
+      </nav>
+    </div>
+    <div class="shop-header-stats">
+      <div class="hstat">
+        <div class="hstat-num">24</div>
+        <div class="hstat-label">Products</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num">8</div>
+        <div class="hstat-label">Categories</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-num">48h</div>
+        <div class="hstat-label">Turnaround</div>
+      </div>
+    </div>
+  </div>
+  <svg class="shop-header-wave" viewBox="0 0 1440 44" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <path d="M0 44L1440 44L1440 22C1080 0 360 0 0 22L0 44Z" fill="white"/>
+  </svg>
+</header>
+
+<!-- ── TOOLBAR ── -->
+<div class="shop-toolbar" id="shopToolbar">
+  <div class="cat-tabs" id="catTabs">
+    <div class="cat-tab active" data-cat="all">All Products</div>
+    <div class="cat-tab" data-cat="Printing">Printing</div>
+    <div class="cat-tab" data-cat="Signage">Signage</div>
+    <div class="cat-tab" data-cat="Internal Branding">Internal Branding</div>
+    <div class="cat-tab" data-cat="LED Screens">LED Screens</div>
+    <div class="cat-tab" data-cat="OOH">OOH</div>
+    <div class="cat-tab" data-cat="BTL">BTL / Promotions</div>
+  </div>
+  <div class="toolbar-right">
+    <span class="result-count" id="resultCount"><strong>24</strong> products</span>
+    <select class="sort-select" id="sortSelect">
+      <option value="default">Sort: Default</option>
+      <option value="price-asc">Price: Low → High</option>
+      <option value="price-desc">Price: High → Low</option>
+      <option value="name-asc">Name: A → Z</option>
+    </select>
+    <div class="view-btns">
+      <button class="view-btn active" id="btnGrid" title="Grid view" onclick="setView('grid')">⊞</button>
+      <button class="view-btn" id="btnList" title="List view" onclick="setView('list')">≡</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SHOP BODY ── -->
+<div class="shop-body">
+
+  <!-- SIDEBAR -->
+  <aside class="shop-sidebar">
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Category</div>
+      <div class="filter-list" id="catFilters">
+        <label class="filter-item"><input type="checkbox" checked data-cat="Printing"/><span class="filter-check"></span><span class="filter-label">Printing</span><span class="filter-count">8</span></label>
+        <label class="filter-item"><input type="checkbox" checked data-cat="Signage"/><span class="filter-check"></span><span class="filter-label">Signage</span><span class="filter-count">6</span></label>
+        <label class="filter-item"><input type="checkbox" checked data-cat="Internal Branding"/><span class="filter-check"></span><span class="filter-label">Internal Branding</span><span class="filter-count">4</span></label>
+        <label class="filter-item"><input type="checkbox" checked data-cat="LED Screens"/><span class="filter-check"></span><span class="filter-label">LED Screens</span><span class="filter-count">2</span></label>
+        <label class="filter-item"><input type="checkbox" checked data-cat="OOH"/><span class="filter-check"></span><span class="filter-label">OOH</span><span class="filter-count">2</span></label>
+        <label class="filter-item"><input type="checkbox" checked data-cat="BTL"/><span class="filter-check"></span><span class="filter-label">BTL / Promotions</span><span class="filter-count">2</span></label>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Budget (₹ per sq.ft)</div>
+      <div class="price-range">
+        <input type="range" class="price-slider" id="priceSlider" min="0" max="10000" value="10000" step="100"/>
+        <div class="price-labels"><span>₹0</span><span id="priceMax">Up to ₹10,000</span></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Availability</div>
+      <div class="badge-filters">
+        <div class="badge-filter active" data-badge="all">All</div>
+        <div class="badge-filter" data-badge="sale">On Sale</div>
+        <div class="badge-filter" data-badge="new">New</div>
+        <div class="badge-filter" data-badge="popular">Popular</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Material</div>
+      <div class="filter-list">
+        <label class="filter-item"><input type="checkbox" checked/><span class="filter-check"></span><span class="filter-label">Flex / Vinyl</span></label>
+        <label class="filter-item"><input type="checkbox" checked/><span class="filter-check"></span><span class="filter-label">ACP / Aluminium</span></label>
+        <label class="filter-item"><input type="checkbox" checked/><span class="filter-check"></span><span class="filter-label">Acrylic</span></label>
+        <label class="filter-item"><input type="checkbox" checked/><span class="filter-check"></span><span class="filter-label">Canvas</span></label>
+        <label class="filter-item"><input type="checkbox" checked/><span class="filter-check"></span><span class="filter-label">LED / Light</span></label>
+      </div>
+    </div>
+
+    <div style="text-align:center;">
+      <span class="sidebar-clear" onclick="clearFilters()">✕ Clear all filters</span>
+    </div>
+
+  </aside>
+
+  <!-- PRODUCTS AREA -->
+  <div class="shop-grid-area">
+    <div class="products-grid" id="productsGrid">
+      <!-- injected by JS -->
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+
+<!-- ── CUSTOM QUOTE BANNER ── -->
+<div class="quote-banner reveal" style="margin-top:56px;">
+  <div class="quote-banner-text">
+    <h3>Don't See What You Need? Get a <em>Custom Quote</em></h3>
+    <p>Share your dimensions, material and brief — our team will spec and price the exact product you need, usually within 24 hours.</p>
+  </div>
+  <div class="quote-banner-btns">
+    <a href="https://wa.me/919717027607?text=Hi%20BluePriint%2C%20I%20need%20a%20custom%20product%20quote" target="_blank" class="btn-quote-gold">💬 WhatsApp Brief</a>
+    <a href="contact.html" class="btn-quote-ghost">Fill Request Form</a>
+  </div>
+</div>
+
+<!-- ── CLIENTS ── -->
+<div class="clients-section">
+  <div class="clients-label">Products trusted by brands across Delhi NCR</div>
+  <div class="clients-scroll">
+    <div class="clients-track">
+      <span class="client-pill">Bajaj</span><span class="client-pill">·</span>
+      <span class="client-pill">Hero</span><span class="client-pill">·</span>
+      <span class="client-pill">Pepsi</span><span class="client-pill">·</span>
+      <span class="client-pill">Mother Dairy</span><span class="client-pill">·</span>
+      <span class="client-pill">Blackberry</span><span class="client-pill">·</span>
+      <span class="client-pill">Wella</span><span class="client-pill">·</span>
+      <span class="client-pill">Anchor</span><span class="client-pill">·</span>
+      <span class="client-pill">Aiwa</span><span class="client-pill">·</span>
+      <span class="client-pill">Valvoline</span><span class="client-pill">·</span>
+      <span class="client-pill">ISBF</span><span class="client-pill">·</span>
+      <span class="client-pill">Crystal</span><span class="client-pill">·</span>
+      <span class="client-pill">Affinity Express</span><span class="client-pill">·</span>
+      <span class="client-pill">Bajaj</span><span class="client-pill">·</span>
+      <span class="client-pill">Hero</span><span class="client-pill">·</span>
+      <span class="client-pill">Pepsi</span><span class="client-pill">·</span>
+      <span class="client-pill">Mother Dairy</span><span class="client-pill">·</span>
+      <span class="client-pill">Blackberry</span><span class="client-pill">·</span>
+      <span class="client-pill">Wella</span><span class="client-pill">·</span>
+      <span class="client-pill">Anchor</span><span class="client-pill">·</span>
+      <span class="client-pill">Aiwa</span><span class="client-pill">·</span>
+      <span class="client-pill">Valvoline</span><span class="client-pill">·</span>
+      <span class="client-pill">ISBF</span><span class="client-pill">·</span>
+      <span class="client-pill">Crystal</span><span class="client-pill">·</span>
+      <span class="client-pill">Affinity Express</span><span class="client-pill">·</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">Blue<span>Priint</span></div>
+      <p class="footer-about">Delhi's trusted print and branding partner — signage, printing, LED screens, interior architecture and more.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#">Printing & Branding</a></li>
+        <li><a href="#">LED Screens & OOH</a></li>
+        <li><a href="#">Signage Solutions</a></li>
+        <li><a href="#">Interior Architecture</a></li>
+        <li><a href="#">Promotions & BTL</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <div class="footer-contact-item">📍 B-7, First Floor, Rama Road Industrial Area, New Delhi – 110015</div>
+      <div class="footer-contact-item">📞 <a href="tel:+919717027607" style="color:rgba(255,255,255,0.6)">+91 9717027607</a></div>
+      <div class="footer-contact-item">✉ <a href="mailto:print@bluepriint.in" style="color:rgba(255,255,255,0.6)">print@bluepriint.in</a></div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 BluePriint. All rights reserved.</span>
+    <span>Made with ♥ in New Delhi</span>
+  </div>
+</footer>
+
+<!-- ── CART DRAWER ── -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-header">
+    <div>
+      <div class="cart-header-title">Your Enquiry Cart</div>
+      <div class="cart-header-sub">Items to quote or order</div>
+    </div>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">🛒</div>
+      <p>Your cart is empty.<br>Add products to request a quote.</p>
+    </div>
+  </div>
+  <div class="cart-footer" id="cartFooter" style="display:none;">
+    <div class="cart-subtotal">
+      <span class="cart-subtotal-label">Estimated Total</span>
+      <span class="cart-subtotal-val" id="cartTotal">₹0</span>
+    </div>
+    <p class="cart-note">Prices are indicative. Final quote depends on size, quantity and material spec — we'll confirm within 24 hours.</p>
+    <button class="btn-checkout" onclick="checkoutWhatsApp()">Send Enquiry via WhatsApp →</button>
+    <a href="contact.html" class="btn-checkout-wa">📋 Fill Detailed Request Form</a>
+  </div>
+</div>
+
+<!-- ── QUICK VIEW MODAL ── -->
+<div class="modal-overlay" id="quickViewModal" onclick="closeModal(event)">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-img">
+      <img id="modalImg" src="" alt=""/>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <!-- injected -->
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   PRODUCT DATA
+══════════════════════════════════════════ */
+const BASE = 'https://blue-priint.github.io/assets/images/Bluepriint%20Images/';
+
+const PRODUCTS = [
+  { id:'BP-001', sku:'flex-banner', cat:'Printing', name:'Backlit Flex Banner', desc:'High-brightness backlit flex for shop fronts, malls and outdoor displays. UV-resistant ink that glows brilliantly at night.', price:850, oldPrice:1100, badge:'popular', tags:['Flex','Backlit','UV Print'], img: BASE+'Printing/Backlit-Flex/3.jpg', features:['Available in all custom sizes','UV-resistant weatherproof ink','48-hour express turnaround'] },
+  { id:'BP-002', sku:'acp-signboard', cat:'Signage', name:'ACP Fascia Sign Board', desc:'Durable aluminium composite panel signage for shops, offices and commercial spaces. Professional finish that lasts years.', price:3200, oldPrice:4000, badge:'sale', tags:['ACP','Aluminium','Fascia'], img: BASE+'Signage%20Solutions/ACPSignage.JPG', features:['Weather-resistant ACP panel','Custom shape & size fabrication','LED backlit options available'] },
+  { id:'BP-003', sku:'canvas-print', cat:'Printing', name:'Premium Canvas Print', desc:'Gallery-quality canvas prints for offices, showrooms and retail walls. Archival inks, vivid and lasting.', price:1200, oldPrice:null, badge:null, tags:['Canvas','A0/A1','Framed'], img: BASE+'Printing/canvas/3.jpg', features:['Archival-grade canvas material','Sizes from A3 to 10-foot wide','Framing & stretching available'] },
+  { id:'BP-004', sku:'one-way-vision', cat:'Printing', name:'One Way Vision Film', desc:'See-through perforated vinyl for glass facades — brand visibility outside, clear view inside.', price:950, oldPrice:1200, badge:'new', tags:['Perforated','Glass Film','Privacy'], img: BASE+'Printing/one%20way%20vison/3.jpg', features:['50% perforated vinyl film','Maintains interior visibility','UV & weather resistant'] },
+  { id:'BP-005', sku:'clip-on-translite', cat:'Internal Branding', name:'Clip-on Translite', desc:'Backlit translites for in-store branding, aisle displays and product promotions. Bright and attention-grabbing.', price:2400, oldPrice:null, badge:null, tags:['Backlit','In-Store','LED'], img: BASE+'Internal%20Branding/Clip%20on%20translites/Picture30.jpg', features:['Slim-frame backlit design','Quick-change graphics system','Energy-efficient LED backlight'] },
+  { id:'BP-006', sku:'acrylic-uv-print', cat:'Printing', name:'Acrylic UV Print', desc:'Vibrant, scratch-resistant UV prints on clear or white acrylic. The premium choice for brand displays.', price:1800, oldPrice:2200, badge:'sale', tags:['Acrylic','UV Print','Scratch-Resistant'], img: BASE+'Printing/Acrylic/3.jpg', features:['Crystal-clear acrylic substrate','Scratch & fade resistant','Standoff or flush mounting'] },
+  { id:'BP-007', sku:'facade-3d-led', cat:'Signage', name:'3D LED Facade Sign', desc:'Dramatic illuminated facade signs with 3D LED letters that transform storefronts into landmark destinations after dark.', price:8500, oldPrice:null, badge:'popular', tags:['3D LED','Facade','Channel Letters'], img: BASE+'Signage%20Solutions/Facade%20Signage/3%20night.jpg', features:['Custom 3D letter fabrication','RGB or single-colour LED','Includes installation & wiring'] },
+  { id:'BP-008', sku:'floor-vinyl', cat:'Internal Branding', name:'Floor Vinyl Graphics', desc:'Heavy-duty anti-slip floor vinyl for retail stores, showrooms and events. Turn your floor into a brand surface.', price:650, oldPrice:800, badge:'sale', tags:['Floor Vinyl','Anti-Slip','Retail'], img: BASE+'Printing/image11.jpg', features:['Anti-slip laminate finish','Withstands heavy foot traffic','Easy to clean & maintain'] },
+  { id:'BP-009', sku:'roll-up-standee', cat:'BTL', name:'Roll-up Standee', desc:'Portable and professional roll-up standees for events, exhibitions, retail launches and office lobbies.', price:1400, oldPrice:1800, badge:'sale', tags:['Standee','Events','Retractable'], img: BASE+'Printing/Backlit-Flex/3.jpg', features:['Aluminium base with carry bag','Retractable mechanism','Print replacement available'] },
+  { id:'BP-010', sku:'glow-sign-board', cat:'Signage', name:'Glow Sign Board', desc:'Classic backlit glow sign boards for shops and businesses. Highly visible day and night with a clean, professional look.', price:2200, oldPrice:null, badge:null, tags:['Glow Sign','Backlit','Aluminium Frame'], img: BASE+'Signage%20Solutions/ACPSignage.JPG', features:['Aluminium frame construction','Internal LED / CFL lighting','Waterproof & outdoor-safe'] },
+  { id:'BP-011', sku:'dangler-print', cat:'Internal Branding', name:'Dangler Print', desc:'Eye-catching hanging danglers for aisle branding, product promotions and seasonal campaigns in retail environments.', price:320, oldPrice:null, badge:null, tags:['Dangler','Sunboard','Die-Cut'], img: BASE+'Internal%20Branding/Clip%20on%20translites/Picture30.jpg', features:['Sunboard or PVC material','Single or double-sided print','Custom die-cut shapes available'] },
+  { id:'BP-012', sku:'outdoor-hoarding', cat:'OOH', name:'Outdoor Hoarding', desc:'Large-format outdoor hoardings for maximum brand reach along highways, markets and commercial corridors.', price:12000, oldPrice:null, badge:null, tags:['Hoarding','Large Format','OOH'], img: BASE+'Printing/canvas/3.jpg', features:['Sizes up to 40×20 feet','Steel structure & printing included','PAN India installation network'] },
+  { id:'BP-013', sku:'sunboard-cutout', cat:'BTL', name:'Sunboard Cut-out Display', desc:'Custom-shaped sunboard cut-outs for point-of-sale displays, in-store promotions and event activations.', price:480, oldPrice:600, badge:'sale', tags:['Sunboard','Cut-out','POS'], img: BASE+'Printing/Backlit-Flex/3.jpg', features:['5mm sunboard substrate','Any shape or size','Single or double-sided'] },
+  { id:'BP-014', sku:'neon-flex-sign', cat:'Signage', name:'Neon Flex LED Sign', desc:'Custom neon flex LED signs for restaurants, retail and office interiors. Warm glow, low power consumption.', price:4500, oldPrice:5500, badge:'new', tags:['Neon','LED','Custom Shape'], img: BASE+'Signage%20Solutions/Facade%20Signage/3%20night.jpg', features:['Custom shape bending','Energy-efficient LED neon','Indoor & outdoor versions'] },
+  { id:'BP-015', sku:'vinyl-wall-wrap', cat:'Printing', name:'Vinyl Wall Wrap', desc:'Full-colour adhesive vinyl wall graphics for offices, retail showrooms and hospitality spaces. Easy to apply and remove.', price:560, oldPrice:null, badge:null, tags:['Vinyl','Wall Graphics','Office'], img: BASE+'Printing/one%20way%20vison/3.jpg', features:['Air-release adhesive vinyl','Repositionable up to 24 hrs','Matte or gloss finish'] },
+  { id:'BP-016', sku:'kiosk-display', cat:'OOH', name:'Retail Kiosk Display', desc:'Freestanding retail kiosks for malls, airports and high-traffic areas. Custom fabricated for your brand identity.', price:18000, oldPrice:null, badge:null, tags:['Kiosk','Retail','Freestanding'], img: BASE+'Signage%20Solutions/ACPSignage.JPG', features:['Custom aluminium fabrication','Integrated lighting options','Branded wrap printing included'] },
+  { id:'BP-017', sku:'led-display-screen', cat:'LED Screens', name:'Indoor LED Display Screen', desc:'High-resolution indoor LED display panels for retail, corporate lobbies and command centres. Vivid and impact-ready.', price:22000, oldPrice:null, badge:null, tags:['LED Screen','Indoor','P2.5/P3'], img: BASE+'Signage%20Solutions/Facade%20Signage/3%20night.jpg', features:['P2.5 / P3 pixel pitch options','Content management system','Installation & commissioning'] },
+  { id:'BP-018', sku:'outdoor-led-screen', cat:'LED Screens', name:'Outdoor LED Video Wall', desc:'Weatherproof outdoor LED screens for storefronts, rooftops and building facades. High brightness for direct sunlight.', price:45000, oldPrice:null, badge:'popular', tags:['Outdoor LED','Video Wall','Weatherproof'], img: BASE+'Signage%20Solutions/Facade%20Signage/3%20night.jpg', features:['IP65 weatherproof rated','5000+ nits brightness','Remote content management'] },
+  { id:'BP-019', sku:'backlit-sign-box', cat:'Signage', name:'LED Backlit Sign Box', desc:'Slim aluminium LED light boxes for menus, directories and wall-mounted advertising displays. Clean and modern.', price:2800, oldPrice:3400, badge:'sale', tags:['Lightbox','Backlit','Slim Frame'], img: BASE+'Internal%20Branding/Clip%20on%20translites/Picture30.jpg', features:['Slim 50mm aluminium frame','Even LED backlighting','Snap-open frame for easy graphic change'] },
+  { id:'BP-020', sku:'printed-brochure', cat:'Printing', name:'Catalogue & Brochure Print', desc:'Premium offset and digital brochures for product catalogues, company profiles and event materials.', price:180, oldPrice:null, badge:null, tags:['Brochure','Offset','A4/A5'], img: BASE+'Printing/canvas/3.jpg', features:['200–350gsm coated stocks','Spot UV & foiling options','Min. 100 qty, bulk pricing'] },
+  { id:'BP-021', sku:'window-graphics', cat:'Printing', name:'Shop Window Graphics', desc:'Full-colour adhesive and semi-permanent window graphics for storefronts, malls and showroom glass.', price:420, oldPrice:520, badge:'sale', tags:['Window','Vinyl','Frosted'], img: BASE+'Printing/one%20way%20vison/3.jpg', features:['Clear, white or frosted vinyl','Custom cut & printed designs','Professional application service'] },
+  { id:'BP-022', sku:'frosted-film', cat:'Internal Branding', name:'Frosted Privacy Film', desc:'Architectural frosted film for glass partitions and office doors. Adds privacy while maintaining natural light flow.', price:380, oldPrice:null, badge:null, tags:['Frosted','Privacy','Glass Film'], img: BASE+'Printing/one%20way%20vison/3.jpg', features:['Multiple frosting levels','Custom pattern or solid frosted','Easy clean & maintain'] },
+  { id:'BP-023', sku:'banner-stand', cat:'BTL', name:'Premium Banner Stand', desc:'Heavy-duty double-sided banner stands for exhibitions, trade shows and in-store promotions.', price:2200, oldPrice:2800, badge:null, tags:['Banner Stand','Double-Sided','Exhibition'], img: BASE+'Printing/Backlit-Flex/3.jpg', features:['Chrome & black finish options','Double-sided print ready','Padded carry case included'] },
+  { id:'BP-024', sku:'wayfinding-sign', cat:'Signage', name:'Wayfinding Signage Set', desc:'Architectural wayfinding and directional signs for campuses, hospitals, hotels and corporate offices.', price:5500, oldPrice:null, badge:'new', tags:['Wayfinding','Directional','Architectural'], img: BASE+'Signage%20Solutions/ACPSignage.JPG', features:['Brushed aluminium panels','Custom typography & brand colour','Full system design included'] },
+];
+
+/* ══════════════════════════════════════════
+   CART STATE
+══════════════════════════════════════════ */
+let cart = [];
+let activeCategory = 'all';
+let activeBadge    = 'all';
+let currentView    = 'grid';
+let maxPrice       = 10000;
+
+/* ══════════════════════════════════════════
+   RENDER PRODUCTS
+══════════════════════════════════════════ */
+function getFiltered() {
+  const sortVal = document.getElementById('sortSelect').value;
+
+  let list = PRODUCTS.filter(p => {
+    const catMatch   = activeCategory === 'all' || p.cat === activeCategory;
+    const badgeMatch = activeBadge === 'all' || p.badge === activeBadge;
+    const priceMatch = p.price <= maxPrice;
+    return catMatch && badgeMatch && priceMatch;
+  });
+
+  if (sortVal === 'price-asc')  list.sort((a,b) => a.price - b.price);
+  if (sortVal === 'price-desc') list.sort((a,b) => b.price - a.price);
+  if (sortVal === 'name-asc')   list.sort((a,b) => a.name.localeCompare(b.name));
+
+  return list;
+}
+
+function badgeHTML(b) {
+  if (!b) return '';
+  const map = { popular:'badge-popular', sale:'badge-sale', new:'badge-new', custom:'badge-custom' };
+  const labels = { popular:'Popular', sale:'Sale', new:'New', custom:'Custom' };
+  return `<span class="product-badge ${map[b]}">${labels[b]}</span>`;
+}
+
+function discountPct(price, old) {
+  if (!old) return '';
+  return `<span class="product-discount">–${Math.round((1-price/old)*100)}%</span>`;
+}
+
+function renderCards(list) {
+  const grid = document.getElementById('productsGrid');
+
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No products found</div><p class="empty-desc">Try adjusting your filters or <a href="contact.html" style="color:var(--blue-light)">request a custom quote</a>.</p></div>`;
+    document.getElementById('resultCount').innerHTML = '<strong>0</strong> products';
+    return;
+  }
+
+  document.getElementById('resultCount').innerHTML = `<strong>${list.length}</strong> product${list.length !== 1 ? 's' : ''}`;
+
+  grid.innerHTML = list.map(p => `
+    <div class="product-card reveal" data-id="${p.id}">
+      <div class="product-img-wrap">
+        ${badgeHTML(p.badge)}
+        <button class="product-wish" onclick="toggleWish(this)" title="Save">♡</button>
+        <img src="${p.img}" alt="${p.name}" loading="lazy"/>
+        <div class="product-overlay">
+          <button class="ov-btn ov-btn-white" onclick="openQuickView('${p.id}')">Quick View</button>
+          <a href="https://wa.me/919717027607?text=Hi%20BluePriint%2C%20I%27m%20interested%20in%20${encodeURIComponent(p.name)}" target="_blank" class="ov-btn ov-btn-wa">💬 WhatsApp</a>
+        </div>
+      </div>
+      <div class="product-body">
+        <div class="product-cat">${p.cat}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-desc">${p.desc}</div>
+        <div class="product-tags">${p.tags.map(t=>`<span class="product-tag">${t}</span>`).join('')}</div>
+        <div class="product-price-row">
+          <span class="product-price">₹${p.price.toLocaleString('en-IN')}</span>
+          ${p.oldPrice ? `<span class="product-price-old">₹${p.oldPrice.toLocaleString('en-IN')}</span>` : ''}
+          ${discountPct(p.price, p.oldPrice)}
+        </div>
+        <div class="product-actions">
+          <button class="btn-enquire" onclick="addToCart('${p.id}')">Add to Enquiry</button>
+          <a href="https://wa.me/919717027607?text=Hi%20BluePriint%2C%20I%27m%20interested%20in%20${encodeURIComponent(p.name)}%20(SKU:%20${p.sku})" target="_blank" class="btn-wa" title="WhatsApp enquiry">💬</a>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Trigger reveal animation
+  setTimeout(() => {
+    grid.querySelectorAll('.reveal').forEach((el, i) => {
+      setTimeout(() => el.classList.add('up'), i * 55);
+    });
+  }, 40);
+}
+
+/* ══════════════════════════════════════════
+   CATEGORY TABS
+══════════════════════════════════════════ */
+document.getElementById('catTabs').addEventListener('click', e => {
+  const tab = e.target.closest('.cat-tab');
+  if (!tab) return;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  activeCategory = tab.dataset.cat;
+  renderCards(getFiltered());
+});
+
+/* ══════════════════════════════════════════
+   SORT
+══════════════════════════════════════════ */
+document.getElementById('sortSelect').addEventListener('change', () => renderCards(getFiltered()));
+
+/* ══════════════════════════════════════════
+   BADGE FILTERS
+══════════════════════════════════════════ */
+document.querySelectorAll('.badge-filter').forEach(bf => {
+  bf.addEventListener('click', () => {
+    document.querySelectorAll('.badge-filter').forEach(b => b.classList.remove('active'));
+    bf.classList.add('active');
+    activeBadge = bf.dataset.badge;
+    renderCards(getFiltered());
+  });
+});
+
+/* ══════════════════════════════════════════
+   PRICE SLIDER
+══════════════════════════════════════════ */
+document.getElementById('priceSlider').addEventListener('input', function() {
+  maxPrice = parseInt(this.value);
+  const label = maxPrice >= 10000 ? 'Any price' : `Up to ₹${maxPrice.toLocaleString('en-IN')}`;
+  document.getElementById('priceMax').textContent = label;
+  renderCards(getFiltered());
+});
+
+/* ══════════════════════════════════════════
+   VIEW TOGGLE
+══════════════════════════════════════════ */
+function setView(v) {
+  currentView = v;
+  const grid = document.getElementById('productsGrid');
+  grid.classList.toggle('view-list', v === 'list');
+  document.getElementById('btnGrid').classList.toggle('active', v === 'grid');
+  document.getElementById('btnList').classList.toggle('active', v === 'list');
+}
+
+/* ══════════════════════════════════════════
+   CLEAR FILTERS
+══════════════════════════════════════════ */
+function clearFilters() {
+  activeCategory = 'all';
+  activeBadge    = 'all';
+  maxPrice       = 10000;
+  document.querySelectorAll('.cat-tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  document.querySelectorAll('.badge-filter').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.getElementById('priceSlider').value = 10000;
+  document.getElementById('priceMax').textContent = 'Up to ₹10,000';
+  renderCards(getFiltered());
+}
+
+/* ══════════════════════════════════════════
+   WISHLIST (cosmetic)
+══════════════════════════════════════════ */
+function toggleWish(btn) {
+  btn.classList.toggle('wished');
+  btn.textContent = btn.classList.contains('wished') ? '♥' : '♡';
+}
+
+/* ══════════════════════════════════════════
+   CART
+══════════════════════════════════════════ */
+function addToCart(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  const existing = cart.find(x => x.id === id);
+  if (existing) { existing.qty++; }
+  else          { cart.push({ ...p, qty: 1 }); }
+  updateCartBadge();
+  renderCartItems();
+  openCart();
+
+  // Brief button feedback
+  const btn = document.querySelector(`[data-id="${id}"] .btn-enquire`);
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Added';
+    btn.style.background = '#22a06b';
+    setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1600);
+  }
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(x => x.id !== id);
+  updateCartBadge();
+  renderCartItems();
+}
+
+function changeQty(id, delta) {
+  const item = cart.find(x => x.id === id);
+  if (!item) return;
+  item.qty = Math.max(1, item.qty + delta);
+  updateCartBadge();
+  renderCartItems();
+}
+
+function updateCartBadge() {
+  const total = cart.reduce((s, x) => s + x.qty, 0);
+  const badge = document.getElementById('cartBadge');
+  badge.textContent = total;
+  badge.classList.toggle('show', total > 0);
+}
+
+function renderCartItems() {
+  const container = document.getElementById('cartItems');
+  const footer    = document.getElementById('cartFooter');
+
+  if (!cart.length) {
+    container.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p>Your cart is empty.<br>Add products to request a quote.</p></div>`;
+    footer.style.display = 'none';
+    return;
+  }
+
+  footer.style.display = 'block';
+  const subtotal = cart.reduce((s, x) => s + x.price * x.qty, 0);
+  document.getElementById('cartTotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+
+  container.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <img class="cart-item-img" src="${item.img}" alt="${item.name}"/>
+      <div class="cart-item-info">
+        <div class="cart-item-cat">${item.cat}</div>
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-qty-row">
+          <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
+          <span class="qty-val">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
+        </div>
+        <span class="cart-item-remove" onclick="removeFromCart('${item.id}')">Remove</span>
+      </div>
+      <div class="cart-item-price">₹${(item.price * item.qty).toLocaleString('en-IN')}</div>
+    </div>
+  `).join('');
+}
+
+function openCart()  { document.getElementById('cartOverlay').classList.add('open'); document.getElementById('cartDrawer').classList.add('open'); }
+function closeCart() { document.getElementById('cartOverlay').classList.remove('open'); document.getElementById('cartDrawer').classList.remove('open'); }
+
+function checkoutWhatsApp() {
+  const lines = cart.map(x => `• ${x.name} (×${x.qty}) — ₹${(x.price*x.qty).toLocaleString('en-IN')}`).join('\n');
+  const total = cart.reduce((s,x) => s + x.price*x.qty, 0);
+  const msg   = `Hello BluePriint,\n\nI'd like to request a quote for the following:\n\n${lines}\n\nEstimated Total: ₹${total.toLocaleString('en-IN')}\n\nPlease confirm pricing and availability.`;
+  window.open(`https://wa.me/919717027607?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+/* ══════════════════════════════════════════
+   QUICK VIEW MODAL
+══════════════════════════════════════════ */
+function openQuickView(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('modalImg').src = p.img;
+  document.getElementById('modalImg').alt = p.name;
+
+  document.getElementById('modalBody').innerHTML = `
+    ${p.badge ? `<span class="modal-badge ${p.badge === 'sale' ? 'badge-sale' : p.badge === 'new' ? 'badge-new' : 'badge-popular'}" style="color:${p.badge==='new'?'var(--blue)':'#fff'}">${p.badge.toUpperCase()}</span>` : ''}
+    <div class="modal-cat">${p.cat}</div>
+    <div class="modal-name">${p.name}</div>
+    <div class="modal-desc">${p.desc}</div>
+    <ul class="modal-features">${p.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+    <div class="modal-price-row">
+      <span class="modal-price">₹${p.price.toLocaleString('en-IN')}</span>
+      ${p.oldPrice ? `<span class="modal-price-old">₹${p.oldPrice.toLocaleString('en-IN')}</span>` : ''}
+    </div>
+    <div style="font-size:12px;color:var(--grey);">Price per sq.ft / unit — final quote based on size & quantity</div>
+    <div class="modal-qty-row">
+      <span class="modal-qty-label">Qty:</span>
+      <div class="modal-qty-ctrl">
+        <button class="mq-btn" onclick="this.nextElementSibling.textContent=Math.max(1,+this.nextElementSibling.textContent-1)">−</button>
+        <span class="mq-val" id="mqVal">1</span>
+        <button class="mq-btn" onclick="this.previousElementSibling.textContent=+this.previousElementSibling.textContent+1">+</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn-add" onclick="addToCart('${p.id}');closeModal()">Add to Enquiry Cart</button>
+      <a href="https://wa.me/919717027607?text=Hi%20BluePriint%2C%20I%27m%20interested%20in%20${encodeURIComponent(p.name)}%20(SKU:%20${p.sku})%20—%20please%20send%20me%20pricing%20and%20details." target="_blank" class="modal-btn-wa">💬 Ask on WhatsApp</a>
+    </div>
+  `;
+
+  document.getElementById('quickViewModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('quickViewModal')) return;
+  document.getElementById('quickViewModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ══════════════════════════════════════════
+   NAV SHADOW + REVEAL
+══════════════════════════════════════════ */
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 10);
+});
+
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('up'), i * 80);
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.06 });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ══════════════════════════════════════════
+   KEYBOARD: ESC closes overlays
+══════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeCart();
+    document.getElementById('quickViewModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+});
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+renderCards(getFiltered());
+</script>
+</body>
+</html>
