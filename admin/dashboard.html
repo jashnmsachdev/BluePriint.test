@@ -1,1 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — BluePriint</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Brand */
+      --blue:        #0d3b6e;
+      --blue-mid:    #1a5fa8;
+      --blue-light:  #2980d9;
+      --blue-pale:   #e8f1fb;
+      --gold:        #f0a500;
+      --green:       #22a06b;
+      --green-pale:  #e6f7f0;
+      --red:         #e53935;
+      --red-pale:    #fde8e8;
+      --orange:      #f77f00;
+      --orange-pale: #fff3e0;
+      /* Sidebar */
+      --sidebar-bg:  #07192e;
+      --sidebar-w:   252px;
+      /* Surface */
+      --white:       #ffffff;
+      --off:         #f5f7fa;
+      --border:      #e4eaf2;
+      --ink:         #0d1a2b;
+      --grey:        #6b7c93;
+      --grey-light:  #c8d4e4;
+      /* Type */
+      --sans:        'Outfit', sans-serif;
+      --serif:       'Playfair Display', Georgia, serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); background: var(--off); color: var(--ink); display: flex; min-height: 100vh; overflow-x: hidden; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: var(--sans); cursor: pointer; }
+    input, select, textarea { font-family: var(--sans); }
+    img { display: block; max-width: 100%; }
+
+    /* ═══════════════════════════════════════
+       SIDEBAR
+    ═══════════════════════════════════════ */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0;
+      z-index: 100; overflow-y: auto; overflow-x: hidden;
+      scrollbar-width: none;
+      transition: transform 0.3s;
+    }
+    .sidebar::-webkit-scrollbar { display: none; }
+
+    .sidebar-brand {
+      padding: 28px 24px 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .sidebar-brand-logo {
+      width: 36px; height: 36px; border-radius: 9px;
+      background: var(--blue-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 800; color: #fff; letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+    .sidebar-brand-name { font-size: 17px; font-weight: 800; color: #fff; letter-spacing: -0.4px; }
+    .sidebar-brand-name span { color: var(--blue-light); }
+    .sidebar-brand-sub { font-size: 10.5px; color: rgba(255,255,255,0.35); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px; }
+
+    .sidebar-nav { padding: 16px 0; flex: 1; }
+    .nav-group-label {
+      font-size: 9.5px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(255,255,255,0.2); padding: 14px 24px 8px; margin-top: 4px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 11px;
+      padding: 10px 24px; font-size: 13.5px; font-weight: 500;
+      color: rgba(255,255,255,0.55); cursor: pointer;
+      transition: all 0.2s; border-left: 3px solid transparent;
+      white-space: nowrap; position: relative;
+      user-select: none;
+    }
+    .nav-item:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.05); }
+    .nav-item.active { color: #fff; background: rgba(41,128,217,0.15); border-left-color: var(--blue-light); font-weight: 600; }
+    .nav-item .ni-icon { width: 18px; text-align: center; font-size: 16px; flex-shrink: 0; }
+    .nav-badge {
+      margin-left: auto; background: var(--red); color: #fff;
+      font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center;
+    }
+    .nav-badge.green { background: var(--green); }
+    .nav-badge.gold  { background: var(--gold); color: var(--blue); }
+
+    .sidebar-footer {
+      padding: 16px 24px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .sidebar-user {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sidebar-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--blue-mid);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .sidebar-user-name  { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); }
+    .sidebar-user-role  { font-size: 11px; color: rgba(255,255,255,0.35); }
+    .sidebar-logout-btn {
+      margin-left: auto; background: none; border: none;
+      color: rgba(255,255,255,0.3); font-size: 14px; padding: 4px;
+      transition: color 0.2s;
+    }
+    .sidebar-logout-btn:hover { color: var(--red); }
+
+    /* ═══════════════════════════════════════
+       MAIN CONTENT
+    ═══════════════════════════════════════ */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1; display: flex; flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+      box-shadow: 0 1px 12px rgba(13,59,110,0.05);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 20px; }
+    .page-title { font-size: 17px; font-weight: 700; color: var(--blue); }
+    .topbar-breadcrumb { font-size: 12.5px; color: var(--grey); }
+
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--off); border: 1.5px solid var(--border);
+      border-radius: 8px; padding: 8px 14px; width: 260px;
+      transition: border-color 0.2s;
+    }
+    .search-box:focus-within { border-color: var(--blue-light); }
+    .search-box input { border: none; background: none; outline: none; font-size: 13.5px; color: var(--ink); width: 100%; }
+    .search-box input::placeholder { color: var(--grey-light); }
+
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .tb-icon-btn {
+      width: 38px; height: 38px; border-radius: 9px; border: none;
+      background: var(--off); display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: var(--grey); cursor: pointer; position: relative;
+      transition: all 0.2s;
+    }
+    .tb-icon-btn:hover { background: var(--blue-pale); color: var(--blue); }
+    .tb-notif-dot {
+      position: absolute; top: 6px; right: 6px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--red); border: 2px solid var(--white);
+    }
+
+    .tb-admin { display: flex; align-items: center; gap: 9px; }
+    .tb-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+    .tb-admin-name { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+
+    /* ═══════════════════════════════════════
+       PAGE CONTENT WRAPPER
+    ═══════════════════════════════════════ */
+    .content { padding: 28px 32px; flex: 1; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ═══════════════════════════════════════
+       STAT CARDS
+    ═══════════════════════════════════════ */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--white); border-radius: 12px;
+      padding: 22px 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 8px rgba(13,59,110,0.04);
+      position: relative; overflow: hidden;
+      transition: box-shadow 0.25s, transform 0.25s;
+    }
+    .stat-card:hover { box-shadow: 0 6px 24px rgba(13,59,110,0.1); transform: translateY(-2px); }
+    .stat-card-accent {
+      position: absolute; top: 0; right: 0;
+      width: 80px; height: 80px; border-radius: 0 12px 0 80px;
+      opacity: 0.07;
+    }
+    .stat-label  { font-size: 11.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey); margin-bottom: 10px; }
+    .stat-value  { font-family: var(--serif); font-size: 34px; font-weight: 700; color: var(--blue); line-height: 1; margin-bottom: 10px; }
+    .stat-delta  { font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+    .delta-up    { color: var(--green); }
+    .delta-down  { color: var(--red); }
+    .stat-icon   { font-size: 28px; position: absolute; top: 20px; right: 22px; opacity: 0.18; }
+
+    /* ═══════════════════════════════════════
+       CHARTS ROW
+    ═══════════════════════════════════════ */
+    .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; margin-bottom: 24px; }
+    .card {
+      background: var(--white); border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 8px rgba(13,59,110,0.04);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 18px 22px 0;
+      display: flex; align-items: flex-start; justify-content: space-between;
+    }
+    .card-title { font-size: 14.5px; font-weight: 700; color: var(--blue); }
+    .card-sub   { font-size: 12px; color: var(--grey); margin-top: 2px; }
+    .card-body  { padding: 18px 22px 22px; }
+    .card-actions { display: flex; gap: 6px; }
+    .card-action-btn {
+      padding: 6px 12px; border-radius: 6px; border: 1.5px solid var(--border);
+      font-size: 12px; font-weight: 600; color: var(--grey); background: #fff;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .card-action-btn:hover, .card-action-btn.active { background: var(--blue-pale); border-color: var(--blue-light); color: var(--blue); }
+
+    /* Revenue Bar Chart */
+    .bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 160px; margin-top: 8px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .bar {
+      width: 100%; border-radius: 5px 5px 0 0;
+      background: var(--blue-light);
+      transition: background 0.2s; cursor: pointer;
+      position: relative;
+    }
+    .bar.highlight { background: var(--gold); }
+    .bar:hover { background: var(--blue); }
+    .bar-tooltip {
+      display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+      background: var(--blue); color: #fff; font-size: 11px; font-weight: 600;
+      padding: 4px 8px; border-radius: 5px; white-space: nowrap; margin-bottom: 4px;
+    }
+    .bar:hover .bar-tooltip { display: block; }
+    .bar-label { font-size: 11px; color: var(--grey); font-weight: 500; }
+
+    /* Donut Chart */
+    .donut-wrap { display: flex; align-items: center; justify-content: center; padding: 10px 0; }
+    svg.donut { width: 140px; height: 140px; }
+    .donut-legend { display: flex; flex-direction: column; gap: 10px; margin-left: 20px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .legend-label { color: var(--grey); }
+    .legend-val { font-weight: 700; color: var(--ink); margin-left: auto; padding-left: 10px; }
+
+    /* ═══════════════════════════════════════
+       DATA TABLES
+    ═══════════════════════════════════════ */
+    .table-controls {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .table-search {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--off); border: 1.5px solid var(--border);
+      border-radius: 8px; padding: 8px 14px; width: 240px;
+      transition: border-color 0.2s;
+    }
+    .table-search:focus-within { border-color: var(--blue-light); }
+    .table-search input { border: none; background: none; outline: none; font-size: 13px; color: var(--ink); width: 100%; }
+    .table-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tf-select {
+      padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 12.5px; color: var(--ink); background: var(--white); outline: none;
+      cursor: pointer; transition: border-color 0.2s;
+    }
+    .tf-select:focus { border-color: var(--blue-light); }
+    .btn-primary {
+      padding: 9px 18px; background: var(--blue); color: #fff;
+      border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; gap: 6px; transition: background 0.2s;
+    }
+    .btn-primary:hover { background: var(--blue-light); }
+    .btn-secondary {
+      padding: 9px 16px; background: var(--white); color: var(--ink);
+      border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--blue-light); color: var(--blue); background: var(--blue-pale); }
+
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--grey); padding: 11px 16px; text-align: left;
+      border-bottom: 1px solid var(--border); background: var(--off); white-space: nowrap;
+    }
+    .data-table th:first-child { border-radius: 8px 0 0 0; }
+    .data-table th:last-child  { border-radius: 0 8px 0 0; }
+    .data-table td {
+      padding: 13px 16px; font-size: 13.5px; border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--off); }
+    .data-table .td-name { font-weight: 600; color: var(--ink); }
+    .data-table .td-sub  { font-size: 11.5px; color: var(--grey); margin-top: 2px; }
+
+    /* Status badges */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 6px;
+      letter-spacing: 0.03em;
+    }
+    .status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+    .s-new      { background: #e8f1fb; color: var(--blue-mid); }
+    .s-new::before { background: var(--blue-light); }
+    .s-pending  { background: var(--orange-pale); color: var(--orange); }
+    .s-pending::before { background: var(--orange); }
+    .s-progress { background: #fff3e0; color: #e65100; }
+    .s-progress::before { background: #f77f00; }
+    .s-complete { background: var(--green-pale); color: #1a7a4a; }
+    .s-complete::before { background: var(--green); }
+    .s-cancelled{ background: var(--red-pale); color: var(--red); }
+    .s-cancelled::before { background: var(--red); }
+    .s-instock  { background: var(--green-pale); color: #1a7a4a; }
+    .s-instock::before { background: var(--green); }
+    .s-low      { background: var(--orange-pale); color: var(--orange); }
+    .s-low::before { background: var(--orange); }
+
+    /* Table row actions */
+    .row-actions { display: flex; gap: 6px; align-items: center; }
+    .ra-btn {
+      width: 30px; height: 30px; border-radius: 6px; border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; cursor: pointer; transition: all 0.2s;
+    }
+    .ra-view  { background: var(--blue-pale); color: var(--blue); }
+    .ra-edit  { background: #fff8e1; color: var(--orange); }
+    .ra-del   { background: var(--red-pale); color: var(--red); }
+    .ra-btn:hover { opacity: 0.8; transform: scale(1.08); }
+
+    /* Product thumbnail in table */
+    .prod-thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; background: var(--off); border: 1px solid var(--border); }
+
+    /* ═══════════════════════════════════════
+       PAGINATION
+    ═══════════════════════════════════════ */
+    .table-pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 22px; border-top: 1px solid var(--border);
+      font-size: 13px; color: var(--grey);
+    }
+    .pg-btns { display: flex; gap: 4px; }
+    .pg-btn {
+      width: 32px; height: 32px; border-radius: 7px; border: 1.5px solid var(--border);
+      background: var(--white); font-size: 12.5px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      transition: all 0.2s; color: var(--ink);
+    }
+    .pg-btn:hover, .pg-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+    .pg-btn:disabled { opacity: 0.4; cursor: default; }
+
+    /* ═══════════════════════════════════════
+       ACTIVITY FEED
+    ═══════════════════════════════════════ */
+    .activity-feed { display: flex; flex-direction: column; gap: 0; }
+    .activity-item {
+      display: flex; gap: 14px; padding: 13px 0;
+      border-bottom: 1px solid var(--border); align-items: flex-start;
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+      margin-top: 2px;
+    }
+    .ad-order  { background: var(--blue-pale); }
+    .ad-enquiry{ background: #fff8e1; }
+    .ad-product{ background: var(--green-pale); }
+    .ad-user   { background: var(--red-pale); }
+    .activity-text { flex: 1; }
+    .activity-text strong { font-weight: 600; color: var(--ink); }
+    .activity-text p { font-size: 13px; color: var(--grey); line-height: 1.5; margin-top: 2px; }
+    .activity-time { font-size: 11.5px; color: var(--grey-light); white-space: nowrap; margin-top: 4px; }
+
+    /* ═══════════════════════════════════════
+       ENQUIRY CARDS
+    ═══════════════════════════════════════ */
+    .enquiry-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .enquiry-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px 22px;
+      box-shadow: 0 1px 6px rgba(13,59,110,0.04);
+      transition: box-shadow 0.2s; position: relative;
+    }
+    .enquiry-card:hover { box-shadow: 0 6px 20px rgba(13,59,110,0.1); }
+    .eq-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .eq-name   { font-size: 15px; font-weight: 700; color: var(--blue); }
+    .eq-company{ font-size: 12px; color: var(--grey); margin-top: 2px; }
+    .eq-date   { font-size: 11.5px; color: var(--grey); }
+    .eq-services { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; }
+    .eq-tag { font-size: 11px; background: var(--blue-pale); color: var(--blue-mid); padding: 3px 9px; border-radius: 4px; font-weight: 500; }
+    .eq-message { font-size: 13px; color: var(--grey); line-height: 1.65; margin-bottom: 14px; }
+    .eq-contact { display: flex; gap: 14px; font-size: 12.5px; color: var(--grey); margin-bottom: 14px; flex-wrap: wrap; }
+    .eq-contact span { display: flex; align-items: center; gap: 5px; }
+    .eq-actions { display: flex; gap: 8px; }
+    .eq-btn { padding: 8px 14px; border-radius: 7px; font-size: 12.5px; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 5px; }
+    .eq-btn-wa   { background: #25d366; color: #fff; }
+    .eq-btn-wa:hover { filter: brightness(1.08); }
+    .eq-btn-call { background: var(--blue-pale); color: var(--blue); }
+    .eq-btn-call:hover { background: var(--blue); color: #fff; }
+    .eq-btn-del  { background: var(--red-pale); color: var(--red); margin-left: auto; }
+    .eq-btn-del:hover { background: var(--red); color: #fff; }
+
+    /* Priority flag */
+    .priority-flag {
+      position: absolute; top: 16px; right: 16px;
+      font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px;
+    }
+    .pf-high { background: var(--red-pale); color: var(--red); }
+    .pf-med  { background: var(--orange-pale); color: var(--orange); }
+    .pf-low  { background: var(--green-pale); color: var(--green); }
+
+    /* ═══════════════════════════════════════
+       MODAL (Add/Edit Product)
+    ═══════════════════════════════════════ */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(7,25,46,0.6);
+      z-index: 900; display: flex; align-items: center; justify-content: center;
+      padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal-box {
+      background: var(--white); border-radius: 16px; width: 100%; max-width: 620px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(7,25,46,0.22);
+      transform: scale(0.95); transition: transform 0.3s;
+    }
+    .modal-overlay.open .modal-box { transform: scale(1); }
+    .modal-header { padding: 22px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--white); z-index: 2; }
+    .modal-title { font-size: 17px; font-weight: 700; color: var(--blue); }
+    .modal-close-btn { width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--off); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .modal-close-btn:hover { background: var(--border); }
+    .modal-body { padding: 24px 26px; }
+    .modal-footer { padding: 16px 26px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .form-group label { font-size: 12.5px; font-weight: 600; color: var(--ink); }
+    .form-control {
+      padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 13.5px; color: var(--ink); background: var(--white); outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
+    }
+    .form-control:focus { border-color: var(--blue-light); box-shadow: 0 0 0 3px rgba(41,128,217,0.1); }
+    textarea.form-control { resize: vertical; min-height: 90px; }
+    .form-hint { font-size: 11.5px; color: var(--grey); margin-top: -10px; }
+
+    .btn-save { padding: 10px 22px; background: var(--blue); color: #fff; border: none; border-radius: 8px; font-size: 13.5px; font-weight: 700; transition: background 0.2s; }
+    .btn-save:hover { background: var(--blue-light); }
+    .btn-cancel { padding: 10px 18px; background: var(--off); color: var(--ink); border: 1.5px solid var(--border); border-radius: 8px; font-size: 13.5px; font-weight: 600; transition: all 0.2s; }
+    .btn-cancel:hover { border-color: var(--grey-light); }
+
+    /* ═══════════════════════════════════════
+       SETTINGS PAGE
+    ═══════════════════════════════════════ */
+    .settings-grid { display: grid; grid-template-columns: 220px 1fr; gap: 24px; }
+    .settings-nav { display: flex; flex-direction: column; gap: 2px; }
+    .settings-nav-item {
+      padding: 10px 14px; border-radius: 8px; font-size: 13.5px; font-weight: 500;
+      color: var(--grey); cursor: pointer; transition: all 0.2s;
+    }
+    .settings-nav-item:hover, .settings-nav-item.active { background: var(--blue-pale); color: var(--blue); font-weight: 600; }
+    .settings-section { display: none; }
+    .settings-section.active { display: block; }
+
+    /* ═══════════════════════════════════════
+       TOAST NOTIFICATION
+    ═══════════════════════════════════════ */
+    .toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--blue); color: #fff;
+      padding: 12px 22px; border-radius: 10px; font-size: 13.5px; font-weight: 600;
+      z-index: 9999; transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 8px 32px rgba(7,25,46,0.2); display: flex; align-items: center; gap: 8px;
+      max-width: 360px; white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--green); }
+    .toast.error   { background: var(--red); }
+
+    /* ═══════════════════════════════════════
+       EMPTY STATE
+    ═══════════════════════════════════════ */
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-icon  { font-size: 48px; opacity: 0.25; margin-bottom: 16px; }
+    .empty-title { font-size: 17px; font-weight: 700; color: var(--blue); margin-bottom: 8px; }
+    .empty-desc  { font-size: 13.5px; color: var(--grey); }
+
+    /* Section divider */
+    .section-divider { margin: 24px 0; border-top: 1px solid var(--border); }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .charts-row { grid-template-columns: 1fr; }
+      .enquiry-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .content { padding: 20px 16px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-brand-logo">B</div>
+    <div>
+      <div class="sidebar-brand-name">Blue<span>Priint</span></div>
+      <div class="sidebar-brand-sub">Admin Panel</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Overview</div>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <span class="ni-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('analytics')">
+      <span class="ni-icon">📈</span> Analytics
+    </div>
+
+    <div class="nav-group-label">Commerce</div>
+    <div class="nav-item" onclick="showPage('orders')">
+      <span class="ni-icon">🧾</span> Orders
+      <span class="nav-badge" id="nb-orders">4</span>
+    </div>
+    <div class="nav-item" onclick="showPage('enquiries')">
+      <span class="ni-icon">💬</span> Enquiries
+      <span class="nav-badge gold" id="nb-enquiries">7</span>
+    </div>
+    <div class="nav-item" onclick="showPage('products')">
+      <span class="ni-icon">📦</span> Products
+    </div>
+
+    <div class="nav-group-label">Customers</div>
+    <div class="nav-item" onclick="showPage('customers')">
+      <span class="ni-icon">👥</span> Customers
+    </div>
+
+    <div class="nav-group-label">Site</div>
+    <div class="nav-item" onclick="showPage('content')">
+      <span class="ni-icon">✏️</span> Content
+    </div>
+    <div class="nav-item" onclick="showPage('settings')">
+      <span class="ni-icon">⚙️</span> Settings
+    </div>
+
+    <div class="nav-group-label">Quick Links</div>
+    <div class="nav-item" onclick="window.open('index.html')">
+      <span class="ni-icon">🌐</span> View Website
+    </div>
+    <div class="nav-item" onclick="window.open('shop.html')">
+      <span class="ni-icon">🛒</span> View Shop
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar">A</div>
+      <div>
+        <div class="sidebar-user-name">Admin</div>
+        <div class="sidebar-user-role">BluePriint HQ</div>
+      </div>
+      <button class="sidebar-logout-btn" title="Sign out" onclick="showToast('Signing out…','')">⎋</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="page-title" id="pageTitle">Dashboard</span>
+      <span class="topbar-breadcrumb" id="pageBreadcrumb">/ Overview</span>
+    </div>
+    <div class="search-box">
+      <span style="color:var(--grey-light)">🔍</span>
+      <input type="text" placeholder="Search orders, products, enquiries…" id="globalSearch" oninput="globalSearchFn(this.value)"/>
+    </div>
+    <div class="topbar-right">
+      <button class="tb-icon-btn" title="Notifications" onclick="showToast('3 new enquiries received','')">
+        🔔<span class="tb-notif-dot"></span>
+      </button>
+      <button class="tb-icon-btn" title="View website" onclick="window.open('index.html')">🌐</button>
+      <div class="tb-admin">
+        <div class="tb-avatar">A</div>
+        <span class="tb-admin-name">Admin</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CONTENT ═══ -->
+  <div class="content">
+
+    <!-- ─────────────── DASHBOARD ─────────────── -->
+    <div class="page active" id="page-dashboard">
+
+      <!-- Stat Cards -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-card-accent" style="background:var(--blue-light)"></div>
+          <div class="stat-icon">🧾</div>
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value">142</div>
+          <div class="stat-delta delta-up">▲ 12% <span style="color:var(--grey);font-weight:400">vs last month</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-accent" style="background:var(--green)"></div>
+          <div class="stat-icon">💰</div>
+          <div class="stat-label">Monthly Revenue</div>
+          <div class="stat-value">₹3.8L</div>
+          <div class="stat-delta delta-up">▲ 8% <span style="color:var(--grey);font-weight:400">vs last month</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-accent" style="background:var(--gold)"></div>
+          <div class="stat-icon">💬</div>
+          <div class="stat-label">Open Enquiries</div>
+          <div class="stat-value">7</div>
+          <div class="stat-delta delta-down">▼ 2 <span style="color:var(--grey);font-weight:400">since yesterday</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-accent" style="background:var(--red)"></div>
+          <div class="stat-icon">👥</div>
+          <div class="stat-label">New Customers</div>
+          <div class="stat-value">23</div>
+          <div class="stat-delta delta-up">▲ 5 <span style="color:var(--grey);font-weight:400">this week</span></div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Revenue Overview</div>
+              <div class="card-sub">Monthly revenue — last 7 months</div>
+            </div>
+            <div class="card-actions">
+              <button class="card-action-btn active">₹</button>
+              <button class="card-action-btn">Orders</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="bar-chart" id="barChart"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Revenue by Category</div>
+              <div class="card-sub">This month</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="donut-wrap">
+              <svg class="donut" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#e4eaf2" stroke-width="16"/>
+                <!-- Segments drawn via JS -->
+                <g id="donutSegments"></g>
+                <text x="50" y="47" text-anchor="middle" font-size="9" font-weight="700" fill="#0d3b6e" font-family="Outfit,sans-serif">₹3.8L</text>
+                <text x="50" y="57" text-anchor="middle" font-size="6" fill="#6b7c93" font-family="Outfit,sans-serif">Total</text>
+              </svg>
+              <div class="donut-legend" id="donutLegend"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom row: Recent Orders + Activity -->
+      <div class="charts-row">
+
+        <!-- Recent Orders -->
+        <div class="card">
+          <div class="card-header" style="padding-bottom:0;">
+            <div>
+              <div class="card-title">Recent Orders</div>
+              <div class="card-sub">Latest 5 orders</div>
+            </div>
+            <button class="btn-secondary" onclick="showPage('orders')" style="font-size:12px;padding:7px 12px;">View all →</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="data-table" style="margin-top:8px;">
+              <thead>
+                <tr>
+                  <th>Order</th><th>Customer</th><th>Product</th><th>Value</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="recentOrdersBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Activity -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Activity Feed</div>
+              <div class="card-sub">Recent actions</div>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top:8px;">
+            <div class="activity-feed" id="activityFeed"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─────────────── ORDERS ─────────────── -->
+    <div class="page" id="page-orders">
+      <div class="card">
+        <div class="card-header" style="padding-bottom:16px;">
+          <div>
+            <div class="card-title">All Orders</div>
+            <div class="card-sub">Manage and track customer orders</div>
+          </div>
+          <button class="btn-primary" onclick="showToast('Export ready — orders.csv','success')">⬇ Export CSV</button>
+        </div>
+        <div class="card-body" style="padding-top:0;">
+          <div class="table-controls">
+            <div class="table-search">
+              <span>🔍</span>
+              <input type="text" placeholder="Search by order ID or customer…" oninput="filterOrders(this.value)"/>
+            </div>
+            <div class="table-filters">
+              <select class="tf-select" onchange="filterOrdersByStatus(this.value)">
+                <option value="">All Status</option>
+                <option>New</option><option>Pending</option><option>In Progress</option><option>Complete</option><option>Cancelled</option>
+              </select>
+              <select class="tf-select">
+                <option>All Products</option><option>Printing</option><option>Signage</option><option>LED Screens</option>
+              </select>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>#Order</th><th>Customer</th><th>Product</th><th>Qty</th><th>Value</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="ordersTableBody"></tbody>
+          </table>
+        </div>
+        <div class="table-pagination">
+          <span id="ordersPaginationInfo">Showing 1–10 of 18 orders</span>
+          <div class="pg-btns">
+            <button class="pg-btn active">1</button>
+            <button class="pg-btn">2</button>
+            <button class="pg-btn">›</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─────────────── ENQUIRIES ─────────────── -->
+    <div class="page" id="page-enquiries">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="font-size:17px;font-weight:700;color:var(--blue);">Enquiries & Leads</div>
+          <div style="font-size:12.5px;color:var(--grey);margin-top:3px;">7 open enquiries awaiting response</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <select class="tf-select" onchange="filterEnquiries(this.value)">
+            <option value="">All Services</option>
+            <option>Printing</option><option>Signage</option><option>LED Screens</option>
+            <option>Internal Branding</option><option>OOH</option><option>BTL</option>
+          </select>
+          <button class="btn-secondary" onclick="showToast('Exported enquiries.csv','success')">⬇ Export</button>
+        </div>
+      </div>
+      <div class="enquiry-grid" id="enquiryGrid"></div>
+    </div>
+
+    <!-- ─────────────── PRODUCTS ─────────────── -->
+    <div class="page" id="page-products">
+      <div class="card">
+        <div class="card-header" style="padding-bottom:16px;">
+          <div>
+            <div class="card-title">Product Catalogue</div>
+            <div class="card-sub">24 products across 7 categories</div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-secondary" onclick="showToast('Products exported','success')">⬇ Export</button>
+            <button class="btn-primary" onclick="openProductModal()">+ Add Product</button>
+          </div>
+        </div>
+        <div class="card-body" style="padding-top:0;">
+          <div class="table-controls">
+            <div class="table-search">
+              <span>🔍</span>
+              <input type="text" placeholder="Search products…" oninput="filterProducts(this.value)"/>
+            </div>
+            <div class="table-filters">
+              <select class="tf-select">
+                <option>All Categories</option><option>Printing</option><option>Signage</option>
+                <option>Internal Branding</option><option>LED Screens</option><option>OOH</option><option>BTL</option>
+              </select>
+              <select class="tf-select">
+                <option>All Status</option><option>In Stock</option><option>Low Stock</option>
+              </select>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>Product</th><th>SKU</th><th>Category</th><th>Price</th><th>Badge</th><th>Stock</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="productsTableBody"></tbody>
+          </table>
+        </div>
+        <div class="table-pagination">
+          <span>Showing 1–10 of 24 products</span>
+          <div class="pg-btns">
+            <button class="pg-btn active">1</button>
+            <button class="pg-btn">2</button>
+            <button class="pg-btn">3</button>
+            <button class="pg-btn">›</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─────────────── CUSTOMERS ─────────────── -->
+    <div class="page" id="page-customers">
+      <div class="card">
+        <div class="card-header" style="padding-bottom:16px;">
+          <div><div class="card-title">Customer Directory</div><div class="card-sub">All registered customers & enquirers</div></div>
+          <button class="btn-secondary" onclick="showToast('Exported customers.csv','success')">⬇ Export</button>
+        </div>
+        <div class="card-body" style="padding-top:0;">
+          <div class="table-controls">
+            <div class="table-search"><span>🔍</span><input type="text" placeholder="Search by name, company or phone…"/></div>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Customer</th><th>Company</th><th>Phone</th><th>City</th><th>Orders</th><th>Total Spent</th><th>Last Contact</th></tr></thead>
+            <tbody id="customersTableBody"></tbody>
+          </table>
+        </div>
+        <div class="table-pagination">
+          <span>Showing 1–10 of 23 customers</span>
+          <div class="pg-btns"><button class="pg-btn active">1</button><button class="pg-btn">2</button><button class="pg-btn">3</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─────────────── ANALYTICS ─────────────── -->
+    <div class="page" id="page-analytics">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">🛒</div><div class="stat-label">Conversion Rate</div><div class="stat-value">4.2%</div><div class="stat-delta delta-up">▲ 0.6% vs last month</div></div>
+        <div class="stat-card"><div class="stat-icon">⏱</div><div class="stat-label">Avg. Response Time</div><div class="stat-value">2.4h</div><div class="stat-delta delta-down">▼ 0.3h improved</div></div>
+        <div class="stat-card"><div class="stat-icon">🔁</div><div class="stat-label">Repeat Customers</div><div class="stat-value">38%</div><div class="stat-delta delta-up">▲ 3% vs last month</div></div>
+        <div class="stat-card"><div class="stat-icon">💸</div><div class="stat-label">Avg. Order Value</div><div class="stat-value">₹4,200</div><div class="stat-delta delta-up">▲ ₹320 vs last month</div></div>
+      </div>
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Monthly Revenue Trend</div><div class="card-sub">Last 12 months</div></div></div>
+          <div class="card-body"><div class="bar-chart" id="barChartFull"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Top Products</div><div class="card-sub">By revenue this month</div></div></div>
+          <div class="card-body">
+            <div id="topProductsList" style="display:flex;flex-direction:column;gap:12px;margin-top:8px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─────────────── CONTENT ─────────────── -->
+    <div class="page" id="page-content">
+      <div class="card" style="max-width:720px;">
+        <div class="card-header"><div><div class="card-title">Site Content Editor</div><div class="card-sub">Update key text on your website</div></div></div>
+        <div class="card-body">
+          <div class="form-group"><label>Hero Headline</label><input class="form-control" value="Your Brand Deserves to Stand Out"/></div>
+          <div class="form-group"><label>Hero Subtext</label><textarea class="form-control">From precision printing to monumental signage — we design, produce and install solutions that command attention across Delhi NCR.</textarea></div>
+          <div class="form-group"><label>CTA Phone Number</label><input class="form-control" value="+91 9717027607"/></div>
+          <div class="form-group"><label>CTA WhatsApp Message</label><input class="form-control" value="Hello BluePriint, I need a quote"/></div>
+          <div class="form-group"><label>Business Address</label><textarea class="form-control" style="min-height:64px;">B-7, First Floor, Rama Road Industrial Area, New Delhi – 110015</textarea></div>
+          <div class="form-group"><label>Office Hours</label><input class="form-control" value="Mon–Fri 10:30–20:30 | Sat till 17:30"/></div>
+          <div style="display:flex;gap:10px;margin-top:8px;">
+            <button class="btn-save" onclick="showToast('Content saved successfully ✓','success')">Save Changes</button>
+            <button class="btn-cancel">Discard</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─────────────── SETTINGS ─────────────── -->
+    <div class="page" id="page-settings">
+      <div class="settings-grid">
+        <div>
+          <div class="settings-nav">
+            <div class="settings-nav-item active" onclick="switchSettingsTab('general', this)">⚙️ General</div>
+            <div class="settings-nav-item" onclick="switchSettingsTab('smtp', this)">📧 Email / SMTP</div>
+            <div class="settings-nav-item" onclick="switchSettingsTab('notifications', this)">🔔 Notifications</div>
+            <div class="settings-nav-item" onclick="switchSettingsTab('security', this)">🔒 Security</div>
+          </div>
+        </div>
+        <div>
+          <div class="settings-section active card" id="settings-general">
+            <div class="card-header"><div class="card-title">General Settings</div></div>
+            <div class="card-body">
+              <div class="form-group"><label>Business Name</label><input class="form-control" value="BluePriint"/></div>
+              <div class="form-group"><label>Tagline</label><input class="form-control" value="Print. Brand. Build."/></div>
+              <div class="form-row">
+                <div class="form-group"><label>Phone</label><input class="form-control" value="+91 9717027607"/></div>
+                <div class="form-group"><label>Email</label><input class="form-control" value="print@bluepriint.in"/></div>
+              </div>
+              <div class="form-group"><label>GST Number</label><input class="form-control" placeholder="e.g. 07AABCU9603R1ZX"/></div>
+              <div class="form-group"><label>Currency</label><select class="form-control"><option>₹ Indian Rupee (INR)</option><option>$ US Dollar (USD)</option></select></div>
+              <button class="btn-save" onclick="showToast('Settings saved ✓','success')">Save Settings</button>
+            </div>
+          </div>
+          <div class="settings-section card" id="settings-smtp">
+            <div class="card-header"><div class="card-title">Email Configuration</div></div>
+            <div class="card-body">
+              <div class="form-group"><label>SMTP Host</label><input class="form-control" value="smtp.gmail.com"/></div>
+              <div class="form-row">
+                <div class="form-group"><label>Username</label><input class="form-control" value="bluepriint2005@gmail.com"/></div>
+                <div class="form-group"><label>App Password</label><input class="form-control" type="password" value="fkipwnqoqpbywsfq"/></div>
+              </div>
+              <div class="form-group"><label>Enquiries Recipient Email</label><input class="form-control" value="print@bluepriint.in"/></div>
+              <div style="display:flex;gap:10px;">
+                <button class="btn-save" onclick="showToast('SMTP saved ✓','success')">Save</button>
+                <button class="btn-secondary" onclick="showToast('Test email sent to print@bluepriint.in','success')">Send Test Email</button>
+              </div>
+            </div>
+          </div>
+          <div class="settings-section card" id="settings-notifications">
+            <div class="card-header"><div class="card-title">Notification Preferences</div></div>
+            <div class="card-body">
+              <p style="font-size:13.5px;color:var(--grey);margin-bottom:20px;">Choose when to receive email or WhatsApp notifications.</p>
+              <div style="display:flex;flex-direction:column;gap:14px;">
+                <label style="display:flex;align-items:center;gap:12px;font-size:13.5px;cursor:pointer;"><input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--blue);"/> New enquiry received</label>
+                <label style="display:flex;align-items:center;gap:12px;font-size:13.5px;cursor:pointer;"><input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--blue);"/> New order placed</label>
+                <label style="display:flex;align-items:center;gap:12px;font-size:13.5px;cursor:pointer;"><input type="checkbox" style="width:16px;height:16px;accent-color:var(--blue);"/> Order status changed</label>
+                <label style="display:flex;align-items:center;gap:12px;font-size:13.5px;cursor:pointer;"><input type="checkbox" checked style="width:16px;height:16px;accent-color:var(--blue);"/> Daily summary report</label>
+              </div>
+              <button class="btn-save" style="margin-top:20px;" onclick="showToast('Preferences saved ✓','success')">Save</button>
+            </div>
+          </div>
+          <div class="settings-section card" id="settings-security">
+            <div class="card-header"><div class="card-title">Security</div></div>
+            <div class="card-body">
+              <div class="form-group"><label>Current Password</label><input class="form-control" type="password" placeholder="Enter current password"/></div>
+              <div class="form-group"><label>New Password</label><input class="form-control" type="password" placeholder="Enter new password"/></div>
+              <div class="form-group"><label>Confirm New Password</label><input class="form-control" type="password" placeholder="Repeat new password"/></div>
+              <button class="btn-save" onclick="showToast('Password updated ✓','success')">Update Password</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── PRODUCT MODAL ── -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modalProductTitle">Add New Product</span>
+      <button class="modal-close-btn" onclick="closeProductModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Product Name *</label><input class="form-control" id="pm-name" placeholder="e.g. Backlit Flex Banner"/></div>
+        <div class="form-group"><label>SKU *</label><input class="form-control" id="pm-sku" placeholder="e.g. flex-banner-3x2"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Category *</label>
+          <select class="form-control" id="pm-cat">
+            <option>Printing</option><option>Signage</option><option>Internal Branding</option>
+            <option>LED Screens</option><option>OOH</option><option>BTL</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Badge</label>
+          <select class="form-control" id="pm-badge">
+            <option value="">None</option><option value="popular">Popular</option>
+            <option value="sale">Sale</option><option value="new">New</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Price (₹) *</label><input class="form-control" id="pm-price" type="number" placeholder="850"/></div>
+        <div class="form-group"><label>Old Price (₹)</label><input class="form-control" id="pm-oldprice" type="number" placeholder="Leave blank if no discount"/></div>
+      </div>
+      <div class="form-group"><label>Description *</label><textarea class="form-control" id="pm-desc" placeholder="Short product description for the shop page…"></textarea></div>
+      <div class="form-group"><label>Tags (comma separated)</label><input class="form-control" id="pm-tags" placeholder="e.g. Backlit, Flex, UV Print"/></div>
+      <div class="form-group"><label>Image URL</label><input class="form-control" id="pm-img" placeholder="https://…"/><span class="form-hint">Use a GitHub-hosted BluePriint image URL</span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeProductModal()">Cancel</button>
+      <button class="btn-save" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast">✓ Done</div>
+
+<script>
+/* ══════════════════════════════════════════
+   DATA
+══════════════════════════════════════════ */
+const ORDERS = [
+  { id:'#BP-1042', customer:'Ravi Sharma', company:'Sharma Traders', product:'ACP Fascia Sign Board', qty:2, value:6400, date:'14 Mar 2025', status:'new' },
+  { id:'#BP-1041', customer:'Neha Gupta', company:'Gupta Salon', product:'Backlit Flex Banner', qty:5, value:4250, date:'13 Mar 2025', status:'progress' },
+  { id:'#BP-1040', customer:'Ajay Patel', company:'Patel Electronics', product:'3D LED Facade Sign', qty:1, value:8500, date:'12 Mar 2025', status:'complete' },
+  { id:'#BP-1039', customer:'Sunita Mehta', company:'Mehta Boutique', product:'Floor Vinyl Graphics', qty:10, value:6500, date:'11 Mar 2025', status:'complete' },
+  { id:'#BP-1038', customer:'Vikram Joshi', company:'JK Enterprises', product:'Canvas Print', qty:3, value:3600, date:'10 Mar 2025', status:'pending' },
+  { id:'#BP-1037', customer:'Priya Singh', company:'Singh Pharma', product:'One Way Vision Film', qty:8, value:7600, date:'9 Mar 2025', status:'complete' },
+  { id:'#BP-1036', customer:'Arjun Kumar', company:'Bajaj Dealership', product:'Glow Sign Board', qty:4, value:8800, date:'8 Mar 2025', status:'complete' },
+  { id:'#BP-1035', customer:'Meera Nair', company:'Nair Interiors', product:'Vinyl Wall Wrap', qty:20, value:11200, date:'7 Mar 2025', status:'cancelled' },
+  { id:'#BP-1034', customer:'Rahul Verma', company:'Verma & Sons', product:'Acrylic UV Print', qty:6, value:10800, date:'6 Mar 2025', status:'complete' },
+  { id:'#BP-1033', customer:'Deepak Rao', company:'Rao Foods', product:'Roll-up Standee', qty:10, value:14000, date:'5 Mar 2025', status:'complete' },
+];
+
+const ENQUIRIES = [
+  { id:'EQ-201', name:'Manish Kapoor', company:'Kapoor Mall', phone:'+91 98100 11234', email:'manish@kapoor.com', city:'Delhi', services:['Signage','LED Screens'], message:'We need complete signage for a new 3-floor mall in Janakpuri. Site is 60,000 sq.ft. Need estimates for ACP fascia, 3D letters and digital directories.', date:'14 Mar 2025', priority:'high' },
+  { id:'EQ-200', name:'Shalini Verma', company:'Verma Salon', phone:'+91 97120 45678', email:'shalini@verma.in', city:'Gurgaon', services:['Internal Branding','Printing'], message:'Need complete internal branding for a new salon in DLF Phase 4. Mirror wraps, floor vinyl, menu boards and window frosting.', date:'13 Mar 2025', priority:'med' },
+  { id:'EQ-199', name:'Tarun Bhatia', company:'TB Motors', phone:'+91 88230 67890', email:'tarun@tbmotors.com', city:'Noida', services:['OOH','BTL'], message:'Require 2 hoardings on NH8 for 6 months, plus 50 roll-up standees for auto expo. Need pricing by this Friday.', date:'12 Mar 2025', priority:'high' },
+  { id:'EQ-198', name:'Pooja Arora', company:'Arora Sweets', phone:'+91 99010 23456', email:'pooja@arorasweets.in', city:'Delhi', services:['Signage','Printing'], message:'Opening 2 new sweet shops in Rohini and Pitampura. Need identical branding — glow boards, ACP panels and backlit menus.', date:'11 Mar 2025', priority:'med' },
+  { id:'EQ-197', name:'Nitin Saxena', company:'Saxena Hospital', phone:'+91 95500 34567', email:'nitin@saxena.hospital', city:'Delhi', services:['Signage'], message:'Hospital wayfinding project — approx 200 signs across 4 floors. Need ISO compliant materials and bilingual text (Hindi + English).', date:'10 Mar 2025', priority:'low' },
+  { id:'EQ-196', name:'Kavita Reddy', company:'Reddy Fashion', phone:'+91 87650 45678', email:'kavita@reddyfashion.in', city:'Faridabad', services:['Internal Branding','Printing'], message:'New flagship store launch in March-end. Need complete fit-out — wall graphics, hanging danglers, window film and acrylic brand board at entrance.', date:'9 Mar 2025', priority:'high' },
+  { id:'EQ-195', name:'Saurabh Jain', company:'Jain Jewellers', phone:'+91 96000 56789', email:'saurabh@jainjewellers.com', city:'Delhi', services:['Signage','LED Screens'], message:'Luxury jewellery store redesign. Premium signage with gold lettering, LED neon sign for window and digital display inside store.', date:'8 Mar 2025', priority:'med' },
+];
+
+const PRODUCTS_DATA = [
+  { id:'BP-001', name:'Backlit Flex Banner', sku:'flex-banner', cat:'Printing', price:850, oldPrice:1100, badge:'popular', stock:'In Stock' },
+  { id:'BP-002', name:'ACP Fascia Sign Board', sku:'acp-signboard', cat:'Signage', price:3200, oldPrice:4000, badge:'sale', stock:'In Stock' },
+  { id:'BP-003', name:'Premium Canvas Print', sku:'canvas-print', cat:'Printing', price:1200, oldPrice:null, badge:null, stock:'In Stock' },
+  { id:'BP-004', name:'One Way Vision Film', sku:'one-way-vision', cat:'Printing', price:950, oldPrice:1200, badge:'new', stock:'In Stock' },
+  { id:'BP-005', name:'Clip-on Translite', sku:'clip-on-translite', cat:'Internal Branding', price:2400, oldPrice:null, badge:null, stock:'Low Stock' },
+  { id:'BP-006', name:'Acrylic UV Print', sku:'acrylic-uv-print', cat:'Printing', price:1800, oldPrice:2200, badge:'sale', stock:'In Stock' },
+  { id:'BP-007', name:'3D LED Facade Sign', sku:'facade-3d-led', cat:'Signage', price:8500, oldPrice:null, badge:'popular', stock:'In Stock' },
+  { id:'BP-008', name:'Floor Vinyl Graphics', sku:'floor-vinyl', cat:'Internal Branding', price:650, oldPrice:800, badge:'sale', stock:'In Stock' },
+  { id:'BP-009', name:'Roll-up Standee', sku:'roll-up-standee', cat:'BTL', price:1400, oldPrice:1800, badge:'sale', stock:'In Stock' },
+  { id:'BP-010', name:'Glow Sign Board', sku:'glow-sign-board', cat:'Signage', price:2200, oldPrice:null, badge:null, stock:'In Stock' },
+];
+
+const CUSTOMERS = [
+  { name:'Arjun Kumar', company:'Bajaj Dealership', phone:'+91 98100 11111', city:'Delhi', orders:8, spent:'₹72,000', last:'14 Mar 2025' },
+  { name:'Rahul Verma', company:'Cut & Style Salon', phone:'+91 99100 22222', city:'Delhi', orders:4, spent:'₹28,000', last:'13 Mar 2025' },
+  { name:'Vikram Singh', company:'Hero Showroom', phone:'+91 97000 33333', city:'Delhi', orders:12, spent:'₹1,04,000', last:'12 Mar 2025' },
+  { name:'Shalini Mehta', company:'Mehta Boutique', phone:'+91 88000 44444', city:'Gurgaon', orders:3, spent:'₹19,500', last:'10 Mar 2025' },
+  { name:'Deepak Rao', company:'Rao Foods', phone:'+91 87000 55555', city:'Noida', orders:6, spent:'₹54,200', last:'9 Mar 2025' },
+  { name:'Priya Singh', company:'Singh Pharma', phone:'+91 96000 66666', city:'Faridabad', orders:2, spent:'₹15,200', last:'8 Mar 2025' },
+  { name:'Neha Gupta', company:'Gupta Salon', phone:'+91 95000 77777', city:'Delhi', orders:5, spent:'₹32,500', last:'7 Mar 2025' },
+  { name:'Ravi Sharma', company:'Sharma Traders', phone:'+91 94000 88888', city:'Delhi', orders:7, spent:'₹48,000', last:'6 Mar 2025' },
+];
+
+const ACTIVITY = [
+  { type:'order',   icon:'🧾', bg:'ad-order',   text:'<strong>New order #BP-1042</strong>', sub:'Ravi Sharma — ACP Fascia Sign Board ×2', time:'2 min ago' },
+  { type:'enquiry', icon:'💬', bg:'ad-enquiry',  text:'<strong>Enquiry from Manish Kapoor</strong>', sub:'Mall signage project — High priority', time:'18 min ago' },
+  { type:'product', icon:'📦', bg:'ad-product',  text:'<strong>Product updated</strong>', sub:'Backlit Flex Banner — price adjusted to ₹850', time:'1 hr ago' },
+  { type:'order',   icon:'🧾', bg:'ad-order',   text:'<strong>Order #BP-1041 in progress</strong>', sub:'Neha Gupta — Backlit Flex ×5', time:'2 hr ago' },
+  { type:'enquiry', icon:'💬', bg:'ad-enquiry',  text:'<strong>Enquiry from Tarun Bhatia</strong>', sub:'OOH + BTL for auto expo', time:'3 hr ago' },
+  { type:'user',    icon:'👥', bg:'ad-user',     text:'<strong>New customer registered</strong>', sub:'Kavita Reddy — Reddy Fashion', time:'5 hr ago' },
+];
+
+const CHART_DATA = [
+  { month:'Sep', val:220000 },{ month:'Oct', val:285000 },{ month:'Nov', val:310000 },
+  { month:'Dec', val:260000 },{ month:'Jan', val:340000 },{ month:'Feb', val:295000 },
+  { month:'Mar', val:380000, highlight:true },
+];
+
+const DONUT_DATA = [
+  { label:'Signage',        val:38, color:'#2980d9' },
+  { label:'Printing',       val:27, color:'#f0a500' },
+  { label:'Internal Brand', val:18, color:'#22a06b' },
+  { label:'LED Screens',    val:10, color:'#0d3b6e' },
+  { label:'Other',          val: 7, color:'#c8d4e4' },
+];
+
+/* ══════════════════════════════════════════
+   PAGE NAVIGATION
+══════════════════════════════════════════ */
+const PAGE_TITLES = {
+  dashboard:'Dashboard', orders:'Orders', enquiries:'Enquiries & Leads',
+  products:'Products', customers:'Customers', analytics:'Analytics',
+  content:'Content', settings:'Settings',
+};
+const PAGE_SUBS = {
+  dashboard:'/ Overview', orders:'/ All Orders', enquiries:'/ Leads',
+  products:'/ Catalogue', customers:'/ Directory', analytics:'/ Reports',
+  content:'/ Edit', settings:'/ Configuration',
+};
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('pageTitle').textContent = PAGE_TITLES[id] || id;
+  document.getElementById('pageBreadcrumb').textContent = PAGE_SUBS[id] || '';
+  event.currentTarget.classList.add('active');
+}
+
+/* ══════════════════════════════════════════
+   RENDER FUNCTIONS
+══════════════════════════════════════════ */
+function statusBadge(s) {
+  const map = { new:'s-new New', pending:'s-pending Pending', progress:'s-progress In Progress', complete:'s-complete Complete', cancelled:'s-cancelled Cancelled' };
+  const [cls, label] = (map[s] || 's-pending Unknown').split(' ', 2);
+  return `<span class="status-badge ${cls}">${map[s].slice(map[s].indexOf(' ')+1)}</span>`;
+}
+
+function renderRecentOrders() {
+  const tbody = document.getElementById('recentOrdersBody');
+  tbody.innerHTML = ORDERS.slice(0,5).map(o => `
+    <tr>
+      <td><span style="font-weight:700;color:var(--blue);">${o.id}</span></td>
+      <td><div class="td-name">${o.customer}</div><div class="td-sub">${o.company}</div></td>
+      <td>${o.product}</td>
+      <td style="font-weight:700;">₹${o.value.toLocaleString('en-IN')}</td>
+      <td>${statusBadge(o.status)}</td>
+    </tr>
+  `).join('');
+}
+
+function renderOrders(list) {
+  const tbody = document.getElementById('ordersTableBody');
+  tbody.innerHTML = (list || ORDERS).map(o => `
+    <tr>
+      <td><span style="font-weight:700;color:var(--blue);">${o.id}</span></td>
+      <td><div class="td-name">${o.customer}</div><div class="td-sub">${o.company}</div></td>
+      <td>${o.product}</td>
+      <td>${o.qty}</td>
+      <td style="font-weight:700;">₹${o.value.toLocaleString('en-IN')}</td>
+      <td style="color:var(--grey);">${o.date}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td>
+        <div class="row-actions">
+          <button class="ra-btn ra-view" title="View" onclick="showToast('Order ${o.id} details','')">👁</button>
+          <button class="ra-btn ra-edit" title="Edit status" onclick="cycleStatus(this,'${o.id}')">✏️</button>
+          <button class="ra-btn ra-del"  title="Delete" onclick="deleteRow(this)">🗑</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderEnquiries(list) {
+  const grid = document.getElementById('enquiryGrid');
+  grid.innerHTML = (list || ENQUIRIES).map(e => `
+    <div class="enquiry-card" id="eq-${e.id}">
+      <span class="priority-flag pf-${e.priority}">${e.priority.toUpperCase()}</span>
+      <div class="eq-header">
+        <div><div class="eq-name">${e.name}</div><div class="eq-company">${e.company} · ${e.city}</div></div>
+        <div class="eq-date">${e.date}</div>
+      </div>
+      <div class="eq-services">${e.services.map(s=>`<span class="eq-tag">${s}</span>`).join('')}</div>
+      <div class="eq-message">${e.message.length > 140 ? e.message.slice(0,140)+'…' : e.message}</div>
+      <div class="eq-contact">
+        <span>📞 <a href="tel:${e.phone}" style="color:var(--blue-light);">${e.phone}</a></span>
+        <span>✉ <a href="mailto:${e.email}" style="color:var(--blue-light);">${e.email}</a></span>
+      </div>
+      <div class="eq-actions">
+        <a href="https://wa.me/${e.phone.replace(/\D/g,'')}?text=Hi%20${encodeURIComponent(e.name)}%2C%20this%20is%20BluePriint.%20Thanks%20for%20your%20enquiry.%20We'll%20get%20back%20to%20you%20shortly." target="_blank" class="eq-btn eq-btn-wa">💬 WhatsApp</a>
+        <a href="tel:${e.phone}" class="eq-btn eq-btn-call">📞 Call</a>
+        <button class="eq-btn eq-btn-del" onclick="deleteEnquiry('${e.id}')">🗑 Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderProducts(list) {
+  const BASE = 'https://blue-priint.github.io/assets/images/Bluepriint%20Images/';
+  const IMGS = {
+    'BP-001': BASE+'Printing/Backlit-Flex/3.jpg',
+    'BP-002': BASE+'Signage%20Solutions/ACPSignage.JPG',
+    'BP-003': BASE+'Printing/canvas/3.jpg',
+    'BP-004': BASE+'Printing/one%20way%20vison/3.jpg',
+    'BP-005': BASE+'Internal%20Branding/Clip%20on%20translites/Picture30.jpg',
+    'BP-006': BASE+'Printing/Acrylic/3.jpg',
+    'BP-007': BASE+'Signage%20Solutions/Facade%20Signage/3%20night.jpg',
+    'BP-008': BASE+'Printing/image11.jpg',
+  };
+  const badgeCls = { popular:'badge-popular', sale:'badge-sale', new:'badge-new' };
+  const tbody = document.getElementById('productsTableBody');
+  tbody.innerHTML = (list || PRODUCTS_DATA).map(p => `
+    <tr>
+      <td style="display:flex;align-items:center;gap:12px;">
+        <img class="prod-thumb" src="${IMGS[p.id] || IMGS['BP-001']}" alt="${p.name}"/>
+        <div class="td-name">${p.name}</div>
+      </td>
+      <td style="font-size:12px;color:var(--grey);font-family:monospace;">${p.sku}</td>
+      <td>${p.cat}</td>
+      <td style="font-weight:700;">₹${p.price.toLocaleString('en-IN')}${p.oldPrice ? `<span style="font-size:11px;color:var(--grey);text-decoration:line-through;margin-left:6px;">₹${p.oldPrice.toLocaleString('en-IN')}</span>` : ''}</td>
+      <td>${p.badge ? `<span class="status-badge ${badgeCls[p.badge]||'s-new'}">${p.badge}</span>` : '<span style="color:var(--grey-light);">—</span>'}</td>
+      <td><span class="status-badge ${p.stock === 'In Stock' ? 's-instock' : 's-low'}">${p.stock}</span></td>
+      <td>
+        <div class="row-actions">
+          <button class="ra-btn ra-view" title="Preview" onclick="window.open('shop.html')">👁</button>
+          <button class="ra-btn ra-edit" title="Edit" onclick="openProductModal('${p.id}')">✏️</button>
+          <button class="ra-btn ra-del"  title="Delete" onclick="deleteRow(this)">🗑</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderCustomers() {
+  const tbody = document.getElementById('customersTableBody');
+  tbody.innerHTML = CUSTOMERS.map(c => `
+    <tr>
+      <td><div class="td-name">${c.name}</div></td>
+      <td style="color:var(--grey);">${c.company}</td>
+      <td><a href="tel:${c.phone}" style="color:var(--blue-light);font-size:13px;">${c.phone}</a></td>
+      <td style="color:var(--grey);">${c.city}</td>
+      <td style="font-weight:700;text-align:center;">${c.orders}</td>
+      <td style="font-weight:700;color:var(--green);">${c.spent}</td>
+      <td style="font-size:12px;color:var(--grey);">${c.last}</td>
+    </tr>
+  `).join('');
+}
+
+function renderActivity() {
+  const feed = document.getElementById('activityFeed');
+  feed.innerHTML = ACTIVITY.map(a => `
+    <div class="activity-item">
+      <div class="activity-dot ${a.bg}">${a.icon}</div>
+      <div class="activity-text"><strong>${a.text.replace(/<\/?strong>/g,'')}</strong><p>${a.sub}</p></div>
+      <div class="activity-time">${a.time}</div>
+    </div>
+  `).join('');
+}
+
+/* ══════════════════════════════════════════
+   BAR CHART
+══════════════════════════════════════════ */
+function renderBarChart(elId, data) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const max = Math.max(...data.map(d => d.val));
+  el.innerHTML = data.map(d => `
+    <div class="bar-col">
+      <div class="bar ${d.highlight ? 'highlight' : ''}" style="height:${Math.round((d.val/max)*140)+8}px;">
+        <div class="bar-tooltip">₹${(d.val/100000).toFixed(1)}L</div>
+      </div>
+      <div class="bar-label">${d.month}</div>
+    </div>
+  `).join('');
+}
+
+/* ══════════════════════════════════════════
+   DONUT CHART
+══════════════════════════════════════════ */
+function renderDonut() {
+  const r = 38, cx = 50, cy = 50;
+  const circ = 2 * Math.PI * r;
+  let offset = 0;
+  const segments = document.getElementById('donutSegments');
+  const legend   = document.getElementById('donutLegend');
+
+  segments.innerHTML = DONUT_DATA.map(d => {
+    const len = (d.val / 100) * circ;
+    const gap = 2;
+    const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${d.color}"
+      stroke-width="16"
+      stroke-dasharray="${len - gap} ${circ - len + gap}"
+      stroke-dashoffset="${-offset + circ * 0.25}"
+      transform="rotate(-90 ${cx} ${cy})"
+      style="transition:opacity 0.3s;"
+      onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'"/>`;
+    offset += len;
+    return el;
+  }).join('');
+
+  legend.innerHTML = DONUT_DATA.map(d => `
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${d.color}"></div>
+      <span class="legend-label">${d.label}</span>
+      <span class="legend-val">${d.val}%</span>
+    </div>
+  `).join('');
+}
+
+/* ══════════════════════════════════════════
+   TOP PRODUCTS LIST
+══════════════════════════════════════════ */
+function renderTopProducts() {
+  const el = document.getElementById('topProductsList');
+  if (!el) return;
+  const tops = [
+    { name:'ACP Fascia Sign Board', rev:96000, pct:82 },
+    { name:'3D LED Facade Sign', rev:76500, pct:65 },
+    { name:'Backlit Flex Banner', rev:51000, pct:43 },
+    { name:'Acrylic UV Print', rev:36000, pct:30 },
+    { name:'One Way Vision Film', rev:22800, pct:19 },
+  ];
+  el.innerHTML = tops.map(t => `
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+        <span style="font-size:13px;font-weight:600;color:var(--ink);">${t.name}</span>
+        <span style="font-size:12.5px;font-weight:700;color:var(--blue);">₹${(t.rev/1000).toFixed(0)}K</span>
+      </div>
+      <div style="height:6px;background:var(--border);border-radius:3px;">
+        <div style="height:6px;background:var(--blue-light);border-radius:3px;width:${t.pct}%;transition:width 0.6s ease;"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ══════════════════════════════════════════
+   FILTERS
+══════════════════════════════════════════ */
+function filterOrders(q) {
+  const lq = q.toLowerCase();
+  const filtered = ORDERS.filter(o => o.id.toLowerCase().includes(lq) || o.customer.toLowerCase().includes(lq) || o.product.toLowerCase().includes(lq));
+  renderOrders(filtered);
+}
+function filterOrdersByStatus(s) {
+  renderOrders(s ? ORDERS.filter(o => o.status === s.toLowerCase().replace(' ','-').replace('in-progress','progress')) : ORDERS);
+}
+function filterProducts(q) {
+  const lq = q.toLowerCase();
+  renderProducts(PRODUCTS_DATA.filter(p => p.name.toLowerCase().includes(lq) || p.sku.toLowerCase().includes(lq) || p.cat.toLowerCase().includes(lq)));
+}
+function filterEnquiries(s) {
+  renderEnquiries(s ? ENQUIRIES.filter(e => e.services.some(sv => sv.includes(s))) : ENQUIRIES);
+}
+
+/* ══════════════════════════════════════════
+   GLOBAL SEARCH
+══════════════════════════════════════════ */
+function globalSearchFn(q) {
+  if (!q.trim()) return;
+  const order = ORDERS.find(o => o.id.toLowerCase().includes(q.toLowerCase()));
+  if (order) { showPage2('orders'); filterOrders(q); }
+}
+function showPage2(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('pageTitle').textContent = PAGE_TITLES[id];
+  document.getElementById('pageBreadcrumb').textContent = PAGE_SUBS[id];
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.trim().toLowerCase().startsWith(id.slice(0,4))) n.classList.add('active');
+    else n.classList.remove('active');
+  });
+}
+
+/* ══════════════════════════════════════════
+   TABLE ROW ACTIONS
+══════════════════════════════════════════ */
+const STATUS_CYCLE = ['new','pending','progress','complete'];
+function cycleStatus(btn, orderId) {
+  const row  = btn.closest('tr');
+  const cell = row.querySelector('.status-badge');
+  const cur  = Object.entries({ new:'New', pending:'Pending', progress:'In Progress', complete:'Complete' }).find(([,v]) => cell.textContent.trim() === v);
+  if (!cur) return;
+  const nextIdx = (STATUS_CYCLE.indexOf(cur[0]) + 1) % STATUS_CYCLE.length;
+  const next = STATUS_CYCLE[nextIdx];
+  cell.className = 'status-badge s-' + next;
+  cell.textContent = { new:'New', pending:'Pending', progress:'In Progress', complete:'Complete' }[next];
+  showToast(`Order ${orderId} → ${cell.textContent}`, 'success');
+}
+function deleteRow(btn) {
+  const row = btn.closest('tr');
+  row.style.opacity = '0';
+  row.style.transition = 'opacity 0.3s';
+  setTimeout(() => row.remove(), 300);
+  showToast('Row deleted', '');
+}
+function deleteEnquiry(id) {
+  const el = document.getElementById('eq-' + id);
+  if (el) { el.style.opacity='0'; el.style.transition='opacity 0.3s'; setTimeout(()=>el.remove(),300); }
+  showToast('Enquiry removed', '');
+  const badge = document.getElementById('nb-enquiries');
+  badge.textContent = Math.max(0, parseInt(badge.textContent) - 1);
+}
+
+/* ══════════════════════════════════════════
+   PRODUCT MODAL
+══════════════════════════════════════════ */
+function openProductModal(id) {
+  document.getElementById('productModal').classList.add('open');
+  document.getElementById('modalProductTitle').textContent = id ? 'Edit Product' : 'Add New Product';
+  if (id) {
+    const p = PRODUCTS_DATA.find(x => x.id === id);
+    if (p) {
+      document.getElementById('pm-name').value    = p.name;
+      document.getElementById('pm-sku').value     = p.sku;
+      document.getElementById('pm-cat').value     = p.cat;
+      document.getElementById('pm-badge').value   = p.badge || '';
+      document.getElementById('pm-price').value   = p.price;
+      document.getElementById('pm-oldprice').value= p.oldPrice || '';
+    }
+  } else {
+    document.getElementById('pm-name').value = '';
+    document.getElementById('pm-sku').value  = '';
+    document.getElementById('pm-price').value= '';
+    document.getElementById('pm-oldprice').value='';
+    document.getElementById('pm-desc').value='';
+    document.getElementById('pm-tags').value='';
+    document.getElementById('pm-img').value='';
+  }
+}
+function closeProductModal() {
+  document.getElementById('productModal').classList.remove('open');
+}
+function saveProduct() {
+  const name = document.getElementById('pm-name').value.trim();
+  if (!name) { showToast('Product name is required','error'); return; }
+  closeProductModal();
+  showToast(`Product "${name}" saved ✓`, 'success');
+  renderProducts();
+}
+
+/* ══════════════════════════════════════════
+   SETTINGS TABS
+══════════════════════════════════════════ */
+function switchSettingsTab(id, el) {
+  document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.settings-nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('settings-' + id).classList.add('active');
+  el.classList.add('active');
+}
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = (type === 'success' ? '✓ ' : type === 'error' ? '⚠ ' : 'ℹ ') + msg;
+  t.className = `toast show${type ? ' '+type : ''}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ══════════════════════════════════════════
+   KEYBOARD ESC
+══════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeProductModal();
+});
+document.getElementById('productModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('productModal')) closeProductModal();
+});
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+renderRecentOrders();
+renderOrders();
+renderEnquiries();
+renderProducts();
+renderCustomers();
+renderActivity();
+renderBarChart('barChart', CHART_DATA);
+renderBarChart('barChartFull', [
+  {month:'Apr',val:185000},{month:'May',val:210000},{month:'Jun',val:195000},
+  {month:'Jul',val:230000},{month:'Aug',val:260000},{month:'Sep',val:220000},
+  {month:'Oct',val:285000},{month:'Nov',val:310000},{month:'Dec',val:260000},
+  {month:'Jan',val:340000},{month:'Feb',val:295000},{month:'Mar',val:380000,highlight:true},
+]);
+renderDonut();
+renderTopProducts();
+</script>
+</body>
+</html>
 
