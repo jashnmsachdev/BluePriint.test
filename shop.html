@@ -639,7 +639,7 @@
 <div class="topbar">
   <span>📍 B-7, First Floor, Rama Road Industrial Area, New Delhi – 110015 &nbsp;|&nbsp; Ramesh Nagar Metro</span>
   <div class="topbar-right">
-    <a href="mailto:print@bluepriint.in">print@bluepriint.in</a>
+    <a href="/cdn-cgi/l/email-protection#8efefce7e0faceece2fbebfefce7e7e0faa0e7e0"><span class="__cf_email__" data-cfemail="6414160d0a10240608110114160d0d0a104a0d0a">[email&#160;protected]</span></a>
     <a href="tel:+919717027607">📞 +91 9717027607</a>
     <span>Mon–Fri 10:30–20:30</span>
   </div>
@@ -860,7 +860,7 @@
       <h4>Contact</h4>
       <div class="footer-contact-item">📍 B-7, First Floor, Rama Road Industrial Area, New Delhi – 110015</div>
       <div class="footer-contact-item">📞 <a href="tel:+919717027607" style="color:rgba(255,255,255,0.6)">+91 9717027607</a></div>
-      <div class="footer-contact-item">✉ <a href="mailto:print@bluepriint.in" style="color:rgba(255,255,255,0.6)">print@bluepriint.in</a></div>
+      <div class="footer-contact-item">✉ <a href="/cdn-cgi/l/email-protection#cfbfbda6a1bb8fada3baaabfbda6a6a1bbe1a6a1" style="color:rgba(255,255,255,0.6)"><span class="__cf_email__" data-cfemail="601012090e1420020c1505101209090e144e090e">[email&#160;protected]</span></a></div>
     </div>
   </div>
   <div class="footer-bottom">
@@ -911,90 +911,213 @@
 
 <script>
 /* ══════════════════════════════════════════
-   PRODUCT DATA
+   CONFIG — API endpoint
 ══════════════════════════════════════════ */
-const BASE = 'https://blue-priint.github.io/assets/images/Bluepriint%20Images/';
-
-const PRODUCTS = [
-  { id:'BP-001', sku:'flex-banner', cat:'Printing', name:'Backlit Flex Banner', desc:'High-brightness backlit flex for shop fronts, malls and outdoor displays. UV-resistant ink that glows brilliantly at night.', price:850, oldPrice:1100, badge:'popular', tags:['Flex','Backlit','UV Print'], img: BASE+'Printing/Backlit-Flex/3.jpg', features:['Available in all custom sizes','UV-resistant weatherproof ink','48-hour express turnaround'] },
-  { id:'BP-002', sku:'acp-signboard', cat:'Signage', name:'ACP Fascia Sign Board', desc:'Durable aluminium composite panel signage for shops, offices and commercial spaces. Professional finish that lasts years.', price:3200, oldPrice:4000, badge:'sale', tags:['ACP','Aluminium','Fascia'], img: BASE+'Signage%20Solutions/ACPSignage.JPG', features:['Weather-resistant ACP panel','Custom shape & size fabrication','LED backlit options available'] },
-  { id:'BP-003', sku:'canvas-print', cat:'Printing', name:'Premium Canvas Print', desc:'Gallery-quality canvas prints for offices, showrooms and retail walls. Archival inks, vivid and lasting.', price:1200, oldPrice:null, badge:null, tags:['Canvas','A0/A1','Framed'], img: BASE+'Printing/canvas/3.jpg', features:['Archival-grade canvas material','Sizes from A3 to 10-foot wide','Framing & stretching available'] },
-  { id:'BP-004', sku:'one-way-vision', cat:'Printing', name:'One Way Vision Film', desc:'See-through perforated vinyl for glass facades — brand visibility outside, clear view inside.', price:950, oldPrice:1200, badge:'new', tags:['Perforated','Glass Film','Privacy'], img: BASE+'Printing/one%20way%20vison/3.jpg', features:['50% perforated vinyl film','Maintains interior visibility','UV & weather resistant'] },
-  { id:'BP-005', sku:'clip-on-translite', cat:'Internal Branding', name:'Clip-on Translite', desc:'Backlit translites for in-store branding, aisle displays and product promotions. Bright and attention-grabbing.', price:2400, oldPrice:null, badge:null, tags:['Backlit','In-Store','LED'], img: BASE+'Internal%20Branding/Clip%20on%20translites/Picture30.jpg', features:['Slim-frame backlit design','Quick-change graphics system','Energy-efficient LED backlight'] },
-  { id:'BP-006', sku:'acrylic-uv-print', cat:'Printing', name:'Acrylic UV Print', desc:'Vibrant, scratch-resistant UV prints on clear or white acrylic. The premium choice for brand displays.', price:1800, oldPrice:2200, badge:'sale', tags:['Acrylic','UV Print','Scratch-Resistant'], img: BASE+'Printing/Acrylic/3.jpg', features:['Crystal-clear acrylic substrate','Scratch & fade resistant','Standoff or flush mounting'] },
-  { id:'BP-007', sku:'facade-3d-led', cat:'Signage', name:'3D LED Facade Sign', desc:'Dramatic illuminated facade signs with 3D LED letters that transform storefronts into landmark destinations after dark.', price:8500, oldPrice:null, badge:'popular', tags:['3D LED','Facade','Channel Letters'], img: BASE+'Signage%20Solutions/Facade%20Signage/3%20night.jpg', features:['Custom 3D letter fabrication','RGB or single-colour LED','Includes installation & wiring'] },
-  { id:'BP-008', sku:'floor-vinyl', cat:'Internal Branding', name:'Floor Vinyl Graphics', desc:'Heavy-duty anti-slip floor vinyl for retail stores, showrooms and events. Turn your floor into a brand surface.', price:650, oldPrice:800, badge:'sale', tags:['Floor Vinyl','Anti-Slip','Retail'], img: BASE+'Printing/image11.jpg', features:['Anti-slip laminate finish','Withstands heavy foot traffic','Easy to clean & maintain'] },
-  { id:'BP-009', sku:'roll-up-standee', cat:'BTL', name:'Roll-up Standee', desc:'Portable and professional roll-up standees for events, exhibitions, retail launches and office lobbies.', price:1400, oldPrice:1800, badge:'sale', tags:['Standee','Events','Retractable'], img: BASE+'Printing/Backlit-Flex/3.jpg', features:['Aluminium base with carry bag','Retractable mechanism','Print replacement available'] },
-  { id:'BP-010', sku:'glow-sign-board', cat:'Signage', name:'Glow Sign Board', desc:'Classic backlit glow sign boards for shops and businesses. Highly visible day and night with a clean, professional look.', price:2200, oldPrice:null, badge:null, tags:['Glow Sign','Backlit','Aluminium Frame'], img: BASE+'Signage%20Solutions/ACPSignage.JPG', features:['Aluminium frame construction','Internal LED / CFL lighting','Waterproof & outdoor-safe'] },
-  { id:'BP-011', sku:'dangler-print', cat:'Internal Branding', name:'Dangler Print', desc:'Eye-catching hanging danglers for aisle branding, product promotions and seasonal campaigns in retail environments.', price:320, oldPrice:null, badge:null, tags:['Dangler','Sunboard','Die-Cut'], img: BASE+'Internal%20Branding/Clip%20on%20translites/Picture30.jpg', features:['Sunboard or PVC material','Single or double-sided print','Custom die-cut shapes available'] },
-  { id:'BP-012', sku:'outdoor-hoarding', cat:'OOH', name:'Outdoor Hoarding', desc:'Large-format outdoor hoardings for maximum brand reach along highways, markets and commercial corridors.', price:12000, oldPrice:null, badge:null, tags:['Hoarding','Large Format','OOH'], img: BASE+'Printing/canvas/3.jpg', features:['Sizes up to 40×20 feet','Steel structure & printing included','PAN India installation network'] },
-  { id:'BP-013', sku:'sunboard-cutout', cat:'BTL', name:'Sunboard Cut-out Display', desc:'Custom-shaped sunboard cut-outs for point-of-sale displays, in-store promotions and event activations.', price:480, oldPrice:600, badge:'sale', tags:['Sunboard','Cut-out','POS'], img: BASE+'Printing/Backlit-Flex/3.jpg', features:['5mm sunboard substrate','Any shape or size','Single or double-sided'] },
-  { id:'BP-014', sku:'neon-flex-sign', cat:'Signage', name:'Neon Flex LED Sign', desc:'Custom neon flex LED signs for restaurants, retail and office interiors. Warm glow, low power consumption.', price:4500, oldPrice:5500, badge:'new', tags:['Neon','LED','Custom Shape'], img: BASE+'Signage%20Solutions/Facade%20Signage/3%20night.jpg', features:['Custom shape bending','Energy-efficient LED neon','Indoor & outdoor versions'] },
-  { id:'BP-015', sku:'vinyl-wall-wrap', cat:'Printing', name:'Vinyl Wall Wrap', desc:'Full-colour adhesive vinyl wall graphics for offices, retail showrooms and hospitality spaces. Easy to apply and remove.', price:560, oldPrice:null, badge:null, tags:['Vinyl','Wall Graphics','Office'], img: BASE+'Printing/one%20way%20vison/3.jpg', features:['Air-release adhesive vinyl','Repositionable up to 24 hrs','Matte or gloss finish'] },
-  { id:'BP-016', sku:'kiosk-display', cat:'OOH', name:'Retail Kiosk Display', desc:'Freestanding retail kiosks for malls, airports and high-traffic areas. Custom fabricated for your brand identity.', price:18000, oldPrice:null, badge:null, tags:['Kiosk','Retail','Freestanding'], img: BASE+'Signage%20Solutions/ACPSignage.JPG', features:['Custom aluminium fabrication','Integrated lighting options','Branded wrap printing included'] },
-  { id:'BP-017', sku:'led-display-screen', cat:'LED Screens', name:'Indoor LED Display Screen', desc:'High-resolution indoor LED display panels for retail, corporate lobbies and command centres. Vivid and impact-ready.', price:22000, oldPrice:null, badge:null, tags:['LED Screen','Indoor','P2.5/P3'], img: BASE+'Signage%20Solutions/Facade%20Signage/3%20night.jpg', features:['P2.5 / P3 pixel pitch options','Content management system','Installation & commissioning'] },
-  { id:'BP-018', sku:'outdoor-led-screen', cat:'LED Screens', name:'Outdoor LED Video Wall', desc:'Weatherproof outdoor LED screens for storefronts, rooftops and building facades. High brightness for direct sunlight.', price:45000, oldPrice:null, badge:'popular', tags:['Outdoor LED','Video Wall','Weatherproof'], img: BASE+'Signage%20Solutions/Facade%20Signage/3%20night.jpg', features:['IP65 weatherproof rated','5000+ nits brightness','Remote content management'] },
-  { id:'BP-019', sku:'backlit-sign-box', cat:'Signage', name:'LED Backlit Sign Box', desc:'Slim aluminium LED light boxes for menus, directories and wall-mounted advertising displays. Clean and modern.', price:2800, oldPrice:3400, badge:'sale', tags:['Lightbox','Backlit','Slim Frame'], img: BASE+'Internal%20Branding/Clip%20on%20translites/Picture30.jpg', features:['Slim 50mm aluminium frame','Even LED backlighting','Snap-open frame for easy graphic change'] },
-  { id:'BP-020', sku:'printed-brochure', cat:'Printing', name:'Catalogue & Brochure Print', desc:'Premium offset and digital brochures for product catalogues, company profiles and event materials.', price:180, oldPrice:null, badge:null, tags:['Brochure','Offset','A4/A5'], img: BASE+'Printing/canvas/3.jpg', features:['200–350gsm coated stocks','Spot UV & foiling options','Min. 100 qty, bulk pricing'] },
-  { id:'BP-021', sku:'window-graphics', cat:'Printing', name:'Shop Window Graphics', desc:'Full-colour adhesive and semi-permanent window graphics for storefronts, malls and showroom glass.', price:420, oldPrice:520, badge:'sale', tags:['Window','Vinyl','Frosted'], img: BASE+'Printing/one%20way%20vison/3.jpg', features:['Clear, white or frosted vinyl','Custom cut & printed designs','Professional application service'] },
-  { id:'BP-022', sku:'frosted-film', cat:'Internal Branding', name:'Frosted Privacy Film', desc:'Architectural frosted film for glass partitions and office doors. Adds privacy while maintaining natural light flow.', price:380, oldPrice:null, badge:null, tags:['Frosted','Privacy','Glass Film'], img: BASE+'Printing/one%20way%20vison/3.jpg', features:['Multiple frosting levels','Custom pattern or solid frosted','Easy clean & maintain'] },
-  { id:'BP-023', sku:'banner-stand', cat:'BTL', name:'Premium Banner Stand', desc:'Heavy-duty double-sided banner stands for exhibitions, trade shows and in-store promotions.', price:2200, oldPrice:2800, badge:null, tags:['Banner Stand','Double-Sided','Exhibition'], img: BASE+'Printing/Backlit-Flex/3.jpg', features:['Chrome & black finish options','Double-sided print ready','Padded carry case included'] },
-  { id:'BP-024', sku:'wayfinding-sign', cat:'Signage', name:'Wayfinding Signage Set', desc:'Architectural wayfinding and directional signs for campuses, hospitals, hotels and corporate offices.', price:5500, oldPrice:null, badge:'new', tags:['Wayfinding','Directional','Architectural'], img: BASE+'Signage%20Solutions/ACPSignage.JPG', features:['Brushed aluminium panels','Custom typography & brand colour','Full system design included'] },
-];
+const API_BASE = (() => {
+  const h = window.location.hostname;
+  return (h === 'localhost' || h === '127.0.0.1') ? 'http://localhost:3000' : '';
+})();
+const API_URL = `${API_BASE}/api/products`;
 
 /* ══════════════════════════════════════════
-   CART STATE
+   STATE
 ══════════════════════════════════════════ */
-let cart = [];
+// All products loaded from API — used for cart lookups & quick-view
+let PRODUCTS_CACHE = [];
+
+// Filter/pagination state
 let activeCategory = 'all';
 let activeBadge    = 'all';
+let activeSearch   = '';
 let currentView    = 'grid';
-let maxPrice       = 10000;
+let maxPrice       = 100000;
+let currentPage    = 1;
+const PAGE_LIMIT   = 12;
+
+// Debounce timer for search
+let searchTimer = null;
 
 /* ══════════════════════════════════════════
-   RENDER PRODUCTS
+   CART — persisted in localStorage
 ══════════════════════════════════════════ */
-function getFiltered() {
-  const sortVal = document.getElementById('sortSelect').value;
+let cart = JSON.parse(localStorage.getItem('bp_cart') || '[]');
 
-  let list = PRODUCTS.filter(p => {
-    const catMatch   = activeCategory === 'all' || p.cat === activeCategory;
-    const badgeMatch = activeBadge === 'all' || p.badge === activeBadge;
-    const priceMatch = p.price <= maxPrice;
-    return catMatch && badgeMatch && priceMatch;
-  });
-
-  if (sortVal === 'price-asc')  list.sort((a,b) => a.price - b.price);
-  if (sortVal === 'price-desc') list.sort((a,b) => b.price - a.price);
-  if (sortVal === 'name-asc')   list.sort((a,b) => a.name.localeCompare(b.name));
-
-  return list;
+function saveCart() {
+  localStorage.setItem('bp_cart', JSON.stringify(cart));
 }
 
+/* ══════════════════════════════════════════
+   API LAYER
+══════════════════════════════════════════ */
+/**
+ * Build query string from current filter state and fetch from API.
+ * Maps client-side state → API query params.
+ */
+async function fetchProducts(overrides = {}) {
+  const params = new URLSearchParams();
+
+  // Category
+  const cat = overrides.cat ?? (activeCategory !== 'all' ? activeCategory : null);
+  if (cat) params.set('cat', cat);
+
+  // Badge
+  const badge = overrides.badge ?? (activeBadge !== 'all' ? activeBadge : null);
+  if (badge) params.set('badge', badge);
+
+  // Full-text search
+  const q = overrides.q ?? activeSearch;
+  if (q) params.set('q', q);
+
+  // Price ceiling
+  if (maxPrice < 100000) params.set('maxPrice', maxPrice);
+
+  // Sort mapping
+  const sortMap = {
+    'default':    'newest',
+    'price-asc':  'price_asc',
+    'price-desc': 'price_desc',
+    'name-asc':   'name_asc',
+  };
+  const sortVal = document.getElementById('sortSelect')?.value || 'default';
+  params.set('sort', sortMap[sortVal] || 'newest');
+
+  // Pagination
+  params.set('page',  overrides.page  ?? currentPage);
+  params.set('limit', overrides.limit ?? PAGE_LIMIT);
+
+  const url = `${API_URL}?${params.toString()}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.error('[BP Shop] API fetch failed:', err);
+    return null;
+  }
+}
+
+/** Fetch a single product by ID (for quick-view). */
+async function fetchProductById(id) {
+  // Try cache first
+  const cached = PRODUCTS_CACHE.find(p => p.id === id);
+  if (cached) return cached;
+
+  try {
+    const res = await fetch(`${API_URL}?id=${id}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    return json.success ? json.data : null;
+  } catch (err) {
+    console.error('[BP Shop] Single product fetch failed:', err);
+    return null;
+  }
+}
+
+/* ══════════════════════════════════════════
+   LOADING / ERROR STATES
+══════════════════════════════════════════ */
+function showSkeleton(count = PAGE_LIMIT) {
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML = Array.from({ length: count }).map(() => `
+    <div class="product-card" style="pointer-events:none;">
+      <div class="product-img-wrap" style="background:linear-gradient(90deg,#e8f1fb 25%,#f4f7fc 50%,#e8f1fb 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;"></div>
+      <div class="product-body">
+        <div style="height:10px;width:60px;background:#e8f1fb;border-radius:4px;margin-bottom:10px;animation:shimmer 1.4s infinite;background-size:200% 100%;"></div>
+        <div style="height:16px;width:90%;background:#e8f1fb;border-radius:4px;margin-bottom:8px;animation:shimmer 1.4s infinite;background-size:200% 100%;"></div>
+        <div style="height:12px;width:75%;background:#e8f1fb;border-radius:4px;margin-bottom:14px;animation:shimmer 1.4s infinite;background-size:200% 100%;"></div>
+        <div style="height:24px;width:50%;background:#e8f1fb;border-radius:4px;animation:shimmer 1.4s infinite;background-size:200% 100%;"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function showAPIError(retryFn) {
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML = `
+    <div class="empty-state" style="grid-column:1/-1;">
+      <div class="empty-icon">⚠️</div>
+      <div class="empty-title">Could not load products</div>
+      <p class="empty-desc" style="margin-bottom:16px;">The API is unreachable. Check your network or Vercel deployment.</p>
+      <button onclick="${retryFn}()" style="padding:10px 24px;background:var(--blue);color:#fff;border:none;border-radius:7px;font-size:13.5px;font-weight:600;cursor:pointer;">↺ Retry</button>
+    </div>`;
+  document.getElementById('resultCount').innerHTML = '<strong>—</strong> products';
+}
+
+/* Inject shimmer keyframe once */
+const shimmerStyle = document.createElement('style');
+shimmerStyle.textContent = `@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`;
+document.head.appendChild(shimmerStyle);
+
+/* ══════════════════════════════════════════
+   MAIN LOAD & RENDER
+══════════════════════════════════════════ */
+async function loadAndRender(resetPage = false) {
+  if (resetPage) currentPage = 1;
+
+  showSkeleton();
+  document.getElementById('resultCount').innerHTML = '<span style="color:var(--grey-light)">Loading…</span>';
+
+  const result = await fetchProducts();
+
+  if (!result) {
+    showAPIError('loadAndRender');
+    return;
+  }
+
+  const { data: products, meta } = result;
+
+  // Populate cache for cart / quick-view lookups
+  products.forEach(p => {
+    if (!PRODUCTS_CACHE.find(c => c.id === p.id)) PRODUCTS_CACHE.push(p);
+  });
+
+  renderCards(products, meta);
+  renderPagination(meta);
+}
+
+/* ══════════════════════════════════════════
+   RENDER CARDS
+══════════════════════════════════════════ */
 function badgeHTML(b) {
   if (!b) return '';
-  const map = { popular:'badge-popular', sale:'badge-sale', new:'badge-new', custom:'badge-custom' };
-  const labels = { popular:'Popular', sale:'Sale', new:'New', custom:'Custom' };
-  return `<span class="product-badge ${map[b]}">${labels[b]}</span>`;
+  const cls = { popular:'badge-popular', sale:'badge-sale', new:'badge-new' };
+  const lbl = { popular:'Popular', sale:'Sale', new:'New' };
+  return `<span class="product-badge ${cls[b] || ''}">${lbl[b] || b}</span>`;
 }
 
 function discountPct(price, old) {
   if (!old) return '';
-  return `<span class="product-discount">–${Math.round((1-price/old)*100)}%</span>`;
+  return `<span class="product-discount">–${Math.round((1 - price / old) * 100)}%</span>`;
 }
 
-function renderCards(list) {
+function renderCards(products, meta) {
   const grid = document.getElementById('productsGrid');
 
-  if (!list.length) {
-    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">No products found</div><p class="empty-desc">Try adjusting your filters or <a href="contact.html" style="color:var(--blue-light)">request a custom quote</a>.</p></div>`;
+  if (!products || !products.length) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">No products found</div>
+        <p class="empty-desc">Try adjusting your filters or <a href="contact.html" style="color:var(--blue-light)">request a custom quote</a>.</p>
+      </div>`;
     document.getElementById('resultCount').innerHTML = '<strong>0</strong> products';
     return;
   }
 
-  document.getElementById('resultCount').innerHTML = `<strong>${list.length}</strong> product${list.length !== 1 ? 's' : ''}`;
+  const total = meta?.total ?? products.length;
+  document.getElementById('resultCount').innerHTML =
+    `<strong>${total}</strong> product${total !== 1 ? 's' : ''}`;
 
-  grid.innerHTML = list.map(p => `
+  // Normalise API field names (API uses `category`, `description`, `image`; shop uses `cat`, `desc`, `img`)
+  const norm = products.map(p => ({
+    ...p,
+    cat:  p.cat  || p.category || '',
+    desc: p.desc || p.description || '',
+    img:  p.img  || p.image || '',
+  }));
+
+  grid.innerHTML = norm.map(p => `
     <div class="product-card reveal" data-id="${p.id}">
       <div class="product-img-wrap">
         ${badgeHTML(p.badge)}
@@ -1009,7 +1132,7 @@ function renderCards(list) {
         <div class="product-cat">${p.cat}</div>
         <div class="product-name">${p.name}</div>
         <div class="product-desc">${p.desc}</div>
-        <div class="product-tags">${p.tags.map(t=>`<span class="product-tag">${t}</span>`).join('')}</div>
+        <div class="product-tags">${(p.tags || []).map(t => `<span class="product-tag">${t}</span>`).join('')}</div>
         <div class="product-price-row">
           <span class="product-price">₹${p.price.toLocaleString('en-IN')}</span>
           ${p.oldPrice ? `<span class="product-price-old">₹${p.oldPrice.toLocaleString('en-IN')}</span>` : ''}
@@ -1023,51 +1146,85 @@ function renderCards(list) {
     </div>
   `).join('');
 
-  // Trigger reveal animation
-  setTimeout(() => {
+  // Staggered reveal animation
+  requestAnimationFrame(() => {
     grid.querySelectorAll('.reveal').forEach((el, i) => {
-      setTimeout(() => el.classList.add('up'), i * 55);
+      setTimeout(() => el.classList.add('up'), i * 50);
     });
-  }, 40);
+  });
 }
 
 /* ══════════════════════════════════════════
-   CATEGORY TABS
+   PAGINATION
 ══════════════════════════════════════════ */
+function renderPagination(meta) {
+  const el = document.getElementById('pagination');
+  if (!el || !meta || meta.totalPages <= 1) { if (el) el.innerHTML = ''; return; }
+
+  const { page, totalPages } = meta;
+  const pages = [];
+
+  // Always show first, last, current ±1
+  const show = new Set([1, totalPages, page, page - 1, page + 1].filter(n => n >= 1 && n <= totalPages));
+  const sorted = [...show].sort((a, b) => a - b);
+
+  let prev = 0;
+  sorted.forEach(n => {
+    if (n - prev > 1) pages.push('…');
+    pages.push(n);
+    prev = n;
+  });
+
+  el.innerHTML = `
+    <button class="page-btn" ${page <= 1 ? 'disabled' : ''} onclick="goToPage(${page - 1})">‹</button>
+    ${pages.map(p => p === '…'
+      ? `<span style="display:flex;align-items:center;padding:0 4px;color:var(--grey);">…</span>`
+      : `<button class="page-btn ${p === page ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`
+    ).join('')}
+    <button class="page-btn" ${page >= totalPages ? 'disabled' : ''} onclick="goToPage(${page + 1})">›</button>
+  `;
+}
+
+function goToPage(n) {
+  currentPage = n;
+  window.scrollTo({ top: document.getElementById('shopToolbar').offsetTop - 80, behavior: 'smooth' });
+  loadAndRender();
+}
+
+/* ══════════════════════════════════════════
+   FILTER TRIGGERS
+══════════════════════════════════════════ */
+
+// Category tabs
 document.getElementById('catTabs').addEventListener('click', e => {
   const tab = e.target.closest('.cat-tab');
   if (!tab) return;
   document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
   activeCategory = tab.dataset.cat;
-  renderCards(getFiltered());
+  loadAndRender(true);
 });
 
-/* ══════════════════════════════════════════
-   SORT
-══════════════════════════════════════════ */
-document.getElementById('sortSelect').addEventListener('change', () => renderCards(getFiltered()));
+// Sort dropdown
+document.getElementById('sortSelect').addEventListener('change', () => loadAndRender(true));
 
-/* ══════════════════════════════════════════
-   BADGE FILTERS
-══════════════════════════════════════════ */
+// Badge filters
 document.querySelectorAll('.badge-filter').forEach(bf => {
   bf.addEventListener('click', () => {
     document.querySelectorAll('.badge-filter').forEach(b => b.classList.remove('active'));
     bf.classList.add('active');
     activeBadge = bf.dataset.badge;
-    renderCards(getFiltered());
+    loadAndRender(true);
   });
 });
 
-/* ══════════════════════════════════════════
-   PRICE SLIDER
-══════════════════════════════════════════ */
-document.getElementById('priceSlider').addEventListener('input', function() {
+// Price slider
+document.getElementById('priceSlider').addEventListener('input', function () {
   maxPrice = parseInt(this.value);
-  const label = maxPrice >= 10000 ? 'Any price' : `Up to ₹${maxPrice.toLocaleString('en-IN')}`;
+  const label = maxPrice >= 100000 ? 'Any price' : `Up to ₹${maxPrice.toLocaleString('en-IN')}`;
   document.getElementById('priceMax').textContent = label;
-  renderCards(getFiltered());
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => loadAndRender(true), 350);
 });
 
 /* ══════════════════════════════════════════
@@ -1075,8 +1232,7 @@ document.getElementById('priceSlider').addEventListener('input', function() {
 ══════════════════════════════════════════ */
 function setView(v) {
   currentView = v;
-  const grid = document.getElementById('productsGrid');
-  grid.classList.toggle('view-list', v === 'list');
+  document.getElementById('productsGrid').classList.toggle('view-list', v === 'list');
   document.getElementById('btnGrid').classList.toggle('active', v === 'grid');
   document.getElementById('btnList').classList.toggle('active', v === 'list');
 }
@@ -1087,36 +1243,59 @@ function setView(v) {
 function clearFilters() {
   activeCategory = 'all';
   activeBadge    = 'all';
-  maxPrice       = 10000;
-  document.querySelectorAll('.cat-tab').forEach((t,i) => t.classList.toggle('active', i===0));
-  document.querySelectorAll('.badge-filter').forEach((b,i) => b.classList.toggle('active', i===0));
-  document.getElementById('priceSlider').value = 10000;
-  document.getElementById('priceMax').textContent = 'Up to ₹10,000';
-  renderCards(getFiltered());
+  activeSearch   = '';
+  maxPrice       = 100000;
+  document.querySelectorAll('.cat-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+  document.querySelectorAll('.badge-filter').forEach((b, i) => b.classList.toggle('active', i === 0));
+  document.getElementById('priceSlider').value = 100000;
+  document.getElementById('priceMax').textContent = 'Any price';
+  loadAndRender(true);
 }
 
 /* ══════════════════════════════════════════
-   WISHLIST (cosmetic)
+   WISHLIST (localStorage)
 ══════════════════════════════════════════ */
+const WISHLIST_KEY = 'bp_wishlist';
+const wishes = new Set(JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]'));
+
 function toggleWish(btn) {
-  btn.classList.toggle('wished');
-  btn.textContent = btn.classList.contains('wished') ? '♥' : '♡';
+  const card = btn.closest('.product-card');
+  const id   = card?.dataset.id;
+  if (!id) return;
+  if (wishes.has(id)) {
+    wishes.delete(id);
+    btn.classList.remove('wished');
+    btn.textContent = '♡';
+  } else {
+    wishes.add(id);
+    btn.classList.add('wished');
+    btn.textContent = '♥';
+  }
+  localStorage.setItem(WISHLIST_KEY, JSON.stringify([...wishes]));
 }
 
 /* ══════════════════════════════════════════
    CART
 ══════════════════════════════════════════ */
-function addToCart(id) {
-  const p = PRODUCTS.find(x => x.id === id);
+async function addToCart(id) {
+  // Get from cache; if not cached yet, fetch from API
+  let p = PRODUCTS_CACHE.find(x => x.id === id);
+  if (!p) p = await fetchProductById(id);
   if (!p) return;
+
+  // Normalise field names
+  p = { ...p, cat: p.cat || p.category || '', img: p.img || p.image || '' };
+
   const existing = cart.find(x => x.id === id);
   if (existing) { existing.qty++; }
   else          { cart.push({ ...p, qty: 1 }); }
+
+  saveCart();
   updateCartBadge();
   renderCartItems();
   openCart();
 
-  // Brief button feedback
+  // Button feedback
   const btn = document.querySelector(`[data-id="${id}"] .btn-enquire`);
   if (btn) {
     const orig = btn.textContent;
@@ -1128,6 +1307,7 @@ function addToCart(id) {
 
 function removeFromCart(id) {
   cart = cart.filter(x => x.id !== id);
+  saveCart();
   updateCartBadge();
   renderCartItems();
 }
@@ -1136,6 +1316,7 @@ function changeQty(id, delta) {
   const item = cart.find(x => x.id === id);
   if (!item) return;
   item.qty = Math.max(1, item.qty + delta);
+  saveCart();
   updateCartBadge();
   renderCartItems();
 }
@@ -1163,7 +1344,7 @@ function renderCartItems() {
 
   container.innerHTML = cart.map(item => `
     <div class="cart-item">
-      <img class="cart-item-img" src="${item.img}" alt="${item.name}"/>
+      <img class="cart-item-img" src="${item.img}" alt="${item.name}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'68\' height=\'68\'%3E%3Crect fill=\'%23e8f1fb\' width=\'68\' height=\'68\'/%3E%3C/svg%3E'"/>
       <div class="cart-item-info">
         <div class="cart-item-cat">${item.cat}</div>
         <div class="cart-item-name">${item.name}</div>
@@ -1179,35 +1360,60 @@ function renderCartItems() {
   `).join('');
 }
 
-function openCart()  { document.getElementById('cartOverlay').classList.add('open'); document.getElementById('cartDrawer').classList.add('open'); }
-function closeCart() { document.getElementById('cartOverlay').classList.remove('open'); document.getElementById('cartDrawer').classList.remove('open'); }
+function openCart()  {
+  document.getElementById('cartOverlay').classList.add('open');
+  document.getElementById('cartDrawer').classList.add('open');
+}
+function closeCart() {
+  document.getElementById('cartOverlay').classList.remove('open');
+  document.getElementById('cartDrawer').classList.remove('open');
+}
 
 function checkoutWhatsApp() {
-  const lines = cart.map(x => `• ${x.name} (×${x.qty}) — ₹${(x.price*x.qty).toLocaleString('en-IN')}`).join('\n');
-  const total = cart.reduce((s,x) => s + x.price*x.qty, 0);
+  const lines = cart.map(x => `• ${x.name} (×${x.qty}) — ₹${(x.price * x.qty).toLocaleString('en-IN')}`).join('\n');
+  const total = cart.reduce((s, x) => s + x.price * x.qty, 0);
   const msg   = `Hello BluePriint,\n\nI'd like to request a quote for the following:\n\n${lines}\n\nEstimated Total: ₹${total.toLocaleString('en-IN')}\n\nPlease confirm pricing and availability.`;
   window.open(`https://wa.me/919717027607?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 /* ══════════════════════════════════════════
-   QUICK VIEW MODAL
+   QUICK VIEW MODAL (fetches from API)
 ══════════════════════════════════════════ */
-function openQuickView(id) {
-  const p = PRODUCTS.find(x => x.id === id);
-  if (!p) return;
+async function openQuickView(id) {
+  const modal = document.getElementById('quickViewModal');
+  const imgEl = document.getElementById('modalImg');
+  const body  = document.getElementById('modalBody');
 
-  document.getElementById('modalImg').src = p.img;
-  document.getElementById('modalImg').alt = p.name;
+  // Show loading state immediately
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  imgEl.src = '';
+  body.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--grey);">Loading…</div>`;
 
-  document.getElementById('modalBody').innerHTML = `
-    ${p.badge ? `<span class="modal-badge ${p.badge === 'sale' ? 'badge-sale' : p.badge === 'new' ? 'badge-new' : 'badge-popular'}" style="color:${p.badge==='new'?'var(--blue)':'#fff'}">${p.badge.toUpperCase()}</span>` : ''}
-    <div class="modal-cat">${p.cat}</div>
-    <div class="modal-name">${p.name}</div>
-    <div class="modal-desc">${p.desc}</div>
-    <ul class="modal-features">${p.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+  const p = await fetchProductById(id);
+
+  if (!p) {
+    body.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--red);">⚠ Could not load product details.</div>`;
+    return;
+  }
+
+  const norm = { ...p, cat: p.cat || p.category, desc: p.desc || p.description, img: p.img || p.image };
+
+  imgEl.src = norm.img;
+  imgEl.alt = norm.name;
+
+  const badgeCls = norm.badge === 'sale' ? 'badge-sale' : norm.badge === 'new' ? 'badge-new' : 'badge-popular';
+  const badgeColor = norm.badge === 'new' ? 'var(--blue)' : '#fff';
+
+  body.innerHTML = `
+    ${norm.badge ? `<span class="modal-badge ${badgeCls}" style="color:${badgeColor}">${norm.badge.toUpperCase()}</span>` : ''}
+    <div class="modal-cat">${norm.cat}</div>
+    <div class="modal-name">${norm.name}</div>
+    <div class="modal-desc">${norm.desc}</div>
+    <ul class="modal-features">${(norm.features || []).map(f => `<li>${f}</li>`).join('')}</ul>
     <div class="modal-price-row">
-      <span class="modal-price">₹${p.price.toLocaleString('en-IN')}</span>
-      ${p.oldPrice ? `<span class="modal-price-old">₹${p.oldPrice.toLocaleString('en-IN')}</span>` : ''}
+      <span class="modal-price">₹${norm.price.toLocaleString('en-IN')}</span>
+      ${norm.oldPrice ? `<span class="modal-price-old">₹${norm.oldPrice.toLocaleString('en-IN')}</span>` : ''}
     </div>
     <div style="font-size:12px;color:var(--grey);">Price per sq.ft / unit — final quote based on size & quantity</div>
     <div class="modal-qty-row">
@@ -1219,13 +1425,10 @@ function openQuickView(id) {
       </div>
     </div>
     <div class="modal-actions">
-      <button class="modal-btn-add" onclick="addToCart('${p.id}');closeModal()">Add to Enquiry Cart</button>
-      <a href="https://wa.me/919717027607?text=Hi%20BluePriint%2C%20I%27m%20interested%20in%20${encodeURIComponent(p.name)}%20(SKU:%20${p.sku})%20—%20please%20send%20me%20pricing%20and%20details." target="_blank" class="modal-btn-wa">💬 Ask on WhatsApp</a>
+      <button class="modal-btn-add" onclick="addToCart('${norm.id}');closeModal()">Add to Enquiry Cart</button>
+      <a href="https://wa.me/919717027607?text=Hi%20BluePriint%2C%20I%27m%20interested%20in%20${encodeURIComponent(norm.name)}%20(SKU:%20${norm.sku})%20—%20please%20send%20me%20pricing%20and%20details." target="_blank" class="modal-btn-wa">💬 Ask on WhatsApp</a>
     </div>
   `;
-
-  document.getElementById('quickViewModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
 }
 
 function closeModal(e) {
@@ -1235,7 +1438,7 @@ function closeModal(e) {
 }
 
 /* ══════════════════════════════════════════
-   NAV SHADOW + REVEAL
+   NAV SHADOW + REVEAL OBSERVER
 ══════════════════════════════════════════ */
 window.addEventListener('scroll', () => {
   document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 10);
@@ -1252,7 +1455,7 @@ const revealObs = new IntersectionObserver(entries => {
 document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
 
 /* ══════════════════════════════════════════
-   KEYBOARD: ESC closes overlays
+   KEYBOARD
 ══════════════════════════════════════════ */
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
@@ -1265,7 +1468,11 @@ document.addEventListener('keydown', e => {
 /* ══════════════════════════════════════════
    INIT
 ══════════════════════════════════════════ */
-renderCards(getFiltered());
+// Restore cart badge from localStorage on load
+updateCartBadge();
+
+// Initial product load from API
+loadAndRender();
 </script>
 </body>
 </html>
