@@ -920,6 +920,21 @@
 .client-pill:hover .client-name{
   opacity:1;
 }
+    .clients-track{
+  display:flex;
+  align-items:center;
+  gap:40px;
+  width:max-content;
+  animation:clientScroll 28s linear infinite;
+}
+    @keyframes clientScroll{
+  from{
+    transform:translateX(0);
+  }
+  to{
+    transform:translateX(-50%);
+  }
+}
 
     /* ── CTA BANNER ── */
     .cta-banner {
