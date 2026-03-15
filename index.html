@@ -643,9 +643,15 @@
       color: var(--blue-light);
       margin-bottom: 16px;
     }
-    .svc-icon {
-      font-size: 36px;
-      margin-bottom: 16px;
+   .svc-icon img{
+  width:60px;
+  height:60px;
+  object-fit:contain;
+  margin-bottom:16px;
+
+  opacity:0;
+  transform:translateY(-10px);
+  animation:fadeIcon 0.8s ease forwards;
     }
     .svc-title {
       font-size: 18px;
@@ -676,6 +682,15 @@
     }
     .svc-link::after { content: '→'; transition: transform 0.2s; }
     .service-card:hover .svc-link::after { transform: translateX(4px); }
+    @keyframes fadeIcon{
+  from{
+    opacity:0;
+    transform:translateY(-10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
 
     /* ── PROCESS ── */
     .process-section {
@@ -1119,12 +1134,26 @@
       <div class="svc-link">Know More</div>
     </a>
     <a class="service-card reveal" href="#">
-      <div class="svc-num">02</div>
-      <div class="svc-icon">🪟</div>
-      <div class="svc-title">Signage Solutions</div>
-      <div class="svc-desc">3D-LED letters, backlit signs, ACP boards and flanges that draw customers in.</div>
-      <div class="svc-tags"><span class="svc-tag">3D LED</span><span class="svc-tag">ACP Board</span><span class="svc-tag">Backlit</span></div>
-      <div class="svc-link">Know More</div>
+  <div class="svc-num">02</div>
+
+  <div class="svc-icon">
+    <img src="images/signage.png" alt="Signage Solutions">
+  </div>
+
+  <div class="svc-title">Signage Solutions</div>
+
+  <div class="svc-desc">
+    3D-LED letters, backlit signs, ACP boards and flanges that draw customers in.
+  </div>
+
+  <div class="svc-tags">
+    <span class="svc-tag">3D LED</span>
+    <span class="svc-tag">ACP Board</span>
+    <span class="svc-tag">Backlit</span>
+  </div>
+
+  <div class="svc-link">Know More</div>
+</a>
     </a>
     <a class="service-card reveal" href="#">
       <div class="svc-num">03</div>
