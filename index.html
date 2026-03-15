@@ -885,6 +885,41 @@
       0%   { transform: translateX(0); }
       100% { transform: translateX(-50%); }
     }
+    .client-pill{
+  position:relative;
+  width:120px;
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-right:40px;
+}
+
+.client-pill img{
+  max-width:100px;
+  max-height:40px;
+  transition:all .4s ease;
+  filter:grayscale(100%);
+}
+
+.client-name{
+  position:absolute;
+  font-size:14px;
+  font-weight:600;
+  opacity:0;
+  transition:opacity .3s ease;
+  color:var(--blue);
+}
+
+/* hover reveal */
+.client-pill:hover img{
+  filter:grayscale(0%);
+  opacity:.25;
+}
+
+.client-pill:hover .client-name{
+  opacity:1;
+}
 
     /* ── CTA BANNER ── */
     .cta-banner {
@@ -1305,36 +1340,38 @@
 </section>
 
 <!-- ── CLIENTS ── -->
-<div class="clients-section">
-  <div class="clients-label">Trusted by leading brands across Delhi NCR</div>
-  <div class="clients-scroll">
-    <div class="clients-track">
-      <span class="client-pill">Bajaj</span><span class="client-pill">·</span>
-      <span class="client-pill">Hero</span><span class="client-pill">·</span>
-      <span class="client-pill">Pepsi</span><span class="client-pill">·</span>
-      <span class="client-pill">Mother Dairy</span><span class="client-pill">·</span>
-      <span class="client-pill">Blackberry</span><span class="client-pill">·</span>
-      <span class="client-pill">Wella</span><span class="client-pill">·</span>
-      <span class="client-pill">Anchor</span><span class="client-pill">·</span>
-      <span class="client-pill">Aiwa</span><span class="client-pill">·</span>
-      <span class="client-pill">Valvoline</span><span class="client-pill">·</span>
-      <span class="client-pill">ISBF</span><span class="client-pill">·</span>
-      <span class="client-pill">Crystal</span><span class="client-pill">·</span>
-      <span class="client-pill">Affinity Express</span><span class="client-pill">·</span>
-      <span class="client-pill">Bajaj</span><span class="client-pill">·</span>
-      <span class="client-pill">Hero</span><span class="client-pill">·</span>
-      <span class="client-pill">Pepsi</span><span class="client-pill">·</span>
-      <span class="client-pill">Mother Dairy</span><span class="client-pill">·</span>
-      <span class="client-pill">Blackberry</span><span class="client-pill">·</span>
-      <span class="client-pill">Wella</span><span class="client-pill">·</span>
-      <span class="client-pill">Anchor</span><span class="client-pill">·</span>
-      <span class="client-pill">Aiwa</span><span class="client-pill">·</span>
-      <span class="client-pill">Valvoline</span><span class="client-pill">·</span>
-      <span class="client-pill">ISBF</span><span class="client-pill">·</span>
-      <span class="client-pill">Crystal</span><span class="client-pill">·</span>
-      <span class="client-pill">Affinity Express</span><span class="client-pill">·</span>
-    </div>
+<div class="clients-track">
+
+  <div class="client-pill">
+    <img src="logos/bajaj.png" alt="Bajaj">
+    <span class="client-name">Bajaj</span>
   </div>
+
+  <div class="client-pill">
+    <img src="logos/hero.png" alt="Hero">
+    <span class="client-name">Hero</span>
+  </div>
+
+  <div class="client-pill">
+    <img src="logos/pepsi.png" alt="Pepsi">
+    <span class="client-name">Pepsi</span>
+  </div>
+
+  <div class="client-pill">
+    <img src="logos/motherdairy.png" alt="Mother Dairy">
+    <span class="client-name">Mother Dairy</span>
+  </div>
+
+  <div class="client-pill">
+    <img src="logos/blackberry.png" alt="Blackberry">
+    <span class="client-name">Blackberry</span>
+  </div>
+
+  <div class="client-pill">
+    <img src="logos/wella.png" alt="Wella">
+    <span class="client-name">Wella</span>
+  </div>
+
 </div>
 
 <!-- ── FEATURED PRODUCTS ── -->
