@@ -515,6 +515,18 @@
       .content { padding: 20px 16px; }
       .form-row { grid-template-columns: 1fr; }
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* API status pill */
+    .api-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11.5px; font-weight: 600; padding: 4px 10px;
+      border-radius: 20px; background: var(--green-pale); color: #1a7a4a;
+      border: 1px solid #b3e8cc;
+    }
+    .api-status.error { background: var(--red-pale); color: var(--red); border-color: #f5b3b3; }
+    .api-status.loading { background: #fff8e1; color: var(--orange); border-color: #ffe08a; }
+    .api-status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
   </style>
 </head>
 <body>
@@ -599,6 +611,9 @@
       <input type="text" placeholder="Search orders, products, enquiries…" id="globalSearch" oninput="globalSearchFn(this.value)"/>
     </div>
     <div class="topbar-right">
+      <span class="api-status loading" id="apiStatusPill">
+        <span class="api-status-dot"></span> API connecting…
+      </span>
       <button class="tb-icon-btn" title="Notifications" onclick="showToast('3 new enquiries received','')">
         🔔<span class="tb-notif-dot"></span>
       </button>
@@ -1044,18 +1059,86 @@ const ENQUIRIES = [
   { id:'EQ-195', name:'Saurabh Jain', company:'Jain Jewellers', phone:'+91 96000 56789', email:'saurabh@jainjewellers.com', city:'Delhi', services:['Signage','LED Screens'], message:'Luxury jewellery store redesign. Premium signage with gold lettering, LED neon sign for window and digital display inside store.', date:'8 Mar 2025', priority:'med' },
 ];
 
-const PRODUCTS_DATA = [
-  { id:'BP-001', name:'Backlit Flex Banner', sku:'flex-banner', cat:'Printing', price:850, oldPrice:1100, badge:'popular', stock:'In Stock' },
-  { id:'BP-002', name:'ACP Fascia Sign Board', sku:'acp-signboard', cat:'Signage', price:3200, oldPrice:4000, badge:'sale', stock:'In Stock' },
-  { id:'BP-003', name:'Premium Canvas Print', sku:'canvas-print', cat:'Printing', price:1200, oldPrice:null, badge:null, stock:'In Stock' },
-  { id:'BP-004', name:'One Way Vision Film', sku:'one-way-vision', cat:'Printing', price:950, oldPrice:1200, badge:'new', stock:'In Stock' },
-  { id:'BP-005', name:'Clip-on Translite', sku:'clip-on-translite', cat:'Internal Branding', price:2400, oldPrice:null, badge:null, stock:'Low Stock' },
-  { id:'BP-006', name:'Acrylic UV Print', sku:'acrylic-uv-print', cat:'Printing', price:1800, oldPrice:2200, badge:'sale', stock:'In Stock' },
-  { id:'BP-007', name:'3D LED Facade Sign', sku:'facade-3d-led', cat:'Signage', price:8500, oldPrice:null, badge:'popular', stock:'In Stock' },
-  { id:'BP-008', name:'Floor Vinyl Graphics', sku:'floor-vinyl', cat:'Internal Branding', price:650, oldPrice:800, badge:'sale', stock:'In Stock' },
-  { id:'BP-009', name:'Roll-up Standee', sku:'roll-up-standee', cat:'BTL', price:1400, oldPrice:1800, badge:'sale', stock:'In Stock' },
-  { id:'BP-010', name:'Glow Sign Board', sku:'glow-sign-board', cat:'Signage', price:2200, oldPrice:null, badge:null, stock:'In Stock' },
-];
+/* ══════════════════════════════════════════
+   API CONFIG
+══════════════════════════════════════════ */
+const ADMIN_API_BASE = (() => {
+  const h = window.location.hostname;
+  return (h === 'localhost' || h === '127.0.0.1') ? 'http://localhost:3000' : '';
+})();
+const PRODUCTS_API = `${ADMIN_API_BASE}/api/products`;
+
+// Admin key — stored in localStorage after first entry
+let ADMIN_KEY = localStorage.getItem('bp_admin_key') || '';
+function ensureAdminKey() {
+  if (!ADMIN_KEY) {
+    const k = prompt('Enter your Admin API Key (set ADMIN_API_KEY in Vercel env):');
+    if (k) { ADMIN_KEY = k; localStorage.setItem('bp_admin_key', k); }
+  }
+  return ADMIN_KEY;
+}
+
+/* ══════════════════════════════════════════
+   PRODUCT API LAYER
+══════════════════════════════════════════ */
+let PRODUCTS_DATA = []; // populated from API on load
+let _editingProductId = null; // tracks whether modal is add or edit
+
+async function apiProducts(method, id, body) {
+  const url = id ? `${PRODUCTS_API}?id=${id}` : `${PRODUCTS_API}?limit=100`;
+  const headers = { 'Content-Type': 'application/json' };
+  if (method !== 'GET') headers['x-admin-key'] = ensureAdminKey();
+  try {
+    const res = await fetch(url, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return await res.json();
+  } catch (err) {
+    console.error('[BP Admin] API error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+async function loadProductsFromAPI() {
+  const pill = document.getElementById('apiStatusPill');
+  if (pill) { pill.className = 'api-status loading'; pill.innerHTML = '<span class="api-status-dot"></span> Fetching…'; }
+
+  // Fetch all (no page limit for admin — limit=100)
+  const result = await apiProducts('GET', null, null);
+
+  if (result && result.success) {
+    PRODUCTS_DATA = (result.data || []).map(p => ({
+      ...p,
+      cat:  p.cat  || p.category   || '',
+      img:  p.img  || p.image      || '',
+      desc: p.desc || p.description|| '',
+      stock: p.stock === 'in_stock' ? 'In Stock' : p.stock === 'low_stock' ? 'Low Stock' : 'Out of Stock',
+    }));
+    renderProducts(PRODUCTS_DATA);
+    updateDashboardProductCount(PRODUCTS_DATA.length);
+
+    if (pill) {
+      pill.className = 'api-status';
+      pill.innerHTML = `<span class="api-status-dot"></span> API live · ${PRODUCTS_DATA.length} products`;
+    }
+  } else {
+    if (pill) { pill.className = 'api-status error'; pill.innerHTML = '<span class="api-status-dot"></span> API error'; }
+    showToast('Could not load products from API', 'error');
+    renderProducts([]);
+  }
+}
+
+function updateDashboardProductCount(count) {
+  // Update the "Service Lines" stat on dashboard to show real product count
+  const statCards = document.querySelectorAll('.stat-card');
+  statCards.forEach(card => {
+    if (card.querySelector('.stat-label')?.textContent === 'Service Lines') {
+      card.querySelector('.stat-value').textContent = count;
+    }
+  });
+}
 
 const CUSTOMERS = [
   { name:'Arjun Kumar', company:'Bajaj Dealership', phone:'+91 98100 11111', city:'Delhi', orders:8, spent:'₹72,000', last:'14 Mar 2025' },
@@ -1183,35 +1266,38 @@ function renderEnquiries(list) {
 }
 
 function renderProducts(list) {
-  const BASE = 'https://blue-priint.github.io/assets/images/Bluepriint%20Images/';
-  const IMGS = {
-    'BP-001': BASE+'Printing/Backlit-Flex/3.jpg',
-    'BP-002': BASE+'Signage%20Solutions/ACPSignage.JPG',
-    'BP-003': BASE+'Printing/canvas/3.jpg',
-    'BP-004': BASE+'Printing/one%20way%20vison/3.jpg',
-    'BP-005': BASE+'Internal%20Branding/Clip%20on%20translites/Picture30.jpg',
-    'BP-006': BASE+'Printing/Acrylic/3.jpg',
-    'BP-007': BASE+'Signage%20Solutions/Facade%20Signage/3%20night.jpg',
-    'BP-008': BASE+'Printing/image11.jpg',
-  };
   const badgeCls = { popular:'badge-popular', sale:'badge-sale', new:'badge-new' };
   const tbody = document.getElementById('productsTableBody');
-  tbody.innerHTML = (list || PRODUCTS_DATA).map(p => `
-    <tr>
-      <td style="display:flex;align-items:center;gap:12px;">
-        <img class="prod-thumb" src="${IMGS[p.id] || IMGS['BP-001']}" alt="${p.name}"/>
+
+  if (!list || !list.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--grey);">No products found</td></tr>`;
+    document.querySelector('#page-products .card-sub').textContent = '0 products';
+    return;
+  }
+
+  document.querySelector('#page-products .card-sub').textContent =
+    `${PRODUCTS_DATA.length} products across 7 categories`;
+
+  tbody.innerHTML = list.map(p => `
+    <tr data-product-id="${p.id}">
+      <td style="display:flex;align-items:center;gap:12px;min-width:200px;">
+        <img class="prod-thumb" src="${p.img}" alt="${p.name}"
+          onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\'%3E%3Crect fill=\'%23e8f1fb\' width=\'44\' height=\'44\'/%3E%3C/svg%3E'"/>
         <div class="td-name">${p.name}</div>
       </td>
       <td style="font-size:12px;color:var(--grey);font-family:monospace;">${p.sku}</td>
       <td>${p.cat}</td>
-      <td style="font-weight:700;">₹${p.price.toLocaleString('en-IN')}${p.oldPrice ? `<span style="font-size:11px;color:var(--grey);text-decoration:line-through;margin-left:6px;">₹${p.oldPrice.toLocaleString('en-IN')}</span>` : ''}</td>
-      <td>${p.badge ? `<span class="status-badge ${badgeCls[p.badge]||'s-new'}">${p.badge}</span>` : '<span style="color:var(--grey-light);">—</span>'}</td>
+      <td style="font-weight:700;">
+        ₹${p.price.toLocaleString('en-IN')}
+        ${p.oldPrice ? `<span style="font-size:11px;color:var(--grey);text-decoration:line-through;margin-left:6px;">₹${p.oldPrice.toLocaleString('en-IN')}</span>` : ''}
+      </td>
+      <td>${p.badge ? `<span class="status-badge ${badgeCls[p.badge] || 's-new'}">${p.badge}</span>` : '<span style="color:var(--grey-light);">—</span>'}</td>
       <td><span class="status-badge ${p.stock === 'In Stock' ? 's-instock' : 's-low'}">${p.stock}</span></td>
       <td>
         <div class="row-actions">
-          <button class="ra-btn ra-view" title="Preview" onclick="window.open('shop.html')">👁</button>
-          <button class="ra-btn ra-edit" title="Edit" onclick="openProductModal('${p.id}')">✏️</button>
-          <button class="ra-btn ra-del"  title="Delete" onclick="deleteRow(this)">🗑</button>
+          <button class="ra-btn ra-view" title="Preview on shop" onclick="window.open('shop.html')">👁</button>
+          <button class="ra-btn ra-edit" title="Edit product" onclick="openProductModal('${p.id}')">✏️</button>
+          <button class="ra-btn ra-del"  title="Delete product" onclick="deleteProduct('${p.id}', this)">🗑</button>
         </div>
       </td>
     </tr>
@@ -1333,7 +1419,13 @@ function filterOrdersByStatus(s) {
 }
 function filterProducts(q) {
   const lq = q.toLowerCase();
-  renderProducts(PRODUCTS_DATA.filter(p => p.name.toLowerCase().includes(lq) || p.sku.toLowerCase().includes(lq) || p.cat.toLowerCase().includes(lq)));
+  renderProducts(
+    PRODUCTS_DATA.filter(p =>
+      p.name.toLowerCase().includes(lq) ||
+      p.sku.toLowerCase().includes(lq)  ||
+      p.cat.toLowerCase().includes(lq)
+    )
+  );
 }
 function filterEnquiries(s) {
   renderEnquiries(s ? ENQUIRIES.filter(e => e.services.some(sv => sv.includes(s))) : ENQUIRIES);
@@ -1373,9 +1465,36 @@ function cycleStatus(btn, orderId) {
   cell.textContent = { new:'New', pending:'Pending', progress:'In Progress', complete:'Complete' }[next];
   showToast(`Order ${orderId} → ${cell.textContent}`, 'success');
 }
-function deleteRow(btn) {
+async function deleteProduct(id, btn) {
+  if (!confirm(`Delete product ${id}? This cannot be undone.`)) return;
+
   const row = btn.closest('tr');
+  row.style.opacity    = '0.4';
+  row.style.transition = 'opacity 0.2s';
+  btn.disabled = true;
+
+  const result = await apiProducts('DELETE', id, null);
+
+  if (!result || !result.success) {
+    row.style.opacity = '1';
+    btn.disabled = false;
+    showToast(result?.error || 'Delete failed', 'error');
+    return;
+  }
+
   row.style.opacity = '0';
+  setTimeout(() => row.remove(), 300);
+
+  // Remove from local cache
+  PRODUCTS_DATA = PRODUCTS_DATA.filter(p => p.id !== id);
+  updateDashboardProductCount(PRODUCTS_DATA.length);
+  showToast(`Product ${id} deleted`, '');
+}
+
+function deleteRow(btn) {
+  // Fallback for non-product rows (orders table)
+  const row = btn.closest('tr');
+  row.style.opacity    = '0';
   row.style.transition = 'opacity 0.3s';
   setTimeout(() => row.remove(), 300);
   showToast('Row deleted', '');
@@ -1391,38 +1510,99 @@ function deleteEnquiry(id) {
 /* ══════════════════════════════════════════
    PRODUCT MODAL
 ══════════════════════════════════════════ */
-function openProductModal(id) {
+async function openProductModal(id) {
+  _editingProductId = id || null;
   document.getElementById('productModal').classList.add('open');
   document.getElementById('modalProductTitle').textContent = id ? 'Edit Product' : 'Add New Product';
+
+  // Clear form first
+  ['pm-name','pm-sku','pm-price','pm-oldprice','pm-desc','pm-tags','pm-img'].forEach(f => {
+    document.getElementById(f).value = '';
+  });
+  document.getElementById('pm-cat').value   = 'Printing';
+  document.getElementById('pm-badge').value = '';
+
   if (id) {
-    const p = PRODUCTS_DATA.find(x => x.id === id);
+    document.getElementById('pm-name').value = 'Loading…';
+    // Fetch full product from API (has description, tags, features, image)
+    const result = await apiProducts('GET', id, null);
+    const p = result?.success ? result.data : PRODUCTS_DATA.find(x => x.id === id);
     if (p) {
-      document.getElementById('pm-name').value    = p.name;
-      document.getElementById('pm-sku').value     = p.sku;
-      document.getElementById('pm-cat').value     = p.cat;
+      document.getElementById('pm-name').value    = p.name || '';
+      document.getElementById('pm-sku').value     = p.sku  || '';
+      document.getElementById('pm-cat').value     = p.category || p.cat || 'Printing';
       document.getElementById('pm-badge').value   = p.badge || '';
-      document.getElementById('pm-price').value   = p.price;
+      document.getElementById('pm-price').value   = p.price || '';
       document.getElementById('pm-oldprice').value= p.oldPrice || '';
+      document.getElementById('pm-desc').value    = p.description || p.desc || '';
+      document.getElementById('pm-tags').value    = (p.tags || []).join(', ');
+      document.getElementById('pm-img').value     = p.image || p.img || '';
     }
-  } else {
-    document.getElementById('pm-name').value = '';
-    document.getElementById('pm-sku').value  = '';
-    document.getElementById('pm-price').value= '';
-    document.getElementById('pm-oldprice').value='';
-    document.getElementById('pm-desc').value='';
-    document.getElementById('pm-tags').value='';
-    document.getElementById('pm-img').value='';
   }
 }
 function closeProductModal() {
   document.getElementById('productModal').classList.remove('open');
 }
-function saveProduct() {
-  const name = document.getElementById('pm-name').value.trim();
-  if (!name) { showToast('Product name is required','error'); return; }
+async function saveProduct() {
+  const name     = document.getElementById('pm-name').value.trim();
+  const sku      = document.getElementById('pm-sku').value.trim();
+  const category = document.getElementById('pm-cat').value;
+  const badge    = document.getElementById('pm-badge').value || null;
+  const price    = parseFloat(document.getElementById('pm-price').value);
+  const oldPrice = parseFloat(document.getElementById('pm-oldprice').value) || null;
+  const desc     = document.getElementById('pm-desc').value.trim();
+  const tagsRaw  = document.getElementById('pm-tags').value.trim();
+  const image    = document.getElementById('pm-img').value.trim();
+
+  // Client-side validation
+  if (!name)        { showToast('Product name is required', 'error'); return; }
+  if (!sku)         { showToast('SKU is required', 'error'); return; }
+  if (isNaN(price)) { showToast('Valid price is required', 'error'); return; }
+
+  const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+  const payload = { name, sku, category, badge, price, oldPrice, description: desc, tags, image };
+
+  // Disable save button while in flight
+  const saveBtn = document.querySelector('#productModal .btn-save');
+  saveBtn.textContent = 'Saving…';
+  saveBtn.disabled = true;
+
+  let result;
+  if (_editingProductId) {
+    // PUT — update existing
+    result = await apiProducts('PUT', _editingProductId, payload);
+  } else {
+    // POST — create new
+    result = await apiProducts('POST', null, payload);
+  }
+
+  saveBtn.textContent = 'Save Product';
+  saveBtn.disabled = false;
+
+  if (!result || !result.success) {
+    const errMsg = result?.errors?.join(', ') || result?.error || 'Unknown error';
+    showToast(`Save failed: ${errMsg}`, 'error');
+    return;
+  }
+
   closeProductModal();
-  showToast(`Product "${name}" saved ✓`, 'success');
-  renderProducts();
+  showToast(`Product "${name}" ${_editingProductId ? 'updated' : 'created'} ✓`, 'success');
+
+  // Refresh product table from API
+  await loadProductsFromAPI();
+
+  // Log to activity feed
+  const actItem = {
+    type: 'product',
+    icon: '📦',
+    bg:   'ad-product',
+    text: `<strong>Product ${_editingProductId ? 'updated' : 'created'}</strong>`,
+    sub:  `${name} — ${_editingProductId ? 'fields updated' : 'added to catalogue'}`,
+    time: 'Just now',
+  };
+  ACTIVITY.unshift(actItem);
+  renderActivity();
 }
 
 /* ══════════════════════════════════════════
@@ -1458,24 +1638,44 @@ document.getElementById('productModal').addEventListener('click', e => {
 });
 
 /* ══════════════════════════════════════════
-   INIT
+   INIT — boot sequence
 ══════════════════════════════════════════ */
-renderRecentOrders();
-renderOrders();
-renderEnquiries();
-renderProducts();
-renderCustomers();
-renderActivity();
-renderBarChart('barChart', CHART_DATA);
-renderBarChart('barChartFull', [
-  {month:'Apr',val:185000},{month:'May',val:210000},{month:'Jun',val:195000},
-  {month:'Jul',val:230000},{month:'Aug',val:260000},{month:'Sep',val:220000},
-  {month:'Oct',val:285000},{month:'Nov',val:310000},{month:'Dec',val:260000},
-  {month:'Jan',val:340000},{month:'Feb',val:295000},{month:'Mar',val:380000,highlight:true},
-]);
-renderDonut();
-renderTopProducts();
+(async function init() {
+  // Render non-API sections immediately (static data)
+  renderRecentOrders();
+  renderOrders();
+  renderEnquiries();
+  renderCustomers();
+  renderActivity();
+  renderBarChart('barChart', CHART_DATA);
+  renderBarChart('barChartFull', [
+    {month:'Apr',val:185000},{month:'May',val:210000},{month:'Jun',val:195000},
+    {month:'Jul',val:230000},{month:'Aug',val:260000},{month:'Sep',val:220000},
+    {month:'Oct',val:285000},{month:'Nov',val:310000},{month:'Dec',val:260000},
+    {month:'Jan',val:340000},{month:'Feb',val:295000},{month:'Mar',val:380000,highlight:true},
+  ]);
+  renderDonut();
+  renderTopProducts();
+
+  // Show loading state in products table while API loads
+  document.getElementById('productsTableBody').innerHTML = `
+    <tr>
+      <td colspan="7" style="text-align:center;padding:32px;color:var(--grey);">
+        <span style="display:inline-block;animation:spin 0.8s linear infinite;font-size:20px;margin-bottom:8px;">⟳</span><br>
+        Loading products from API…
+      </td>
+    </tr>`;
+
+  // Load products from live API
+  await loadProductsFromAPI();
+
+  // Show API status badge in topbar
+  const statusDot = document.querySelector('.tb-notif-dot');
+  if (statusDot) {
+    statusDot.style.background = '#22a06b'; // green = API connected
+    statusDot.title = 'API connected';
+  }
+})();
 </script>
 </body>
 </html>
-
