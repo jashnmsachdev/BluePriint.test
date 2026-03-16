@@ -587,101 +587,125 @@
     .section-header .eyebrow::before { display: none; }
     .section-header .section-h2 { color: var(--blue); }
 
-    .services-tabs {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-    }
-    .tab-btn {
-      padding: 10px 24px;
-      border-radius: 6px;
-      font-size: 13.5px;
-      font-weight: 600;
-      cursor: pointer;
-      border: 2px solid transparent;
-      background: var(--blue-pale);
-      color: var(--blue);
-      transition: all 0.2s;
-    }
-    .tab-btn:hover, .tab-btn.active {
-      background: var(--blue);
-      color: #fff;
-    }
+   .service-card{
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+  border:1px solid rgba(13,59,110,0.1);
+  transition:all .35s ease;
+  display:flex;
+  flex-direction:column;
+}
 
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-    }
-    .service-card {
-      background: #fff;
-      border: 1px solid rgba(13,59,110,0.1);
-      border-radius: 10px;
-      padding: 32px 24px;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-    .service-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--blue-light);
-      transform: scaleX(0);
-      transition: transform 0.3s;
-      transform-origin: left;
-    }
-    .service-card:hover { box-shadow: 0 12px 40px rgba(13,59,110,0.12); transform: translateY(-4px); }
-    .service-card:hover::before { transform: scaleX(1); }
-    .svc-num {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.15em;
-      color: var(--blue-light);
-      margin-bottom: 16px;
-    }
-   .svc-icon img{
-  width:60px;
-  height:60px;
-  object-fit:contain;
+.service-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 20px 50px rgba(0,0,0,0.12);
+}
+
+/* IMAGE AREA */
+
+.svc-image{
+  position:relative;
+  height:220px;
+  overflow:hidden;
+}
+
+.svc-image img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+
+  filter:grayscale(100%);
+  transition:all .5s ease;
+}
+
+/* COLOR ON HOVER */
+
+.service-card:hover .svc-image img{
+  filter:grayscale(0%);
+  transform:scale(1.05);
+}
+
+/* FADE OVERLAY */
+
+.svc-image::after{
+  content:"";
+  position:absolute;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:80%;
+
+  background:linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0%,
+    rgba(0,0,0,0.6) 100%
+  );
+}
+
+/* CONTENT */
+
+.svc-content{
+  padding:24px;
+  margin-top:-40px;
+  position:relative;
+  z-index:2;
+  color:#fff;
+}
+
+/* NUMBER */
+
+.svc-num{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.2em;
+  margin-bottom:8px;
+  opacity:.7;
+}
+
+/* TITLE */
+
+.svc-title{
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+
+/* DESCRIPTION */
+
+.svc-desc{
+  font-size:13px;
+  line-height:1.6;
+  opacity:.9;
+  margin-bottom:18px;
+}
+
+/* TAGS */
+
+.svc-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
   margin-bottom:16px;
+}
 
-  opacity:0;
-  transform:translateY(-10px);
-  animation:fadeIcon 0.8s ease forwards;
-    }
-    .svc-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--blue);
-      margin-bottom: 10px;
-    }
-    .svc-desc {
-      font-size: 13.5px;
-      color: var(--grey);
-      line-height: 1.7;
-      margin-bottom: 20px;
-    }
-    .svc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
-    .svc-tag {
-      font-size: 11px;
-      background: var(--blue-pale);
-      color: var(--blue);
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-weight: 500;
-    }
-    .svc-link {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--blue-light);
-      display: flex; align-items: center; gap: 6px;
-    }
-    .svc-link::after { content: '→'; transition: transform 0.2s; }
-    .service-card:hover .svc-link::after { transform: translateX(4px); }
+.svc-tag{
+  background:rgba(255,255,255,0.15);
+  padding:4px 10px;
+  border-radius:4px;
+  font-size:11px;
+}
+
+/* LINK */
+
+.svc-link{
+  font-size:13px;
+  font-weight:600;
+}
+
+.svc-link::after{
+  content:" →";
+}
     @keyframes fadeIcon{
   from{
     opacity:0;
@@ -1189,18 +1213,29 @@
       <div class="svc-link">Know More</div>
     </a>
    <a class="service-card reveal" href="#">
-  <div class="svc-num">02</div>
-   <div class="svc-icon">
+
+  <div class="svc-image">
     <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Signage Solutions/ACPSignage.JPG" alt="Signage Solutions">
   </div>
-  <div class="svc-title">Signage Solutions</div>
-  <div class="svc-desc">3D-LED letters, backlit signs, ACP boards and flanges that draw customers in.</div>
-  <div class="svc-tags">
-    <span class="svc-tag">3D LED</span>
-    <span class="svc-tag">ACP Board</span>
-    <span class="svc-tag">Backlit</span>
+
+  <div class="svc-content">
+    <div class="svc-num">02</div>
+
+    <div class="svc-title">Signage Solutions</div>
+
+    <div class="svc-desc">
+      3D-LED letters, backlit signs, ACP boards and flanges that draw customers in.
+    </div>
+
+    <div class="svc-tags">
+      <span class="svc-tag">3D LED</span>
+      <span class="svc-tag">ACP Board</span>
+      <span class="svc-tag">Backlit</span>
+    </div>
+
+    <div class="svc-link">Know More</div>
   </div>
-  <div class="svc-link">Know More</div>
+
 </a>
     <a class="service-card reveal" href="#">
       <div class="svc-num">03</div>
