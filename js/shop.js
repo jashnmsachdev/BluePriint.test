@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 /* 🔗 CONNECT TO MONGODB ATLAS */
-mongoose.connect("mongodb+srv://admin:admin123@cluster0.zfckuvh.mongodb.net/bluepriint?retryWrites=true&w=majority")
+mongoose.connect("mongodb+srv://admin:Strong!12@cluster0.zfckuvh.mongodb.net/bluepriint?retryWrites=true&w=majority")
 .then(() => console.log("MongoDB Connected"))
 .catch(err => console.log(err));
 
