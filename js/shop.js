@@ -1,27 +1,46 @@
-async function loadProducts() {
+npm init -y
+npm install express mongoose cors
 
-const res = await fetch("/api/products");
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
 
-const data = await res.json();
+const app = express();
+app.use(express.json());
+app.use(cors());
 
-const container = document.getElementById("products");
+/* 🔗 CONNECT TO MONGODB ATLAS */
+mongoose.connect("mongodb+srv://admin:admin123@cluster0.zfckuvh.mongodb.net/bluepriint?retryWrites=true&w=majority")
+.then(() => console.log("MongoDB Connected"))
+.catch(err => console.log(err));
 
-data.forEach(product => {
-
-container.innerHTML += `
-<div class="product">
-
-<img src="${product.image}" />
-
-<h3>${product.name}</h3>
-
-<p>₹${product.price}</p>
-
-</div>
-`;
-
+/* 📦 PRODUCT SCHEMA */
+const ProductSchema = new mongoose.Schema({
+  name: String,
+  price: String,
+  category: String,
+  image: String,
+  stock: String
 });
 
-}
+const Product = mongoose.model("Product", ProductSchema);
 
-loadProducts();
+/* ➕ ADD PRODUCT */
+app.post("/add-product", async (req, res) => {
+  try {
+    const product = new Product(req.body);
+    await product.save();
+    res.send("Product Saved");
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+/* 📥 GET PRODUCTS */
+app.get("/products", async (req, res) => {
+  const products = await Product.find();
+  res.json(products);
+});
+
+/* 🚀 START SERVER */
+app.listen(3000, () => console.log("Server running on port 3000"));
