@@ -787,24 +787,19 @@
     status.className = '';
     status.textContent = '';
 
-    // Show "waking up" notice after 4s — Render free tier cold starts take ~30s
+    // Show a "please wait" notice after 5s in case Render is cold-starting (~30s on free tier)
     const wakeTimer = setTimeout(() => {
-      status.className = 'form-status';
-      status.style.display = 'flex';
-      status.style.background = '#fff8e1';
-      status.style.color = '#e65100';
-      status.style.border = '1px solid #ffe082';
-      status.textContent = '⏳ Server is starting up, please wait a moment…';
-    }, 4000);
+      status.style.cssText = 'display:flex;background:#fff8e1;color:#e65100;border:1px solid #ffe082;padding:14px 18px;border-radius:9px;font-size:14px;margin-top:14px;';
+      status.textContent = '⏳ Almost there, server is waking up…';
+    }, 5000);
 
     const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       ? 'http://localhost:3000'
       : 'https://bluepriint-test.onrender.com';
 
     try {
-      // 60s timeout — enough for Render cold start
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 60000);
+      const timeoutId  = setTimeout(() => controller.abort(), 60000); // 60s for cold start
 
       const res = await fetch(`${API_BASE}/api/enquiries`, {
         method:  'POST',
@@ -812,7 +807,8 @@
         signal:  controller.signal,
         body: JSON.stringify({ name, company, email, phone, city, services, message, source: 'contact-form' }),
       });
-      clearTimeout(timeout);
+
+      clearTimeout(timeoutId);
       clearTimeout(wakeTimer);
 
       const data = await res.json();
@@ -834,17 +830,12 @@
       clearTimeout(wakeTimer);
       btn.disabled = false;
       btn.innerHTML = 'Send Message &amp; Request Quote <span class="arrow">→</span>';
-
-      const isTimeout = err.name === 'AbortError';
       status.removeAttribute('style');
       status.className = 'form-status error';
-
-      if (isTimeout) {
-        status.innerHTML = '⚠️ Server took too long to respond. Please try again in a moment, or reach us directly at <a href="tel:+919717027607" style="color:#1a5fa8;">+91 9717027607</a>.';
-      } else {
-        status.innerHTML = '⚠️ Could not send message. Please call <a href="tel:+919717027607" style="color:#1a5fa8;">+91 9717027607</a> or <a href="https://wa.me/919717027607" style="color:#25d366;">WhatsApp us</a>.';
-      }
-      console.error('[BP Contact] Submit error:', err);
+      status.innerHTML = err.name === 'AbortError'
+        ? '⚠️ Server took too long. Please try again in a moment.'
+        : '⚠️ Could not send. Please call <a href="tel:+919717027607" style="color:#1a5fa8;">+91 9717027607</a> or <a href="https://wa.me/919717027607" style="color:#25d366;">WhatsApp us</a>.';
+      console.error('[BP]', err);
     }
   });
 </script>
