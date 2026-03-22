@@ -1,19 +1,20 @@
 const express  = require("express");
 const mongoose = require("mongoose");
 const cors     = require("cors");
- 
+const nodemailer = require("nodemailer");
+
 const app = express();
 app.use(express.json());
 app.use(cors());
- 
+
 /* ════════════════════════════════════════════
    🔗 MONGODB ATLAS CONNECTION
 ════════════════════════════════════════════ */
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("✅ MongoDB Connected"))
 .catch(err => console.error("❌ MongoDB connection error:", err));
- 
- 
+
+
 /* ════════════════════════════════════════════
    🔐 ADMIN KEY MIDDLEWARE
    Protects mutating routes (POST / PUT / DELETE).
@@ -21,7 +22,7 @@ mongoose.connect(process.env.MONGO_URI)
    Dashboard sends the key in the x-admin-key header.
 ════════════════════════════════════════════ */
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'bluepriint-admin-2025';
- 
+
 function requireAdminKey(req, res, next) {
   const key = req.headers['x-admin-key'];
   if (!key || key !== ADMIN_API_KEY) {
@@ -29,8 +30,8 @@ function requireAdminKey(req, res, next) {
   }
   next();
 }
- 
- 
+
+
 /* ════════════════════════════════════════════
    📦 PRODUCT SCHEMA
    Fields aligned with shop.html field names.
@@ -55,15 +56,69 @@ const ProductSchema = new mongoose.Schema(
     toJSON:     { virtuals: true }, // ensures `id` field is included alongside `_id`
   }
 );
- 
+
 // Text index for full-text search (?q= param)
 ProductSchema.index({ name: "text", description: "text", category: "text", tags: "text" });
- 
+
 const Product = mongoose.model("Product", ProductSchema);
- 
- 
+
+
 /* ════════════════════════════════════════════
-   👤 CUSTOMER SCHEMA
+   📧 NODEMAILER — email notification on new enquiry
+   Uses Gmail App Password stored in GMAIL_PASS env var.
+   Set in Render dashboard: GMAIL_USER and GMAIL_PASS
+════════════════════════════════════════════ */
+const emailTransporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.GMAIL_USER || 'bluepriint2005@gmail.com',
+    pass: process.env.GMAIL_PASS || 'fkipwnqoqpbywsfq',
+  },
+});
+
+async function sendEnquiryEmail(enquiry) {
+  const servicesList = (enquiry.services || []).join(', ') || 'Not specified';
+  const html = `
+    <h3 style="color:#0d3b6e;font-family:sans-serif;margin-bottom:16px;">
+      🔔 New Quote Request — BluePriint
+    </h3>
+    <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;width:100%;max-width:560px;">
+      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;width:130px;">Name</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${enquiry.name}</td></tr>
+      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Company</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${enquiry.company || '—'}</td></tr>
+      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Email</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">
+            <a href="mailto:${enquiry.email}">${enquiry.email}</a></td></tr>
+      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Phone</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">
+            <a href="tel:${enquiry.phone}">${enquiry.phone}</a></td></tr>
+      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">City</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${enquiry.city || '—'}</td></tr>
+      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Services</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${servicesList}</td></tr>
+      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;vertical-align:top;">Message</td>
+          <td style="padding:8px 12px;">${enquiry.message}</td></tr>
+    </table>
+    <p style="font-family:sans-serif;font-size:12px;color:#888;margin-top:16px;">
+      ✅ Saved to BluePriint CRM — ID: ${enquiry._id}
+    </p>
+  `;
+  try {
+    await emailTransporter.sendMail({
+      from:    `"BluePriint Website" <${process.env.GMAIL_USER || 'bluepriint2005@gmail.com'}>`,
+      to:      'print@bluepriint.in',
+      subject: `New Quote Request from ${enquiry.name} — BluePriint`,
+      html,
+    });
+    console.log(`✅ Enquiry email sent for ${enquiry.name}`);
+  } catch (err) {
+    // Email failure must NOT fail the API response — DB save is the source of truth
+    console.error('⚠️  Enquiry email failed (enquiry still saved to DB):', err.message);
+  }
+}
    Tracks every customer who has placed an order or submitted an enquiry.
    orders / totalSpent are updated manually via PUT when orders are processed.
 ════════════════════════════════════════════ */
@@ -86,13 +141,13 @@ const CustomerSchema = new mongoose.Schema(
     toJSON:     { virtuals: true },
   }
 );
- 
+
 // Text index for search by name / company / phone
 CustomerSchema.index({ name: "text", company: "text", phone: "text", email: "text" });
- 
+
 const Customer = mongoose.model("Customer", CustomerSchema);
- 
- 
+
+
 /* ════════════════════════════════════════════
    💬 ENQUIRY SCHEMA
    Every contact-form submission from contact.html is saved here.
@@ -116,12 +171,12 @@ const EnquirySchema = new mongoose.Schema(
     toJSON: { virtuals: true },
   }
 );
- 
+
 EnquirySchema.index({ name: "text", company: "text", email: "text", message: "text" });
- 
+
 const Enquiry = mongoose.model("Enquiry", EnquirySchema);
- 
- 
+
+
 /* ════════════════════════════════════════════
    💬 GET /api/enquiries
    Supports:
@@ -135,23 +190,23 @@ const Enquiry = mongoose.model("Enquiry", EnquirySchema);
 app.get("/api/enquiries", async (req, res) => {
   try {
     const { status, priority, q, sort = "newest", page = 1, limit = 20 } = req.query;
- 
+
     const filter = {};
     if (status)   filter.status   = status;
     if (priority) filter.priority = priority;
     if (q)        filter.$text    = { $search: q };
- 
+
     const sortObj = sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
- 
+
     const pageNum  = Math.max(1, parseInt(page));
     const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
     const skip     = (pageNum - 1) * limitNum;
- 
+
     const [enquiries, total] = await Promise.all([
       Enquiry.find(filter).sort(sortObj).skip(skip).limit(limitNum).lean(),
       Enquiry.countDocuments(filter),
     ]);
- 
+
     res.json({
       success: true,
       data: enquiries,
@@ -162,8 +217,8 @@ app.get("/api/enquiries", async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    🔍 GET /api/enquiries/:id
 ════════════════════════════════════════════ */
@@ -177,8 +232,8 @@ app.get("/api/enquiries/:id", async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    ➕ POST /api/enquiries  (PUBLIC — no admin key)
    Called directly from contact.html on form submit.
@@ -186,12 +241,12 @@ app.get("/api/enquiries/:id", async (req, res) => {
 app.post("/api/enquiries", async (req, res) => {
   try {
     const { name, company, email, phone, city, services, message, source } = req.body;
- 
+
     // Basic server-side validation
     if (!name || !email || !phone || !message) {
       return res.status(400).json({ success: false, error: "name, email, phone and message are required." });
     }
- 
+
     const enquiry = new Enquiry({
       name, company, email, phone, city,
       services: Array.isArray(services) ? services : (services ? [services] : []),
@@ -200,16 +255,20 @@ app.post("/api/enquiries", async (req, res) => {
       priority: "med",  // default; admin can update later
       status:   "new",
     });
- 
+
     await enquiry.save();
+
+    // Fire email notification — non-blocking, failure won't affect response
+    sendEnquiryEmail(enquiry);
+
     res.status(201).json({ success: true, data: enquiry });
   } catch (err) {
     console.error("POST /api/enquiries error:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    ✏️  PUT /api/enquiries/:id  (Admin — update status / priority)
 ════════════════════════════════════════════ */
@@ -223,8 +282,8 @@ app.put("/api/enquiries/:id", requireAdminKey, async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    🗑️  DELETE /api/enquiries/:id
 ════════════════════════════════════════════ */
@@ -238,8 +297,8 @@ app.delete("/api/enquiries/:id", requireAdminKey, async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    📋 GET /api/products
    Supports all query params from shop.html:
@@ -262,19 +321,19 @@ app.get("/api/products", async (req, res) => {
       page  = 1,
       limit = 12,
     } = req.query;
- 
+
     /* ── Build filter ── */
     const filter = {};
- 
+
     if (cat)      filter.category = { $regex: new RegExp(`^${cat}$`, "i") };
     if (badge)    filter.badge    = badge;
     if (maxPrice) filter.price    = { $lte: Number(maxPrice) };
- 
+
     // Full-text search (uses the text index defined above)
     if (q) {
       filter.$text = { $search: q };
     }
- 
+
     /* ── Sort mapping (shop sends these exact strings) ── */
     const sortMap = {
       newest:     { createdAt: -1 },
@@ -283,18 +342,18 @@ app.get("/api/products", async (req, res) => {
       name_asc:   { name: 1 },
     };
     const sortObj = sortMap[sort] || { createdAt: -1 };
- 
+
     /* ── Pagination ── */
     const pageNum  = Math.max(1, parseInt(page));
     const limitNum = Math.min(50, Math.max(1, parseInt(limit))); // cap at 50
     const skip     = (pageNum - 1) * limitNum;
- 
+
     /* ── Query ── */
     const [products, total] = await Promise.all([
       Product.find(filter).sort(sortObj).skip(skip).limit(limitNum).lean(),
       Product.countDocuments(filter),
     ]);
- 
+
     /* ── Envelope response matching shop.html expectations ── */
     res.json({
       success: true,
@@ -311,8 +370,8 @@ app.get("/api/products", async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    🔍 GET /api/products/:id  (Quick View)
 ════════════════════════════════════════════ */
@@ -326,8 +385,8 @@ app.get("/api/products/:id", async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    ➕ POST /api/products  (Add product)
 ════════════════════════════════════════════ */
@@ -341,8 +400,8 @@ app.post("/api/products", requireAdminKey, async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    ✏️  PUT /api/products/:id  (Update product)
 ════════════════════════════════════════════ */
@@ -356,8 +415,8 @@ app.put("/api/products/:id", requireAdminKey, async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    🗑️  DELETE /api/products/:id
 ════════════════════════════════════════════ */
@@ -371,8 +430,8 @@ app.delete("/api/products/:id", requireAdminKey, async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    👥 GET /api/customers
    Supports:
@@ -393,13 +452,13 @@ app.get("/api/customers", async (req, res) => {
       page  = 1,
       limit = 20,
     } = req.query;
- 
+
     const filter = {};
- 
+
     if (city)   filter.city   = { $regex: new RegExp(`^${city}$`, "i") };
     if (source) filter.source = source;
     if (q)      filter.$text  = { $search: q };
- 
+
     const sortMap = {
       newest:      { createdAt: -1 },
       oldest:      { createdAt:  1 },
@@ -408,16 +467,16 @@ app.get("/api/customers", async (req, res) => {
       orders_desc: { orders:    -1 },
     };
     const sortObj = sortMap[sort] || { createdAt: -1 };
- 
+
     const pageNum  = Math.max(1, parseInt(page));
     const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
     const skip     = (pageNum - 1) * limitNum;
- 
+
     const [customers, total] = await Promise.all([
       Customer.find(filter).sort(sortObj).skip(skip).limit(limitNum).lean(),
       Customer.countDocuments(filter),
     ]);
- 
+
     res.json({
       success: true,
       data: customers,
@@ -428,8 +487,8 @@ app.get("/api/customers", async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    🔍 GET /api/customers/:id
 ════════════════════════════════════════════ */
@@ -443,8 +502,8 @@ app.get("/api/customers/:id", async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    ➕ POST /api/customers  (Add customer)
 ════════════════════════════════════════════ */
@@ -458,8 +517,8 @@ app.post("/api/customers", requireAdminKey, async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    ✏️  PUT /api/customers/:id  (Update customer)
 ════════════════════════════════════════════ */
@@ -473,8 +532,8 @@ app.put("/api/customers/:id", requireAdminKey, async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    🗑️  DELETE /api/customers/:id
 ════════════════════════════════════════════ */
@@ -488,8 +547,8 @@ app.delete("/api/customers/:id", requireAdminKey, async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    🧪 GET /api/seed  (one-time test data seeder)
    Visit once to populate DB, then remove or restrict.
@@ -498,9 +557,9 @@ app.get("/api/seed", async (req, res) => {
   try {
     const existingProducts = await Product.countDocuments();
     const existingCustomers = await Customer.countDocuments();
- 
+
     const seeded = [];
- 
+
     if (existingProducts === 0) {
       const sampleProducts = [
         {
@@ -537,7 +596,7 @@ app.get("/api/seed", async (req, res) => {
       await Product.insertMany(sampleProducts);
       seeded.push(`${sampleProducts.length} products`);
     }
- 
+
     if (existingCustomers === 0) {
       const sampleCustomers = [
         { name: "Arjun Kumar",  company: "Bajaj Dealership",  phone: "+91 98100 11111", email: "arjun@bajaj.com",    city: "Delhi",     orders: 8, totalSpent: 72000,  source: "referral", lastContact: new Date("2025-03-14") },
@@ -552,9 +611,9 @@ app.get("/api/seed", async (req, res) => {
       await Customer.insertMany(sampleCustomers);
       seeded.push(`${sampleCustomers.length} customers`);
     }
- 
+
     const existingEnquiries = await Enquiry.countDocuments();
- 
+
     if (existingEnquiries === 0) {
       const sampleEnquiries = [
         { name:"Manish Kapoor", company:"Kapoor Mall",    email:"manish@kapoor.com",        phone:"+91 98100 11234", city:"Delhi",     services:["Signage Solutions","LED Screens"],      message:"Complete signage for a 3-floor mall in Janakpuri. 60,000 sq.ft. Need ACP fascia, 3D letters and digital directories.", priority:"high", status:"new"   },
@@ -570,14 +629,14 @@ app.get("/api/seed", async (req, res) => {
     }
       return res.json({ success: false, message: "DB already populated — seeding skipped." });
     }
- 
+
     res.json({ success: true, message: `Seeded: ${seeded.join(" + ")}.` });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
- 
- 
+
+
 /* ════════════════════════════════════════════
    🚀 START SERVER
 ════════════════════════════════════════════ */
