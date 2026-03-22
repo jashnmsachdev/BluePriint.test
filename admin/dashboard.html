@@ -859,20 +859,28 @@
       <div class="card">
         <div class="card-header" style="padding-bottom:16px;">
           <div><div class="card-title">Customer Directory</div><div class="card-sub">All registered customers & enquirers</div></div>
-          <button class="btn-secondary" onclick="showToast('Exported customers.csv','success')">⬇ Export</button>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-secondary" onclick="showToast('Exported customers.csv','success')">⬇ Export</button>
+            <button class="btn-primary" onclick="openCustomerModal()">+ Add Customer</button>
+          </div>
         </div>
         <div class="card-body" style="padding-top:0;">
           <div class="table-controls">
-            <div class="table-search"><span>🔍</span><input type="text" placeholder="Search by name, company or phone…"/></div>
+            <div class="table-search"><span>🔍</span><input type="text" placeholder="Search by name, company or phone…" oninput="filterCustomers(this.value)"/></div>
           </div>
           <table class="data-table">
-            <thead><tr><th>Customer</th><th>Company</th><th>Phone</th><th>City</th><th>Orders</th><th>Total Spent</th><th>Last Contact</th></tr></thead>
-            <tbody id="customersTableBody"></tbody>
+            <thead><tr><th>Customer</th><th>Company</th><th>Phone</th><th>City</th><th>Orders</th><th>Total Spent</th><th>Last Contact</th><th>Actions</th></tr></thead>
+            <tbody id="customersTableBody">
+              <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--grey);">
+                <span style="display:inline-block;animation:spin 0.8s linear infinite;font-size:20px;margin-bottom:8px;">⟳</span><br>
+                Loading customers from API…
+              </td></tr>
+            </tbody>
           </table>
         </div>
         <div class="table-pagination">
-          <span>Showing 1–10 of 23 customers</span>
-          <div class="pg-btns"><button class="pg-btn active">1</button><button class="pg-btn">2</button><button class="pg-btn">3</button></div>
+          <span id="customersPaginationInfo">Loading…</span>
+          <div class="pg-btns"><button class="pg-btn active">1</button></div>
         </div>
       </div>
     </div>
@@ -988,6 +996,47 @@
   </div>
 </div>
 
+<!-- ── CUSTOMER MODAL ── -->
+<div class="modal-overlay" id="customerModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modalCustomerTitle">Add Customer</span>
+      <button class="modal-close-btn" onclick="closeCustomerModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Full Name *</label><input class="form-control" id="cm-name" placeholder="e.g. Arjun Kumar"/></div>
+        <div class="form-group"><label>Company</label><input class="form-control" id="cm-company" placeholder="e.g. Bajaj Dealership"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Phone *</label><input class="form-control" id="cm-phone" placeholder="+91 98100 XXXXX"/></div>
+        <div class="form-group"><label>Email</label><input class="form-control" id="cm-email" type="email" placeholder="name@company.com"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>City</label><input class="form-control" id="cm-city" placeholder="e.g. Delhi"/></div>
+        <div class="form-group"><label>Source</label>
+          <select class="form-control" id="cm-source">
+            <option value="other">Other</option>
+            <option value="walk-in">Walk-in</option>
+            <option value="enquiry">Enquiry Form</option>
+            <option value="referral">Referral</option>
+            <option value="online">Online</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Total Orders</label><input class="form-control" id="cm-orders" type="number" placeholder="0" min="0"/></div>
+        <div class="form-group"><label>Total Spent (₹)</label><input class="form-control" id="cm-spent" type="number" placeholder="0" min="0"/></div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea class="form-control" id="cm-notes" placeholder="Any notes about this customer…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeCustomerModal()">Cancel</button>
+      <button class="btn-save" onclick="saveCustomer()">Save Customer</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── PRODUCT MODAL ── -->
 <div class="modal-overlay" id="productModal">
   <div class="modal-box">
@@ -1064,9 +1113,12 @@ const ENQUIRIES = [
 ══════════════════════════════════════════ */
 const ADMIN_API_BASE = (() => {
   const h = window.location.hostname;
-  return (h === 'localhost' || h === '127.0.0.1') ? 'http://localhost:3000' : '';
+  return (h === 'localhost' || h === '127.0.0.1')
+    ? 'http://localhost:3000'
+    : 'https://bluepriint-test.onrender.com';   // ← matches shop.js & server.js
 })();
-const PRODUCTS_API = `${ADMIN_API_BASE}/api/products`;
+const PRODUCTS_API  = `${ADMIN_API_BASE}/api/products`;
+const CUSTOMERS_API = `${ADMIN_API_BASE}/api/customers`;
 
 // Admin key — stored in localStorage after first entry
 let ADMIN_KEY = localStorage.getItem('bp_admin_key') || '';
@@ -1143,16 +1195,59 @@ function updateDashboardProductCount(count) {
   });
 }
 
-const CUSTOMERS = [
-  { name:'Arjun Kumar', company:'Bajaj Dealership', phone:'+91 98100 11111', city:'Delhi', orders:8, spent:'₹72,000', last:'14 Mar 2025' },
-  { name:'Rahul Verma', company:'Cut & Style Salon', phone:'+91 99100 22222', city:'Delhi', orders:4, spent:'₹28,000', last:'13 Mar 2025' },
-  { name:'Vikram Singh', company:'Hero Showroom', phone:'+91 97000 33333', city:'Delhi', orders:12, spent:'₹1,04,000', last:'12 Mar 2025' },
-  { name:'Shalini Mehta', company:'Mehta Boutique', phone:'+91 88000 44444', city:'Gurgaon', orders:3, spent:'₹19,500', last:'10 Mar 2025' },
-  { name:'Deepak Rao', company:'Rao Foods', phone:'+91 87000 55555', city:'Noida', orders:6, spent:'₹54,200', last:'9 Mar 2025' },
-  { name:'Priya Singh', company:'Singh Pharma', phone:'+91 96000 66666', city:'Faridabad', orders:2, spent:'₹15,200', last:'8 Mar 2025' },
-  { name:'Neha Gupta', company:'Gupta Salon', phone:'+91 95000 77777', city:'Delhi', orders:5, spent:'₹32,500', last:'7 Mar 2025' },
-  { name:'Ravi Sharma', company:'Sharma Traders', phone:'+91 94000 88888', city:'Delhi', orders:7, spent:'₹48,000', last:'6 Mar 2025' },
-];
+/* ══════════════════════════════════════════
+   CUSTOMER API LAYER  (mirrors apiProducts)
+══════════════════════════════════════════ */
+let CUSTOMERS_DATA = [];       // populated from API on load
+let _editingCustomerId = null; // tracks add vs edit in customer modal
+
+async function apiCustomers(method, id, body) {
+  const url = id ? `${CUSTOMERS_API}/${id}` : `${CUSTOMERS_API}?limit=100`;
+  const headers = { 'Content-Type': 'application/json' };
+  if (method !== 'GET') headers['x-admin-key'] = ensureAdminKey();
+  try {
+    const res = await fetch(url, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return await res.json();
+  } catch (err) {
+    console.error('[BP Admin] Customer API error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+async function loadCustomersFromAPI() {
+  const result = await apiCustomers('GET', null, null);
+  if (result && result.success) {
+    CUSTOMERS_DATA = (result.data || []).map(c => ({
+      ...c,
+      id: c.id || c._id || '',
+    }));
+    renderCustomers(CUSTOMERS_DATA);
+    updateCustomerCount(CUSTOMERS_DATA.length);
+  } else {
+    showToast('Could not load customers from API', 'error');
+    renderCustomers([]);
+  }
+}
+
+function updateCustomerCount(count) {
+  // Sync "New Customers" stat card on dashboard if present
+  const statCards = document.querySelectorAll('.stat-card');
+  statCards.forEach(card => {
+    if (card.querySelector('.stat-label')?.textContent === 'New Customers') {
+      card.querySelector('.stat-value').textContent = count;
+    }
+  });
+  // Sync customer directory subtitle
+  const sub = document.querySelector('#page-customers .card-sub');
+  if (sub) sub.textContent = `${count} registered customers & enquirers`;
+  // Sync pagination info
+  const info = document.querySelector('#page-customers .table-pagination span');
+  if (info) info.textContent = `${count} customer${count !== 1 ? 's' : ''}`;
+}
 
 const ACTIVITY = [
   { type:'order',   icon:'🧾', bg:'ad-order',   text:'<strong>New order #BP-1042</strong>', sub:'Ravi Sharma — ACP Fascia Sign Board ×2', time:'2 min ago' },
@@ -1298,7 +1393,7 @@ function renderProducts(list) {
       <td><span class="status-badge ${p.stock === 'In Stock' ? 's-instock' : 's-low'}">${p.stock}</span></td>
       <td>
         <div class="row-actions">
-          <button class="ra-btn ra-view" title="Preview on shop" onclick="window.open('shop.html')">👁</button>
+          <button class="ra-btn ra-view" title="Preview on shop" onclick="window.open('shop.html?id=${p.id}')">👁</button>
           <button class="ra-btn ra-edit" title="Edit product" onclick="openProductModal('${p.id}')">✏️</button>
           <button class="ra-btn ra-del"  title="Delete product" onclick="deleteProduct('${p.id}', this)">🗑</button>
         </div>
@@ -1307,19 +1402,56 @@ function renderProducts(list) {
   `).join('');
 }
 
-function renderCustomers() {
+function renderCustomers(list) {
   const tbody = document.getElementById('customersTableBody');
-  tbody.innerHTML = CUSTOMERS.map(c => `
-    <tr>
-      <td><div class="td-name">${c.name}</div></td>
-      <td style="color:var(--grey);">${c.company}</td>
-      <td><a href="tel:${c.phone}" style="color:var(--blue-light);font-size:13px;">${c.phone}</a></td>
-      <td style="color:var(--grey);">${c.city}</td>
-      <td style="font-weight:700;text-align:center;">${c.orders}</td>
-      <td style="font-weight:700;color:var(--green);">${c.spent}</td>
-      <td style="font-size:12px;color:var(--grey);">${c.last}</td>
-    </tr>
-  `).join('');
+  const data  = list || CUSTOMERS_DATA;
+
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--grey);">No customers found</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map(c => {
+    const id      = c.id || c._id || '';
+    const spent   = c.totalSpent
+      ? `₹${Number(c.totalSpent).toLocaleString('en-IN')}`
+      : (c.spent || '₹0');
+    const lastRaw = c.lastContact || c.last;
+    const last    = lastRaw
+      ? new Date(lastRaw).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+      : '—';
+    return `
+      <tr>
+        <td>
+          <div class="td-name">${c.name}</div>
+          ${c.email ? `<div class="td-sub">${c.email}</div>` : ''}
+        </td>
+        <td style="color:var(--grey);">${c.company || '—'}</td>
+        <td><a href="tel:${c.phone}" style="color:var(--blue-light);font-size:13px;">${c.phone}</a></td>
+        <td style="color:var(--grey);">${c.city || '—'}</td>
+        <td style="font-weight:700;text-align:center;">${c.orders || 0}</td>
+        <td style="font-weight:700;color:var(--green);">${spent}</td>
+        <td style="font-size:12px;color:var(--grey);">${last}</td>
+        <td>
+          <div class="row-actions">
+            <button class="ra-btn ra-edit" title="Edit customer" onclick="openCustomerModal('${id}')">✏️</button>
+            <button class="ra-btn ra-del"  title="Delete customer" onclick="deleteCustomer('${id}', this)">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function filterCustomers(q) {
+  const lq = q.toLowerCase();
+  renderCustomers(
+    CUSTOMERS_DATA.filter(c =>
+      (c.name    || '').toLowerCase().includes(lq) ||
+      (c.company || '').toLowerCase().includes(lq) ||
+      (c.phone   || '').toLowerCase().includes(lq) ||
+      (c.city    || '').toLowerCase().includes(lq)
+    )
+  );
 }
 
 function renderActivity() {
@@ -1511,6 +1643,117 @@ function deleteEnquiry(id) {
 }
 
 /* ══════════════════════════════════════════
+   CUSTOMER MODAL  (Add / Edit)
+══════════════════════════════════════════ */
+function openCustomerModal(id) {
+  _editingCustomerId = id || null;
+  document.getElementById('customerModal').classList.add('open');
+  document.getElementById('modalCustomerTitle').textContent = id ? 'Edit Customer' : 'Add Customer';
+
+  // Clear form
+  ['cm-name','cm-company','cm-phone','cm-email','cm-city','cm-orders','cm-spent','cm-notes'].forEach(f => {
+    const el = document.getElementById(f);
+    if (el) el.value = '';
+  });
+  const srcEl = document.getElementById('cm-source');
+  if (srcEl) srcEl.value = 'other';
+
+  if (id) {
+    document.getElementById('cm-name').value = 'Loading…';
+    // Try live API first, fallback to local cache
+    apiCustomers('GET', id, null).then(result => {
+      const c = result?.success ? result.data : CUSTOMERS_DATA.find(x => x.id === id);
+      if (c) {
+        document.getElementById('cm-name').value    = c.name    || '';
+        document.getElementById('cm-company').value = c.company || '';
+        document.getElementById('cm-phone').value   = c.phone   || '';
+        document.getElementById('cm-email').value   = c.email   || '';
+        document.getElementById('cm-city').value    = c.city    || '';
+        document.getElementById('cm-orders').value  = c.orders  || 0;
+        document.getElementById('cm-spent').value   = c.totalSpent || 0;
+        document.getElementById('cm-notes').value   = c.notes   || '';
+        const srcEl = document.getElementById('cm-source');
+        if (srcEl) srcEl.value = c.source || 'other';
+      }
+    });
+  }
+}
+
+function closeCustomerModal() {
+  document.getElementById('customerModal').classList.remove('open');
+}
+
+async function saveCustomer() {
+  const name    = document.getElementById('cm-name').value.trim();
+  const company = document.getElementById('cm-company').value.trim();
+  const phone   = document.getElementById('cm-phone').value.trim();
+  const email   = document.getElementById('cm-email').value.trim();
+  const city    = document.getElementById('cm-city').value.trim();
+  const orders  = parseInt(document.getElementById('cm-orders').value)   || 0;
+  const spent   = parseFloat(document.getElementById('cm-spent').value)  || 0;
+  const notes   = document.getElementById('cm-notes').value.trim();
+  const source  = document.getElementById('cm-source').value || 'other';
+
+  if (!name)  { showToast('Name is required', 'error');  return; }
+  if (!phone) { showToast('Phone is required', 'error'); return; }
+
+  const payload = { name, company, phone, email, city, orders, totalSpent: spent, notes, source, lastContact: new Date() };
+
+  const saveBtn = document.querySelector('#customerModal .btn-save');
+  saveBtn.textContent = 'Saving…';
+  saveBtn.disabled = true;
+
+  const result = _editingCustomerId
+    ? await apiCustomers('PUT',  _editingCustomerId, payload)
+    : await apiCustomers('POST', null,               payload);
+
+  saveBtn.textContent = 'Save Customer';
+  saveBtn.disabled    = false;
+
+  if (!result || !result.success) {
+    showToast(result?.error || 'Save failed', 'error');
+    return;
+  }
+
+  closeCustomerModal();
+  showToast(`Customer "${name}" ${_editingCustomerId ? 'updated' : 'added'} ✓`, 'success');
+  await loadCustomersFromAPI();
+
+  ACTIVITY.unshift({
+    type:'user', icon:'👥', bg:'ad-user',
+    text:`<strong>Customer ${_editingCustomerId ? 'updated' : 'added'}</strong>`,
+    sub: `${name}${company ? ' — ' + company : ''}`,
+    time:'Just now',
+  });
+  renderActivity();
+}
+
+async function deleteCustomer(id, btn) {
+  if (!confirm('Delete this customer? This cannot be undone.')) return;
+
+  const row = btn.closest('tr');
+  row.style.opacity = '0.4';
+  row.style.transition = 'opacity 0.2s';
+  btn.disabled = true;
+
+  const result = await apiCustomers('DELETE', id, null);
+
+  if (!result || !result.success) {
+    row.style.opacity = '1';
+    btn.disabled = false;
+    showToast(result?.error || 'Delete failed', 'error');
+    return;
+  }
+
+  row.style.opacity = '0';
+  setTimeout(() => row.remove(), 300);
+
+  CUSTOMERS_DATA = CUSTOMERS_DATA.filter(c => c.id !== id);
+  updateCustomerCount(CUSTOMERS_DATA.length);
+  showToast('Customer deleted', '');
+}
+
+/* ══════════════════════════════════════════
    PRODUCT MODAL
 ══════════════════════════════════════════ */
 async function openProductModal(id) {
@@ -1634,10 +1877,13 @@ function showToast(msg, type) {
    KEYBOARD ESC
 ══════════════════════════════════════════ */
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeProductModal();
+  if (e.key === 'Escape') { closeProductModal(); closeCustomerModal(); }
 });
 document.getElementById('productModal').addEventListener('click', e => {
   if (e.target === document.getElementById('productModal')) closeProductModal();
+});
+document.getElementById('customerModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('customerModal')) closeCustomerModal();
 });
 
 /* ══════════════════════════════════════════
@@ -1648,7 +1894,6 @@ document.getElementById('productModal').addEventListener('click', e => {
   renderRecentOrders();
   renderOrders();
   renderEnquiries();
-  renderCustomers();
   renderActivity();
   renderBarChart('barChart', CHART_DATA);
   renderBarChart('barChartFull', [
@@ -1669,8 +1914,11 @@ document.getElementById('productModal').addEventListener('click', e => {
       </td>
     </tr>`;
 
-  // Load products from live API
-  await loadProductsFromAPI();
+  // Load products and customers from live API in parallel
+  await Promise.all([
+    loadProductsFromAPI(),
+    loadCustomersFromAPI(),
+  ]);
 
   // Show API status badge in topbar
   const statusDot = document.querySelector('.tb-notif-dot');
