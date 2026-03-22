@@ -391,7 +391,7 @@
 <div class="topbar">
   <span>📍 1, Lakshmi Garden, Opp. Metro Pillar No. 339, Moti Nagar, New Delhi – 110015 &nbsp;|&nbsp; Ramesh Nagar Metro Station</span>
   <div class="topbar-right">
-    <a href="mailto:print@bluepriint.in">Send Email</a>
+    <a href="/cdn-cgi/l/email-protection#5626243f382216343a233326243f3f3822783f38">Send Email</a>
     <a href="tel:+919717027607">📞 +91 9717027607</a>
     <span>🕐 Mon–Fri 10:30–20:30 &nbsp;|&nbsp; Sat till 17:30</span>
   </div>
@@ -474,11 +474,11 @@
           </div>
         </a>
 
-        <a href="mailto:print@bluepriint.in" class="contact-card">
+        <a href="/cdn-cgi/l/email-protection#c9b9bba0a7bd89aba5bcacb9bba0a0a7bde7a0a7" class="contact-card">
           <div class="contact-card-icon icon-ink">✉️</div>
           <div>
             <div class="contact-card-label">Email Us</div>
-            <div class="contact-card-value">print@bluepriint.in</div>
+            <div class="contact-card-value"><span class="__cf_email__" data-cfemail="f383819a9d87b3919f869683819a9a9d87dd9a9d">[email&#160;protected]</span></div>
             <div class="contact-card-sub">We reply within 4 business hours</div>
           </div>
         </a>
@@ -721,7 +721,7 @@
       <h4>Contact Us</h4>
       <div class="footer-contact-item">📍 B-7, First Floor, Rama Road Industrial Area, New Delhi – 110015</div>
       <div class="footer-contact-item">📞 <a href="tel:+919717027607" style="color:rgba(255,255,255,0.6)">+91 9717027607</a></div>
-      <div class="footer-contact-item">✉ <a href="mailto:print@bluepriint.in" style="color:rgba(255,255,255,0.6)">print@bluepriint.in</a></div>
+      <div class="footer-contact-item">✉ <a href="/cdn-cgi/l/email-protection#5e2e2c37302a1e3c322b3b2e2c3737302a703730" style="color:rgba(255,255,255,0.6)"><span class="__cf_email__" data-cfemail="d2a2a0bbbca692b0bea7b7a2a0bbbbbca6fcbbbc">[email&#160;protected]</span></a></div>
     </div>
   </div>
   <div class="footer-bottom">
@@ -730,7 +730,7 @@
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // ── Scroll Reveal ──
   const revealEls = document.querySelectorAll('.reveal');
   const revealObs = new IntersectionObserver((entries) => {
@@ -763,7 +763,7 @@
     });
   });
 
-  // ── Contact form with SMTP.js ──
+  // ── Contact form: save to MongoDB + send email ──
   document.getElementById('contactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -778,7 +778,7 @@
     const message = document.getElementById('f_message').value.trim();
 
     const selected = [...document.querySelectorAll('.chip.selected')].map(c => c.dataset.val);
-    const services = selected.length ? selected.join(', ') : 'Not specified';
+    const services = selected.length ? selected : [];
 
     if (!name || !email || !phone || !message) {
       status.className = 'form-status error';
@@ -789,7 +789,29 @@
     btn.disabled = true;
     btn.innerHTML = 'Sending… <span style="display:inline-block;animation:spin 0.8s linear infinite;">⟳</span>';
 
-    const body = `
+    /* ── Determine API base (localhost vs production) ── */
+    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:3000'
+      : 'https://bluepriint-test.onrender.com';
+
+    /* ── 1. Save to MongoDB via server.js ── */
+    let dbSaved = false;
+    try {
+      const dbRes = await fetch(`${API_BASE}/api/enquiries`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, company, email, phone, city, services, message, source: 'contact-form' }),
+      });
+      const dbData = await dbRes.json();
+      if (dbData.success) dbSaved = true;
+      else console.warn('[BP] DB save failed:', dbData.error);
+    } catch (err) {
+      console.warn('[BP] DB save error (will still try email):', err);
+    }
+
+    /* ── 2. Send email via SMTP.js (best-effort) ── */
+    const servicesList = services.length ? services.join(', ') : 'Not specified';
+    const emailBody = `
       <h3 style="color:#0d3b6e;font-family:sans-serif;">New Quote Request — BluePriint</h3>
       <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;width:100%;max-width:560px;">
         <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;width:140px;">Name</td><td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${name}</td></tr>
@@ -797,11 +819,15 @@
         <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Email</td><td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${email}</td></tr>
         <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Phone</td><td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${phone}</td></tr>
         <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">City</td><td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${city || '—'}</td></tr>
-        <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Services</td><td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${services}</td></tr>
+        <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Services</td><td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${servicesList}</td></tr>
         <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Message</td><td style="padding:8px 12px;">${message}</td></tr>
       </table>
+      <p style="font-family:sans-serif;font-size:12px;color:#888;margin-top:16px;">
+        ${dbSaved ? '✅ Also saved to BluePriint CRM (MongoDB).' : '⚠️ Note: CRM save may have failed — please check the dashboard.'}
+      </p>
     `;
 
+    let emailSent = false;
     try {
       const result = await Email.send({
         Host:     'smtp.gmail.com',
@@ -810,30 +836,27 @@
         To:       'print@bluepriint.in',
         From:     'bluepriint2005@gmail.com',
         Subject:  `New Quote Request from ${name} — BluePriint Website`,
-        Body:     body,
+        Body:     emailBody,
       });
-
-      if (result === 'OK') {
-        status.className = 'form-status success';
-        status.innerHTML = '✅ Message sent! We\'ll get back to you within 24 hours.';
-        document.getElementById('contactForm').reset();
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-      } else {
-        throw new Error(result);
-      }
+      if (result === 'OK') emailSent = true;
     } catch (err) {
-      status.className = 'form-status error';
-      status.innerHTML = '⚠️ Something went wrong. Please call us directly at +91 9717027607.';
+      console.warn('[BP] Email send error:', err);
     }
 
+    /* ── Show result to user ── */
     btn.disabled = false;
     btn.innerHTML = 'Send Message &amp; Request Quote <span class="arrow">→</span>';
+
+    if (dbSaved || emailSent) {
+      status.className = 'form-status success';
+      status.innerHTML = '✅ Message sent! We\'ll get back to you within 24 hours.';
+      document.getElementById('contactForm').reset();
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+    } else {
+      status.className = 'form-status error';
+      status.innerHTML = '⚠️ Something went wrong. Please call us directly at <a href="tel:+919717027607" style="color:#1a5fa8;">+91 9717027607</a> or WhatsApp us.';
+    }
   });
 </script>
-
-<style>
-  @keyframes spin { to { transform: rotate(360deg); } }
-</style>
-
 </body>
 </html>
