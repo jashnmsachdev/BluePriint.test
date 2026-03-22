@@ -36,7 +36,14 @@
       --sans:        'Outfit', sans-serif;
       --serif:       'Playfair Display', Georgia, serif;
     }
+<script>
+  const key = prompt("Enter Admin Password");
 
+  if (key !== "mysecret123") {
+    alert("Wrong password");
+    window.location.href = "/";
+  }
+</script>
     html { scroll-behavior: smooth; }
     body { font-family: var(--sans); background: var(--off); color: var(--ink); display: flex; min-height: 100vh; overflow-x: hidden; }
     a { text-decoration: none; color: inherit; }
