@@ -101,13 +101,9 @@ const OrderSchema = new mongoose.Schema(
 );
 
 // Auto-generate orderId like "BP-1042" before saving
-// Uses timestamp + random suffix — no DB query needed, no race condition
-OrderSchema.pre("save", function(next) {
-  if (this.orderId) return next();
-  // e.g. BP-1042 — last 4 digits of ms timestamp + 1 random digit, stays in 4-digit range
-  const ts   = Date.now() % 9000 + 1000;   // 1000–9999
-  this.orderId = `BP-${ts}`;
-  next();
+OrderSchema.pre("save", function() {
+  if (this.orderId) return;
+  this.orderId = `BP-${Date.now() % 9000 + 1000}`;
 });
 
 OrderSchema.index({ customer: "text", company: "text", product: "text", orderId: "text" });
