@@ -1085,7 +1085,8 @@ let PRODUCTS_DATA = []; // populated from API on load
 let _editingProductId = null; // tracks whether modal is add or edit
 
 async function apiProducts(method, id, body) {
-  const url = id ? `${PRODUCTS_API}?id=${id}` : `${PRODUCTS_API}?limit=100`;
+  // REST paths: /api/products for collection, /api/products/:id for single doc
+  const url = id ? `${PRODUCTS_API}/${id}` : `${PRODUCTS_API}?limit=100`;
   const headers = { 'Content-Type': 'application/json' };
   if (method !== 'GET') headers['x-admin-key'] = ensureAdminKey();
   try {
@@ -1111,10 +1112,12 @@ async function loadProductsFromAPI() {
   if (result && result.success) {
     PRODUCTS_DATA = (result.data || []).map(p => ({
       ...p,
-      cat:  p.cat  || p.category   || '',
-      img:  p.img  || p.image      || '',
-      desc: p.desc || p.description|| '',
-      stock: p.stock === 'in_stock' ? 'In Stock' : p.stock === 'low_stock' ? 'Low Stock' : 'Out of Stock',
+      // Normalise MongoDB _id → id so Edit / Delete buttons use the right key
+      id:   p.id   || p._id  || '',
+      cat:  p.cat  || p.category    || '',
+      img:  p.img  || p.image       || '',
+      desc: p.desc || p.description || '',
+      stock: p.stock === 'in_stock' ? 'In Stock' : p.stock === 'low_stock' ? 'Low Stock' : (p.stock || 'In Stock'),
     }));
     renderProducts(PRODUCTS_DATA);
     updateDashboardProductCount(PRODUCTS_DATA.length);
