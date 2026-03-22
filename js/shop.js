@@ -1,45 +1,11 @@
-const express  = require("express");
-const mongoose = require("mongoose");
-const cors     = require("cors");
+const API_BASE = (() => {
+  const h = window.location.hostname;
+  return (h === 'localhost' || h === '127.0.0.1')
+    ? 'http://localhost:3000'
+    : 'https://bluepriint-test.onrender.com';
+})();
 
-const app = express();
-app.use(express.json());
-app.use(cors());
-
-
-"scripts": {
-  "start": "node server.js"
-}
-
-/* ════════════════════════════════════════════
-   🔗 MONGODB ATLAS CONNECTION
-════════════════════════════════════════════ */
-mongoose.connect(
-  "mongodb://admin:admin123@ac-2ztf1nh-shard-00-00.zfckuvh.mongodb.net:27017," +
-  "ac-2ztf1nh-shard-00-01.zfckuvh.mongodb.net:27017," +
-  "ac-2ztf1nh-shard-00-02.zfckuvh.mongodb.net:27017/" +
-  "?ssl=true&replicaSet=atlas-dkqg1t-shard-0&authSource=admin&appName=Cluster0"
-)
-.then(() => console.log("✅ MongoDB Connected"))
-.catch(err => console.error("❌ MongoDB connection error:", err));
-
-
-/* ════════════════════════════════════════════
-   🔐 ADMIN KEY MIDDLEWARE
-   Protects mutating routes (POST / PUT / DELETE).
-   Set ADMIN_API_KEY in your environment (.env or Vercel env vars).
-   Dashboard sends the key in the x-admin-key header.
-════════════════════════════════════════════ */
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'bluepriint-admin-2025';
-
-function requireAdminKey(req, res, next) {
-  const key = req.headers['x-admin-key'];
-  if (!key || key !== ADMIN_API_KEY) {
-    return res.status(401).json({ success: false, error: 'Unauthorized — invalid or missing admin key.' });
-  }
-  next();
-}
-
+const API_URL = `${API_BASE}/api/products`;
 
 /* ════════════════════════════════════════════
    📦 PRODUCT SCHEMA
