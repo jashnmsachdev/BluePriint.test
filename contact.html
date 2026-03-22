@@ -746,13 +746,6 @@
     document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 10);
   });
 
-  // ── Pre-warm Render server on page load so form submits are instant ──
-  const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:3000'
-    : 'https://bluepriint-test.onrender.com';
-
-  fetch(`${API_BASE}/health`).catch(() => {}); // silent — just wakes the server
-
   // ── Service chips ──
   document.querySelectorAll('.chip').forEach(chip => {
     chip.addEventListener('click', () => chip.classList.toggle('selected'));
@@ -794,60 +787,37 @@
     status.className = '';
     status.textContent = '';
 
-    // Show "please wait" notice if server takes > 5s (Render cold start)
-    const wakeTimer = setTimeout(() => {
-      status.style.cssText = 'display:flex;background:#fff8e1;color:#e65100;border:1px solid #ffe082;padding:14px 18px;border-radius:9px;font-size:14px;margin-top:14px;';
-      status.textContent = '⏳ Almost there, server is waking up…';
-    }, 5000);
+    const API = 'https://bluepriint-test.onrender.com/api/enquiries';
 
     try {
-      const controller = new AbortController();
-      const timeoutId  = setTimeout(() => controller.abort(), 60000);
-
-      const res = await fetch(`${API_BASE}/api/enquiries`, {
+      const res  = await fetch(API, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        signal:  controller.signal,
-        body: JSON.stringify({ name, company, email, phone, city, services, message, source: 'contact-form' }),
+        body:    JSON.stringify({ name, company, email, phone, city, services, message, source: 'contact-form' }),
       });
 
-      clearTimeout(timeoutId);
-      clearTimeout(wakeTimer);
-
-      // Safely parse — Render may return HTML on cold-start errors
       let data;
-      const contentType = res.headers.get('content-type') || '';
-      if (contentType.includes('application/json')) {
-        data = await res.json();
-      } else {
-        // Non-JSON response (e.g. Render HTML error page) — treat as failure
-        throw new Error(`Server returned ${res.status} (not JSON)`);
-      }
+      try { data = await res.json(); }
+      catch(_) { throw new Error('Server replied with non-JSON (status ' + res.status + ')'); }
 
-      btn.disabled = false;
-      btn.innerHTML = 'Send Message &amp; Request Quote <span class="arrow">→</span>';
+      if (!res.ok || !data.success) throw new Error(data?.error || 'status ' + res.status);
 
-      if (data.success) {
-        status.removeAttribute('style');
-        status.className = 'form-status success';
-        status.textContent = '✅ Message sent! We\'ll get back to you within 24 hours.';
-        document.getElementById('contactForm').reset();
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-      } else {
-        throw new Error(data.error || 'Server returned failure');
-      }
+      // ✅ Success
+      status.className = 'form-status success';
+      status.textContent = '✅ Message sent! We\'ll get back to you within 24 hours.';
+      document.getElementById('contactForm').reset();
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
 
     } catch (err) {
-      clearTimeout(wakeTimer);
-      btn.disabled = false;
-      btn.innerHTML = 'Send Message &amp; Request Quote <span class="arrow">→</span>';
-      status.removeAttribute('style');
+      // Show the REAL error so we know exactly what is failing
       status.className = 'form-status error';
-      status.innerHTML = err.name === 'AbortError'
-        ? '⚠️ Server took too long. Please try again — it should be faster now.'
-        : '⚠️ Could not send. Please call <a href="tel:+919717027607" style="color:#1a5fa8;">+91 9717027607</a> or <a href="https://wa.me/919717027607" style="color:#25d366;">WhatsApp us</a>.';
-      console.error('[BP]', err.message);
+      status.innerHTML = '⚠️ Failed: <code style="font-size:12px;background:rgba(0,0,0,0.08);padding:2px 6px;border-radius:4px;">' + err.message + '</code><br>'
+        + '<small style="margin-top:6px;display:block;">Call <a href="tel:+919717027607" style="color:#1a5fa8;">+91 9717027607</a> or <a href="https://wa.me/919717027607" style="color:#25d366;">WhatsApp</a> us directly.</small>';
+      console.error('[BP Contact]', err);
     }
+
+    btn.disabled = false;
+    btn.innerHTML = 'Send Message &amp; Request Quote <span class="arrow">→</span>';
   });
 </script>
 </body>
