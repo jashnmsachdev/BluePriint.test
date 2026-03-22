@@ -581,6 +581,8 @@ app.get("/api/seed", async (req, res) => {
       await Enquiry.insertMany(sampleEnquiries);
       seeded.push(`${sampleEnquiries.length} enquiries`);
     }
+
+    if (seeded.length === 0) {
       return res.json({ success: false, message: "DB already populated — seeding skipped." });
     }
 
