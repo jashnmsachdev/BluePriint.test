@@ -915,8 +915,11 @@
 ══════════════════════════════════════════ */
 const API_BASE = (() => {
   const h = window.location.hostname;
-  return (h === 'localhost' || h === '127.0.0.1') ? 'http://localhost:3000' : '';
+  return (h === 'localhost' || h === '127.0.0.1')
+    ? 'http://localhost:3000'
+    : 'https://bluepriint-test.onrender.com';
 })();
+
 const API_URL = `${API_BASE}/api/products`;
 
 /* ══════════════════════════════════════════
