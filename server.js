@@ -1,113 +1,3 @@
-
-
-dashboard.html
-html
-
-
-server (2).js
-255 lines
-
-js
-
-
-shop.js
-231 lines
-
-js
-
-connect my dashboard.html to shop.js and server.js align all three, also the costumer info in dashboard is not linked with server check that too
-
-4:21 PM
-
-Identified misaligned APIs and architected comprehensive integration fixes
-Identified misaligned APIs and architected comprehensive integration fixes
-Now I have a full picture of all three files. Here's what's broken:
-
-shop.js is broken — it accidentally contains the entire server-side Mongoose/Express code. Only the first 2 lines are correct.
-dashboard.html ADMIN_API_BASE — returns '' in production (should point to the Render URL like shop.js does).
-Customers are hardcoded — no /api/customers endpoint in server.js, and dashboard loads from a static array instead of the API.
-Product preview link opens shop.html generically — should pass the product ID.
-Let me fix all three files:
-
-
-Architected three-file integration linking dashboard, shop, and server components
-Architected three-file integration linking dashboard, shop, and server components
-Now I have everything I need. Let me build all three fixed files:
-
-
-Created 2 files
-Created 2 files
-Now let me build the fixed dashboard.html with all the customer API wiring:
-
-
-Edited 4 files, ran a command
-Edited 4 files, ran a command
-Now update the customers page HTML — add the search filter wiring, an "Add Customer" button, and the Actions column header:
-
-
-Update customers page - wire search, add Actions column, add Add Customer button
-Update customers page - wire search, add Actions column, add Add Customer button
-Now add the Customer Modal HTML (insert it just before the product modal):
-
-
-Add Customer modal HTML before the existing Product modal
-Add Customer modal HTML before the existing Product modal
-Now wire up the customer modal close on ESC and outside click, and add loadCustomersFromAPI() to init:
-
-
-Edited 2 files
-Edited 2 files
-Now fix the product preview button to pass the product ID to shop.html:
-
-
-Fix product preview button to pass product ID as URL param to shop.html
-Fix product preview button to pass product ID as URL param to shop.html
-Now copy all three files to outputs:
-
-
-Copy files to outputs and verify key changes
-Copy files to outputs and verify key changes
-All checks pass. Let me present the files:
-
-
-Presented 3 files
-Presented 3 files
-Here's everything that was fixed across all three files:
-
-server.js — New Customer model + full CRUD routes Added a proper CustomerSchema (name, company, phone, email, city, orders, totalSpent, source, notes, lastContact) and five new routes: GET /api/customers, GET /api/customers/:id, POST, PUT, DELETE. The seed endpoint also now seeds sample customers when the DB is empty.
-
-shop.js — Complete rewrite (was broken) The old file accidentally had the entire server.js Mongoose/Express code copy-pasted in after the first 2 lines. It's now a clean, fully client-side script with:
-
-API_BASE auto-detection (localhost vs Render — matches server.js)
-fetchProducts() and fetchProductById() — fetch wrappers aligned to your API envelope
-applyFilters(), filterByCategory(), onSearchInput(), onSortChange(), filterByMaxPrice(), goToPage() — all filter/sort/page functions
-openQuickView(id) — calls GET /api/products/:id for the modal
-Cart system (localStorage) with add/remove/quantity/WhatsApp checkout
-URL param support (?id=, ?cat=, ?q=) so the dashboard's product preview button (shop.html?id=...) works
-dashboard.html — 6 fixes
-
-ADMIN_API_BASE now points to https://bluepriint-test.onrender.com in production instead of returning an empty string — matches shop.js
-Customer API layer — apiCustomers(), loadCustomersFromAPI(), updateCustomerCount() added
-renderCustomers() now renders live API data with email, formatted last-contact date, and edit/delete action buttons
-filterCustomers(q) wired to the customer search input (was previously unconnected)
-Customer modal — full Add/Edit modal with all fields, saveCustomer(), deleteCustomer() wired to the server
-init() now loads products and customers in parallel via Promise.all, and the product "👁 preview" button opens shop.html?id=PRODUCT_ID
-Server
-JS 
-Shop
-JS 
-Dashboard
-Code · HTML 
-Claude reached its tool-use limit for this turn.
-
-
-
-
-
-Claude is AI and can make mistakes. Please double-check responses.
-Server · JS
-Copy
-
 const express  = require("express");
 const mongoose = require("mongoose");
 const cors     = require("cors");
@@ -201,6 +91,153 @@ const CustomerSchema = new mongoose.Schema(
 CustomerSchema.index({ name: "text", company: "text", phone: "text", email: "text" });
  
 const Customer = mongoose.model("Customer", CustomerSchema);
+ 
+ 
+/* ════════════════════════════════════════════
+   💬 ENQUIRY SCHEMA
+   Every contact-form submission from contact.html is saved here.
+   The dashboard reads from this collection — no more hardcoded array.
+════════════════════════════════════════════ */
+const EnquirySchema = new mongoose.Schema(
+  {
+    name:     { type: String, required: true, trim: true },
+    company:  { type: String, default: "",   trim: true },
+    email:    { type: String, required: true, trim: true, lowercase: true },
+    phone:    { type: String, required: true, trim: true },
+    city:     { type: String, default: "",   trim: true },
+    services: { type: [String], default: [] },           // chips selected by user
+    message:  { type: String, required: true },
+    priority: { type: String, enum: ["high", "med", "low"], default: "med" },
+    status:   { type: String, enum: ["new", "contacted", "quoted", "closed"], default: "new" },
+    source:   { type: String, default: "contact-form" }, // where the lead came from
+  },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+  }
+);
+ 
+EnquirySchema.index({ name: "text", company: "text", email: "text", message: "text" });
+ 
+const Enquiry = mongoose.model("Enquiry", EnquirySchema);
+ 
+ 
+/* ════════════════════════════════════════════
+   💬 GET /api/enquiries
+   Supports:
+     ?status=   new | contacted | quoted | closed
+     ?priority= high | med | low
+     ?q=        full-text search
+     ?sort=     newest | oldest
+     ?page=     (default 1)
+     ?limit=    (default 20)
+════════════════════════════════════════════ */
+app.get("/api/enquiries", async (req, res) => {
+  try {
+    const { status, priority, q, sort = "newest", page = 1, limit = 20 } = req.query;
+ 
+    const filter = {};
+    if (status)   filter.status   = status;
+    if (priority) filter.priority = priority;
+    if (q)        filter.$text    = { $search: q };
+ 
+    const sortObj = sort === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
+ 
+    const pageNum  = Math.max(1, parseInt(page));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+    const skip     = (pageNum - 1) * limitNum;
+ 
+    const [enquiries, total] = await Promise.all([
+      Enquiry.find(filter).sort(sortObj).skip(skip).limit(limitNum).lean(),
+      Enquiry.countDocuments(filter),
+    ]);
+ 
+    res.json({
+      success: true,
+      data: enquiries,
+      meta: { total, page: pageNum, totalPages: Math.ceil(total / limitNum), limit: limitNum },
+    });
+  } catch (err) {
+    console.error("GET /api/enquiries error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+ 
+ 
+/* ════════════════════════════════════════════
+   🔍 GET /api/enquiries/:id
+════════════════════════════════════════════ */
+app.get("/api/enquiries/:id", async (req, res) => {
+  try {
+    const enquiry = await Enquiry.findById(req.params.id).lean();
+    if (!enquiry) return res.status(404).json({ success: false, error: "Enquiry not found" });
+    res.json({ success: true, data: enquiry });
+  } catch (err) {
+    console.error("GET /api/enquiries/:id error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+ 
+ 
+/* ════════════════════════════════════════════
+   ➕ POST /api/enquiries  (PUBLIC — no admin key)
+   Called directly from contact.html on form submit.
+════════════════════════════════════════════ */
+app.post("/api/enquiries", async (req, res) => {
+  try {
+    const { name, company, email, phone, city, services, message, source } = req.body;
+ 
+    // Basic server-side validation
+    if (!name || !email || !phone || !message) {
+      return res.status(400).json({ success: false, error: "name, email, phone and message are required." });
+    }
+ 
+    const enquiry = new Enquiry({
+      name, company, email, phone, city,
+      services: Array.isArray(services) ? services : (services ? [services] : []),
+      message,
+      source: source || "contact-form",
+      priority: "med",  // default; admin can update later
+      status:   "new",
+    });
+ 
+    await enquiry.save();
+    res.status(201).json({ success: true, data: enquiry });
+  } catch (err) {
+    console.error("POST /api/enquiries error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+ 
+ 
+/* ════════════════════════════════════════════
+   ✏️  PUT /api/enquiries/:id  (Admin — update status / priority)
+════════════════════════════════════════════ */
+app.put("/api/enquiries/:id", requireAdminKey, async (req, res) => {
+  try {
+    const enquiry = await Enquiry.findByIdAndUpdate(req.params.id, req.body, { new: true }).lean();
+    if (!enquiry) return res.status(404).json({ success: false, error: "Enquiry not found" });
+    res.json({ success: true, data: enquiry });
+  } catch (err) {
+    console.error("PUT /api/enquiries/:id error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+ 
+ 
+/* ════════════════════════════════════════════
+   🗑️  DELETE /api/enquiries/:id
+════════════════════════════════════════════ */
+app.delete("/api/enquiries/:id", requireAdminKey, async (req, res) => {
+  try {
+    const enquiry = await Enquiry.findByIdAndDelete(req.params.id);
+    if (!enquiry) return res.status(404).json({ success: false, error: "Enquiry not found" });
+    res.json({ success: true, message: "Enquiry deleted" });
+  } catch (err) {
+    console.error("DELETE /api/enquiries/:id error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
  
  
 /* ════════════════════════════════════════════
@@ -516,7 +553,21 @@ app.get("/api/seed", async (req, res) => {
       seeded.push(`${sampleCustomers.length} customers`);
     }
  
-    if (seeded.length === 0) {
+    const existingEnquiries = await Enquiry.countDocuments();
+ 
+    if (existingEnquiries === 0) {
+      const sampleEnquiries = [
+        { name:"Manish Kapoor", company:"Kapoor Mall",    email:"manish@kapoor.com",        phone:"+91 98100 11234", city:"Delhi",     services:["Signage Solutions","LED Screens"],      message:"Complete signage for a 3-floor mall in Janakpuri. 60,000 sq.ft. Need ACP fascia, 3D letters and digital directories.", priority:"high", status:"new"   },
+        { name:"Shalini Verma", company:"Verma Salon",    email:"shalini@verma.in",          phone:"+91 97120 45678", city:"Gurgaon",   services:["Internal Branding","Printing"],         message:"Complete internal branding for new salon in DLF Phase 4 — mirror wraps, floor vinyl, menu boards, window frosting.",    priority:"med",  status:"new"   },
+        { name:"Tarun Bhatia",  company:"TB Motors",      email:"tarun@tbmotors.com",        phone:"+91 88230 67890", city:"Noida",     services:["OOH Advertising","BTL / Promotions"],  message:"2 hoardings on NH8 for 6 months + 50 roll-up standees for auto expo. Need pricing by Friday.",                       priority:"high", status:"contacted" },
+        { name:"Pooja Arora",   company:"Arora Sweets",   email:"pooja@arorasweets.in",      phone:"+91 99010 23456", city:"Delhi",     services:["Signage Solutions","Printing"],         message:"Opening 2 new sweet shops in Rohini and Pitampura — glow boards, ACP panels and backlit menus.",                       priority:"med",  status:"new"   },
+        { name:"Nitin Saxena",  company:"Saxena Hospital",email:"nitin@saxena.hospital",     phone:"+91 95500 34567", city:"Delhi",     services:["Signage Solutions"],                   message:"Hospital wayfinding project — ~200 signs across 4 floors. ISO compliant, bilingual (Hindi + English).",                priority:"low",  status:"quoted"},
+        { name:"Kavita Reddy",  company:"Reddy Fashion",  email:"kavita@reddyfashion.in",    phone:"+91 87650 45678", city:"Faridabad", services:["Internal Branding","Printing"],         message:"New flagship store launch — wall graphics, hanging danglers, window film and acrylic brand board at entrance.",        priority:"high", status:"new"   },
+        { name:"Saurabh Jain",  company:"Jain Jewellers", email:"saurabh@jainjewellers.com", phone:"+91 96000 56789", city:"Delhi",     services:["Signage Solutions","LED Screens"],      message:"Luxury jewellery store redesign — gold lettering, LED neon sign for window, digital display inside.",                 priority:"med",  status:"new"   },
+      ];
+      await Enquiry.insertMany(sampleEnquiries);
+      seeded.push(`${sampleEnquiries.length} enquiries`);
+    }
       return res.json({ success: false, message: "DB already populated — seeding skipped." });
     }
  
@@ -532,9 +583,3 @@ app.get("/api/seed", async (req, res) => {
 ════════════════════════════════════════════ */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
- 
-
-
-
-
-
