@@ -100,11 +100,13 @@ const OrderSchema = new mongoose.Schema(
   }
 );
 
-// Auto-generate orderId like "BP-1001" before saving
-OrderSchema.pre("save", async function(next) {
+// Auto-generate orderId like "BP-1042" before saving
+// Uses timestamp + random suffix — no DB query needed, no race condition
+OrderSchema.pre("save", function(next) {
   if (this.orderId) return next();
-  const count = await mongoose.model("Order").countDocuments();
-  this.orderId = `BP-${String(1001 + count).padStart(4, "0")}`;
+  // e.g. BP-1042 — last 4 digits of ms timestamp + 1 random digit, stays in 4-digit range
+  const ts   = Date.now() % 9000 + 1000;   // 1000–9999
+  this.orderId = `BP-${ts}`;
   next();
 });
 
@@ -600,6 +602,18 @@ app.post("/api/orders", requireAdminKey, async (req, res) => {
     await order.save();
     res.status(201).json({ success: true, data: order });
   } catch (err) {
+    console.error("POST /api/orders error:", err.message);
+    // If orderId happened to collide (rare), retry once with a different suffix
+    if (err.code === 11000 && err.message.includes("orderId")) {
+      try {
+        const order2 = new Order(req.body);
+        order2.orderId = `BP-${Date.now() % 9000 + 1000}-${Math.floor(Math.random()*9)+1}`;
+        await order2.save();
+        return res.status(201).json({ success: true, data: order2 });
+      } catch (err2) {
+        return res.status(500).json({ success: false, error: err2.message });
+      }
+    }
     res.status(500).json({ success: false, error: err.message });
   }
 });
