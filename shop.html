@@ -999,15 +999,19 @@ async function fetchProducts(overrides = {}) {
 
 /** Fetch a single product by ID (for quick-view). */
 async function fetchProductById(id) {
-  // Try cache first
-  const cached = PRODUCTS_CACHE.find(p => p.id === id);
+  // Try cache first (match on both id and _id to handle MongoDB docs)
+  const cached = PRODUCTS_CACHE.find(p => p.id === id || p._id === id);
   if (cached) return cached;
 
   try {
-    const res = await fetch(`${API_URL}?id=${id}`);
+    const res = await fetch(`${API_BASE}/api/products/${id}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
-    return json.success ? json.data : null;
+    // Support both { success, data } envelope and bare object responses
+    const product = json.success ? json.data : (json._id || json.id ? json : null);
+    if (!product) return null;
+    // Normalise MongoDB _id → id
+    return { ...product, id: product.id || product._id };
   } catch (err) {
     console.error('[BP Shop] Single product fetch failed:', err);
     return null;
@@ -1067,9 +1071,10 @@ async function loadAndRender(resetPage = false) {
 
   const { data: products, meta } = result;
 
-  // Populate cache for cart / quick-view lookups
+  // Populate cache for cart / quick-view lookups (normalise _id → id for MongoDB docs)
   products.forEach(p => {
-    if (!PRODUCTS_CACHE.find(c => c.id === p.id)) PRODUCTS_CACHE.push(p);
+    const id = p.id || p._id;
+    if (id && !PRODUCTS_CACHE.find(c => c.id === id)) PRODUCTS_CACHE.push({ ...p, id });
   });
 
   renderCards(products, meta);
@@ -1109,9 +1114,10 @@ function renderCards(products, meta) {
   document.getElementById('resultCount').innerHTML =
     `<strong>${total}</strong> product${total !== 1 ? 's' : ''}`;
 
-  // Normalise API field names (API uses `category`, `description`, `image`; shop uses `cat`, `desc`, `img`)
+  // Normalise API field names (MongoDB uses _id; API may use category/description/image)
   const norm = products.map(p => ({
     ...p,
+    id:   p.id   || p._id  || '',
     cat:  p.cat  || p.category || '',
     desc: p.desc || p.description || '',
     img:  p.img  || p.image || '',
@@ -1379,6 +1385,7 @@ function checkoutWhatsApp() {
 /* ══════════════════════════════════════════
    QUICK VIEW MODAL (fetches from API)
 ══════════════════════════════════════════ */
+
 async function openQuickView(id) {
   const modal = document.getElementById('quickViewModal');
   const imgEl = document.getElementById('modalImg');
