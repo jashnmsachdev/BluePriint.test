@@ -7,8 +7,6 @@
   <meta name="description" content="Get in touch with BluePriint — Delhi's trusted print and branding partner. Free site visit, quotes within 24 hours."/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
-  <script src="https://smtpjs.com/v3/smtp.js"></script>
-
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -763,7 +761,7 @@
     });
   });
 
-  // ── Contact form: save to MongoDB + send email ──
+  // ── Contact form ──
   document.getElementById('contactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -776,85 +774,77 @@
     const phone   = document.getElementById('f_phone').value.trim();
     const city    = document.getElementById('f_city').value.trim();
     const message = document.getElementById('f_message').value.trim();
-
-    const selected = [...document.querySelectorAll('.chip.selected')].map(c => c.dataset.val);
-    const services = selected.length ? selected : [];
+    const services = [...document.querySelectorAll('.chip.selected')].map(c => c.dataset.val);
 
     if (!name || !email || !phone || !message) {
       status.className = 'form-status error';
-      status.innerHTML = '⚠️ Please fill in all required fields (marked with *).';
+      status.textContent = '⚠️ Please fill in all required fields (marked with *).';
       return;
     }
 
     btn.disabled = true;
     btn.innerHTML = 'Sending… <span style="display:inline-block;animation:spin 0.8s linear infinite;">⟳</span>';
+    status.className = '';
+    status.textContent = '';
 
-    /* ── Determine API base (localhost vs production) ── */
+    // Show "waking up" notice after 4s — Render free tier cold starts take ~30s
+    const wakeTimer = setTimeout(() => {
+      status.className = 'form-status';
+      status.style.display = 'flex';
+      status.style.background = '#fff8e1';
+      status.style.color = '#e65100';
+      status.style.border = '1px solid #ffe082';
+      status.textContent = '⏳ Server is starting up, please wait a moment…';
+    }, 4000);
+
     const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       ? 'http://localhost:3000'
       : 'https://bluepriint-test.onrender.com';
 
-    /* ── 1. Save to MongoDB via server.js ── */
-    let dbSaved = false;
     try {
-      const dbRes = await fetch(`${API_BASE}/api/enquiries`, {
+      // 60s timeout — enough for Render cold start
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 60000);
+
+      const res = await fetch(`${API_BASE}/api/enquiries`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal:  controller.signal,
         body: JSON.stringify({ name, company, email, phone, city, services, message, source: 'contact-form' }),
       });
-      const dbData = await dbRes.json();
-      if (dbData.success) dbSaved = true;
-      else console.warn('[BP] DB save failed:', dbData.error);
+      clearTimeout(timeout);
+      clearTimeout(wakeTimer);
+
+      const data = await res.json();
+
+      btn.disabled = false;
+      btn.innerHTML = 'Send Message &amp; Request Quote <span class="arrow">→</span>';
+
+      if (data.success) {
+        status.removeAttribute('style');
+        status.className = 'form-status success';
+        status.textContent = '✅ Message sent! We\'ll get back to you within 24 hours.';
+        document.getElementById('contactForm').reset();
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+      } else {
+        throw new Error(data.error || 'Server returned failure');
+      }
+
     } catch (err) {
-      console.warn('[BP] DB save error (will still try email):', err);
-    }
+      clearTimeout(wakeTimer);
+      btn.disabled = false;
+      btn.innerHTML = 'Send Message &amp; Request Quote <span class="arrow">→</span>';
 
-    /* ── 2. Send email via SMTP.js (best-effort) ── */
-    const servicesList = services.length ? services.join(', ') : 'Not specified';
-    const emailBody = `
-      <h3 style="color:#0d3b6e;font-family:sans-serif;">New Quote Request — BluePriint</h3>
-      <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;width:100%;max-width:560px;">
-        <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;width:140px;">Name</td><td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${name}</td></tr>
-        <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Company</td><td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${company || '—'}</td></tr>
-        <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Email</td><td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${email}</td></tr>
-        <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Phone</td><td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${phone}</td></tr>
-        <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">City</td><td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${city || '—'}</td></tr>
-        <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Services</td><td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${servicesList}</td></tr>
-        <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Message</td><td style="padding:8px 12px;">${message}</td></tr>
-      </table>
-      <p style="font-family:sans-serif;font-size:12px;color:#888;margin-top:16px;">
-        ${dbSaved ? '✅ Also saved to BluePriint CRM (MongoDB).' : '⚠️ Note: CRM save may have failed — please check the dashboard.'}
-      </p>
-    `;
-
-    let emailSent = false;
-    try {
-      const result = await Email.send({
-        Host:     'smtp.gmail.com',
-        Username: 'bluepriint2005@gmail.com',
-        Password: 'fkipwnqoqpbywsfq',
-        To:       'print@bluepriint.in',
-        From:     'bluepriint2005@gmail.com',
-        Subject:  `New Quote Request from ${name} — BluePriint Website`,
-        Body:     emailBody,
-      });
-      if (result === 'OK') emailSent = true;
-    } catch (err) {
-      console.warn('[BP] Email send error:', err);
-    }
-
-    /* ── Show result to user ── */
-    btn.disabled = false;
-    btn.innerHTML = 'Send Message &amp; Request Quote <span class="arrow">→</span>';
-
-    if (dbSaved || emailSent) {
-      status.className = 'form-status success';
-      status.innerHTML = '✅ Message sent! We\'ll get back to you within 24 hours.';
-      document.getElementById('contactForm').reset();
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-    } else {
+      const isTimeout = err.name === 'AbortError';
+      status.removeAttribute('style');
       status.className = 'form-status error';
-      status.innerHTML = '⚠️ Something went wrong. Please call us directly at <a href="tel:+919717027607" style="color:#1a5fa8;">+91 9717027607</a> or WhatsApp us.';
+
+      if (isTimeout) {
+        status.innerHTML = '⚠️ Server took too long to respond. Please try again in a moment, or reach us directly at <a href="tel:+919717027607" style="color:#1a5fa8;">+91 9717027607</a>.';
+      } else {
+        status.innerHTML = '⚠️ Could not send message. Please call <a href="tel:+919717027607" style="color:#1a5fa8;">+91 9717027607</a> or <a href="https://wa.me/919717027607" style="color:#25d366;">WhatsApp us</a>.';
+      }
+      console.error('[BP Contact] Submit error:', err);
     }
   });
 </script>
