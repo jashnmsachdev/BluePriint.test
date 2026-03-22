@@ -75,6 +75,45 @@ const Product = mongoose.model("Product", ProductSchema);
 
 
 /* ════════════════════════════════════════════
+   🧾 ORDER SCHEMA
+   Covers both online and offline orders entered by admin.
+   orderId is auto-generated as BP-XXXX (4-digit zero-padded).
+════════════════════════════════════════════ */
+const OrderSchema = new mongoose.Schema(
+  {
+    orderId:   { type: String, unique: true },              // e.g. "BP-1043" — set in pre-save
+    customer:  { type: String, required: true, trim: true },
+    company:   { type: String, default: "", trim: true },
+    phone:     { type: String, default: "", trim: true },
+    product:   { type: String, required: true, trim: true },
+    category:  { type: String, default: "Other", trim: true }, // for analytics donut
+    qty:       { type: Number, default: 1 },
+    value:     { type: Number, required: true },            // total order value in ₹
+    status:    { type: String, enum: ["new","pending","progress","complete","cancelled"], default: "new" },
+    source:    { type: String, enum: ["offline","online","whatsapp","referral"], default: "offline" },
+    notes:     { type: String, default: "" },
+    orderDate: { type: Date, default: Date.now },
+  },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+  }
+);
+
+// Auto-generate orderId like "BP-1001" before saving
+OrderSchema.pre("save", async function(next) {
+  if (this.orderId) return next();
+  const count = await mongoose.model("Order").countDocuments();
+  this.orderId = `BP-${String(1001 + count).padStart(4, "0")}`;
+  next();
+});
+
+OrderSchema.index({ customer: "text", company: "text", product: "text", orderId: "text" });
+
+const Order = mongoose.model("Order", OrderSchema);
+
+
+/* ════════════════════════════════════════════
    👤 CUSTOMER SCHEMA
    Tracks every customer who has placed an order or submitted an enquiry.
    orders / totalSpent are updated manually via PUT when orders are processed.
@@ -504,13 +543,226 @@ app.delete("/api/customers/:id", requireAdminKey, async (req, res) => {
 
 
 /* ════════════════════════════════════════════
+   🧾 GET /api/orders
+   ?q=      full-text search
+   ?status= new|pending|progress|complete|cancelled
+   ?sort=   newest|oldest|value_desc
+   ?page=   (default 1)  ?limit= (default 50)
+════════════════════════════════════════════ */
+app.get("/api/orders", async (req, res) => {
+  try {
+    const { q, status, sort = "newest", page = 1, limit = 50 } = req.query;
+    const filter = {};
+    if (status) filter.status = status;
+    if (q)      filter.$text  = { $search: q };
+
+    const sortMap = {
+      newest:     { orderDate: -1 },
+      oldest:     { orderDate:  1 },
+      value_desc: { value:     -1 },
+    };
+    const pageNum  = Math.max(1, parseInt(page));
+    const limitNum = Math.min(200, Math.max(1, parseInt(limit)));
+    const skip     = (pageNum - 1) * limitNum;
+
+    const [orders, total] = await Promise.all([
+      Order.find(filter).sort(sortMap[sort] || { orderDate: -1 }).skip(skip).limit(limitNum).lean(),
+      Order.countDocuments(filter),
+    ]);
+
+    res.json({ success: true, data: orders, meta: { total, page: pageNum, totalPages: Math.ceil(total / limitNum) } });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+/* ════════════════════════════════════════════
+   🔍 GET /api/orders/:id
+════════════════════════════════════════════ */
+app.get("/api/orders/:id", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id).lean();
+    if (!order) return res.status(404).json({ success: false, error: "Order not found" });
+    res.json({ success: true, data: order });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+/* ════════════════════════════════════════════
+   ➕ POST /api/orders  (admin only)
+════════════════════════════════════════════ */
+app.post("/api/orders", requireAdminKey, async (req, res) => {
+  try {
+    const order = new Order(req.body);
+    await order.save();
+    res.status(201).json({ success: true, data: order });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+/* ════════════════════════════════════════════
+   ✏️  PUT /api/orders/:id  (update status / fields)
+════════════════════════════════════════════ */
+app.put("/api/orders/:id", requireAdminKey, async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true }).lean();
+    if (!order) return res.status(404).json({ success: false, error: "Order not found" });
+    res.json({ success: true, data: order });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+/* ════════════════════════════════════════════
+   🗑️  DELETE /api/orders/:id
+════════════════════════════════════════════ */
+app.delete("/api/orders/:id", requireAdminKey, async (req, res) => {
+  try {
+    const order = await Order.findByIdAndDelete(req.params.id);
+    if (!order) return res.status(404).json({ success: false, error: "Order not found" });
+    res.json({ success: true, message: "Order deleted" });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+/* ════════════════════════════════════════════
+   📊 GET /api/stats
+   Returns all numbers needed by the dashboard in one call:
+   - totalOrders, monthlyRevenue, openEnquiries, totalCustomers
+   - revenueByMonth  (last 7 months, for bar chart)
+   - revenueByCategory (for donut chart)
+   - recentOrders (last 5, for dashboard preview table)
+════════════════════════════════════════════ */
+app.get("/api/stats", async (req, res) => {
+  try {
+    const now       = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    const [
+      totalOrders,
+      monthlyRevenue,
+      lastMonthRevenue,
+      openEnquiries,
+      totalCustomers,
+      revenueByMonthRaw,
+      revenueByCategoryRaw,
+      recentOrders,
+    ] = await Promise.all([
+      // Total orders count
+      Order.countDocuments(),
+
+      // This month's revenue (sum of complete + progress + pending + new orders)
+      Order.aggregate([
+        { $match: { orderDate: { $gte: startOfMonth }, status: { $ne: "cancelled" } } },
+        { $group: { _id: null, total: { $sum: "$value" } } },
+      ]),
+
+      // Last month's revenue (for % change)
+      Order.aggregate([
+        { $match: { orderDate: { $gte: startOfLastMonth, $lt: startOfMonth }, status: { $ne: "cancelled" } } },
+        { $group: { _id: null, total: { $sum: "$value" } } },
+      ]),
+
+      // Open enquiries = status 'new'
+      Enquiry.countDocuments({ status: "new" }),
+
+      // Total customers
+      Customer.countDocuments(),
+
+      // Revenue by month — last 7 months
+      Order.aggregate([
+        {
+          $match: {
+            orderDate: { $gte: new Date(now.getFullYear(), now.getMonth() - 6, 1) },
+            status: { $ne: "cancelled" },
+          },
+        },
+        {
+          $group: {
+            _id: { year: { $year: "$orderDate" }, month: { $month: "$orderDate" } },
+            revenue: { $sum: "$value" },
+            orders:  { $sum: 1 },
+          },
+        },
+        { $sort: { "_id.year": 1, "_id.month": 1 } },
+      ]),
+
+      // Revenue by category (for donut)
+      Order.aggregate([
+        { $match: { orderDate: { $gte: startOfMonth }, status: { $ne: "cancelled" } } },
+        { $group: { _id: "$category", revenue: { $sum: "$value" } } },
+        { $sort: { revenue: -1 } },
+        { $limit: 6 },
+      ]),
+
+      // Last 5 orders for dashboard preview
+      Order.find().sort({ orderDate: -1 }).limit(5).lean(),
+    ]);
+
+    const thisMonth = monthlyRevenue[0]?.total || 0;
+    const lastMonth = lastMonthRevenue[0]?.total || 0;
+    const revenueChange = lastMonth > 0
+      ? Math.round(((thisMonth - lastMonth) / lastMonth) * 100)
+      : 0;
+
+    // Format month labels
+    const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const revenueByMonth = revenueByMonthRaw.map(r => ({
+      month:   MONTHS[r._id.month - 1],
+      val:     r.revenue,
+      orders:  r.orders,
+      highlight: r._id.month === now.getMonth() + 1 && r._id.year === now.getFullYear(),
+    }));
+
+    // Format category donut (convert to percentages)
+    const totalCatRevenue = revenueByCategoryRaw.reduce((s, r) => s + r.revenue, 0);
+    const donutColors = ["#2980d9","#f0a500","#22a06b","#0d3b6e","#e53935","#c8d4e4"];
+    const revenueByCategory = revenueByCategoryRaw.map((r, i) => ({
+      label:   r._id || "Other",
+      val:     totalCatRevenue > 0 ? Math.round((r.revenue / totalCatRevenue) * 100) : 0,
+      revenue: r.revenue,
+      color:   donutColors[i] || "#c8d4e4",
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        totalOrders,
+        monthlyRevenue:  thisMonth,
+        lastMonthRevenue: lastMonth,
+        revenueChange,
+        openEnquiries,
+        totalCustomers,
+        revenueByMonth,
+        revenueByCategory,
+        recentOrders,
+      },
+    });
+  } catch (err) {
+    console.error("GET /api/stats error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+/* ════════════════════════════════════════════
    🧪 GET /api/seed  (one-time test data seeder)
    Visit once to populate DB, then remove or restrict.
 ════════════════════════════════════════════ */
 app.get("/api/seed", async (req, res) => {
   try {
-    const existingProducts = await Product.countDocuments();
+    const existingProducts  = await Product.countDocuments();
     const existingCustomers = await Customer.countDocuments();
+    const existingOrders    = await Order.countDocuments();
 
     const seeded = [];
 
@@ -580,6 +832,30 @@ app.get("/api/seed", async (req, res) => {
       ];
       await Enquiry.insertMany(sampleEnquiries);
       seeded.push(`${sampleEnquiries.length} enquiries`);
+    }
+
+    if (existingOrders === 0) {
+      const now = new Date();
+      const d = (daysAgo) => new Date(now - daysAgo * 86400000);
+      const sampleOrders = [
+        { customer:"Ravi Sharma",   company:"Sharma Traders",    phone:"+91 94000 88888", product:"ACP Fascia Sign Board",  category:"Signage",  qty:2,  value:6400,  status:"new",      source:"offline", orderDate: d(0)  },
+        { customer:"Neha Gupta",    company:"Gupta Salon",       phone:"+91 95000 77777", product:"Backlit Flex Banner",    category:"Printing", qty:5,  value:4250,  status:"progress", source:"whatsapp",orderDate: d(1)  },
+        { customer:"Ajay Patel",    company:"Patel Electronics", phone:"+91 93000 11111", product:"3D LED Facade Sign",     category:"LED Screens",qty:1, value:8500,  status:"complete", source:"online",  orderDate: d(2)  },
+        { customer:"Sunita Mehta",  company:"Mehta Boutique",    phone:"+91 88000 44444", product:"Floor Vinyl Graphics",  category:"Printing", qty:10, value:6500,  status:"complete", source:"offline", orderDate: d(3)  },
+        { customer:"Vikram Joshi",  company:"JK Enterprises",   phone:"+91 97000 33333", product:"Canvas Print",           category:"Printing", qty:3,  value:3600,  status:"pending",  source:"offline", orderDate: d(4)  },
+        { customer:"Priya Singh",   company:"Singh Pharma",      phone:"+91 96000 66666", product:"One Way Vision Film",   category:"Signage",  qty:8,  value:7600,  status:"complete", source:"referral",orderDate: d(5)  },
+        { customer:"Arjun Kumar",   company:"Bajaj Dealership",  phone:"+91 98100 11111", product:"Glow Sign Board",       category:"Signage",  qty:4,  value:8800,  status:"complete", source:"offline", orderDate: d(6)  },
+        { customer:"Meera Nair",    company:"Nair Interiors",    phone:"+91 91000 22222", product:"Vinyl Wall Wrap",       category:"Printing", qty:20, value:11200, status:"cancelled",source:"offline", orderDate: d(7)  },
+        { customer:"Rahul Verma",   company:"Verma & Sons",      phone:"+91 99100 22222", product:"Acrylic UV Print",      category:"Printing", qty:6,  value:10800, status:"complete", source:"online",  orderDate: d(8)  },
+        { customer:"Deepak Rao",    company:"Rao Foods",         phone:"+91 87000 55555", product:"Roll-up Standee",       category:"Printing", qty:10, value:14000, status:"complete", source:"offline", orderDate: d(9)  },
+        { customer:"Arjun Kumar",   company:"Bajaj Dealership",  phone:"+91 98100 11111", product:"ACP Fascia Panel",      category:"Signage",  qty:3,  value:9600,  status:"complete", source:"offline", orderDate: d(14) },
+        { customer:"Vikram Singh",  company:"Hero Showroom",     phone:"+91 97000 33333", product:"LED Glow Sign Board",   category:"LED Screens",qty:2,value:24000, status:"complete", source:"referral",orderDate: d(20) },
+        { customer:"Deepak Rao",    company:"Rao Foods",         phone:"+91 87000 55555", product:"Backlit Flex Banner",   category:"Printing", qty:8,  value:6800,  status:"complete", source:"offline", orderDate: d(30) },
+        { customer:"Neha Gupta",    company:"Gupta Salon",       phone:"+91 95000 77777", product:"Mirror Wrap Vinyl",     category:"Signage",  qty:4,  value:5600,  status:"complete", source:"whatsapp",orderDate: d(40) },
+        { customer:"Ravi Sharma",   company:"Sharma Traders",    phone:"+91 94000 88888", product:"Canvas Print",          category:"Printing", qty:6,  value:7200,  status:"complete", source:"offline", orderDate: d(50) },
+      ];
+      await Order.insertMany(sampleOrders);
+      seeded.push(`${sampleOrders.length} orders`);
     }
 
     if (seeded.length === 0) {
