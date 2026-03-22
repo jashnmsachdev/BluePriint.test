@@ -645,29 +645,29 @@
           <div class="stat-card-accent" style="background:var(--blue-light)"></div>
           <div class="stat-icon">🧾</div>
           <div class="stat-label">Total Orders</div>
-          <div class="stat-value">142</div>
-          <div class="stat-delta delta-up">▲ 12% <span style="color:var(--grey);font-weight:400">vs last month</span></div>
+          <div class="stat-value" id="stat-total-orders">—</div>
+          <div class="stat-delta" id="stat-orders-delta"><span style="color:var(--grey);font-weight:400">Loading…</span></div>
         </div>
         <div class="stat-card">
           <div class="stat-card-accent" style="background:var(--green)"></div>
           <div class="stat-icon">💰</div>
           <div class="stat-label">Monthly Revenue</div>
-          <div class="stat-value">₹3.8L</div>
-          <div class="stat-delta delta-up">▲ 8% <span style="color:var(--grey);font-weight:400">vs last month</span></div>
+          <div class="stat-value" id="stat-monthly-revenue">—</div>
+          <div class="stat-delta" id="stat-revenue-delta"><span style="color:var(--grey);font-weight:400">Loading…</span></div>
         </div>
         <div class="stat-card">
           <div class="stat-card-accent" style="background:var(--gold)"></div>
           <div class="stat-icon">💬</div>
           <div class="stat-label">Open Enquiries</div>
-          <div class="stat-value">7</div>
-          <div class="stat-delta delta-down">▼ 2 <span style="color:var(--grey);font-weight:400">since yesterday</span></div>
+          <div class="stat-value" id="stat-open-enquiries">—</div>
+          <div class="stat-delta delta-down">New leads awaiting response</div>
         </div>
         <div class="stat-card">
           <div class="stat-card-accent" style="background:var(--red)"></div>
           <div class="stat-icon">👥</div>
-          <div class="stat-label">New Customers</div>
-          <div class="stat-value">23</div>
-          <div class="stat-delta delta-up">▲ 5 <span style="color:var(--grey);font-weight:400">this week</span></div>
+          <div class="stat-label">Total Customers</div>
+          <div class="stat-value" id="stat-new-customers">—</div>
+          <div class="stat-delta delta-up">Registered in directory</div>
         </div>
       </div>
 
@@ -759,7 +759,10 @@
             <div class="card-title">All Orders</div>
             <div class="card-sub">Manage and track customer orders</div>
           </div>
-          <button class="btn-primary" onclick="showToast('Export ready — orders.csv','success')">⬇ Export CSV</button>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-secondary" onclick="showToast('Export ready — orders.csv','success')">⬇ Export CSV</button>
+            <button class="btn-primary" onclick="openOrderModal()">+ Add Order</button>
+          </div>
         </div>
         <div class="card-body" style="padding-top:0;">
           <div class="table-controls">
@@ -1004,6 +1007,56 @@
   </div>
 </div>
 
+<!-- ── ORDER MODAL ── -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modalOrderTitle">Add New Order</span>
+      <button class="modal-close-btn" onclick="closeOrderModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Customer Name *</label><input class="form-control" id="om-customer" placeholder="e.g. Ravi Sharma"/></div>
+        <div class="form-group"><label>Company</label><input class="form-control" id="om-company" placeholder="e.g. Sharma Traders"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Phone</label><input class="form-control" id="om-phone" placeholder="+91 98xxx xxxxx"/></div>
+        <div class="form-group"><label>Category</label>
+          <select class="form-control" id="om-category">
+            <option>Signage</option><option>Printing</option><option>LED Screens</option>
+            <option>Internal Branding</option><option>OOH</option><option>BTL</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Product / Service *</label><input class="form-control" id="om-product" placeholder="e.g. ACP Fascia Sign Board"/></div>
+      <div class="form-row">
+        <div class="form-group"><label>Quantity</label><input class="form-control" id="om-qty" type="number" placeholder="1" min="1"/></div>
+        <div class="form-group"><label>Order Value (₹) *</label><input class="form-control" id="om-value" type="number" placeholder="e.g. 8500" min="0"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Status</label>
+          <select class="form-control" id="om-status">
+            <option value="new">New</option><option value="pending">Pending</option>
+            <option value="progress">In Progress</option><option value="complete">Complete</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Source</label>
+          <select class="form-control" id="om-source">
+            <option value="offline">Offline / Walk-in</option><option value="whatsapp">WhatsApp</option>
+            <option value="online">Online</option><option value="referral">Referral</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea class="form-control" id="om-notes" placeholder="Any notes about this order…" style="min-height:70px;"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeOrderModal()">Cancel</button>
+      <button class="btn-save" onclick="saveOrder()">Save Order</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── CUSTOMER MODAL ── -->
 <div class="modal-overlay" id="customerModal">
   <div class="modal-box">
@@ -1091,22 +1144,6 @@
 
 <script>
 /* ══════════════════════════════════════════
-   DATA
-══════════════════════════════════════════ */
-const ORDERS = [
-  { id:'#BP-1042', customer:'Ravi Sharma', company:'Sharma Traders', product:'ACP Fascia Sign Board', qty:2, value:6400, date:'14 Mar 2025', status:'new' },
-  { id:'#BP-1041', customer:'Neha Gupta', company:'Gupta Salon', product:'Backlit Flex Banner', qty:5, value:4250, date:'13 Mar 2025', status:'progress' },
-  { id:'#BP-1040', customer:'Ajay Patel', company:'Patel Electronics', product:'3D LED Facade Sign', qty:1, value:8500, date:'12 Mar 2025', status:'complete' },
-  { id:'#BP-1039', customer:'Sunita Mehta', company:'Mehta Boutique', product:'Floor Vinyl Graphics', qty:10, value:6500, date:'11 Mar 2025', status:'complete' },
-  { id:'#BP-1038', customer:'Vikram Joshi', company:'JK Enterprises', product:'Canvas Print', qty:3, value:3600, date:'10 Mar 2025', status:'pending' },
-  { id:'#BP-1037', customer:'Priya Singh', company:'Singh Pharma', product:'One Way Vision Film', qty:8, value:7600, date:'9 Mar 2025', status:'complete' },
-  { id:'#BP-1036', customer:'Arjun Kumar', company:'Bajaj Dealership', product:'Glow Sign Board', qty:4, value:8800, date:'8 Mar 2025', status:'complete' },
-  { id:'#BP-1035', customer:'Meera Nair', company:'Nair Interiors', product:'Vinyl Wall Wrap', qty:20, value:11200, date:'7 Mar 2025', status:'cancelled' },
-  { id:'#BP-1034', customer:'Rahul Verma', company:'Verma & Sons', product:'Acrylic UV Print', qty:6, value:10800, date:'6 Mar 2025', status:'complete' },
-  { id:'#BP-1033', customer:'Deepak Rao', company:'Rao Foods', product:'Roll-up Standee', qty:10, value:14000, date:'5 Mar 2025', status:'complete' },
-];
-
-/* ══════════════════════════════════════════
    API CONFIG  ← must come first; everything below depends on these consts
 ══════════════════════════════════════════ */
 const ADMIN_API_BASE = (() => {
@@ -1118,6 +1155,8 @@ const ADMIN_API_BASE = (() => {
 const PRODUCTS_API  = `${ADMIN_API_BASE}/api/products`;
 const CUSTOMERS_API = `${ADMIN_API_BASE}/api/customers`;
 const ENQUIRIES_API = `${ADMIN_API_BASE}/api/enquiries`;
+const ORDERS_API    = `${ADMIN_API_BASE}/api/orders`;
+const STATS_API     = `${ADMIN_API_BASE}/api/stats`;
 
 // Admin key — stored in localStorage after first entry
 let ADMIN_KEY = localStorage.getItem('bp_admin_key') || '';
@@ -1127,6 +1166,117 @@ function ensureAdminKey() {
     if (k) { ADMIN_KEY = k; localStorage.setItem('bp_admin_key', k); }
   }
   return ADMIN_KEY;
+}
+
+/* ══════════════════════════════════════════
+   ORDERS API LAYER
+══════════════════════════════════════════ */
+let ORDERS_DATA = [];
+let _editingOrderId = null;
+
+async function apiOrders(method, id, body) {
+  const url = id ? `${ORDERS_API}/${id}` : `${ORDERS_API}?limit=200`;
+  const headers = { 'Content-Type': 'application/json' };
+  if (method !== 'GET') headers['x-admin-key'] = ensureAdminKey();
+  try {
+    const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    return await res.json();
+  } catch (err) {
+    console.error('[BP Admin] Orders API error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+async function loadOrdersFromAPI() {
+  const result = await apiOrders('GET', null, null);
+  if (result && result.success) {
+    ORDERS_DATA = (result.data || []).map(o => ({
+      ...o,
+      id:    o.id    || o._id || '',
+      date:  o.orderDate
+        ? new Date(o.orderDate).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+        : '—',
+    }));
+    renderOrders(ORDERS_DATA);
+    renderRecentOrders(ORDERS_DATA.slice(0, 5));
+    // Update orders count in sidebar badge
+    const newOrders = ORDERS_DATA.filter(o => o.status === 'new').length;
+    const badge = document.getElementById('nb-orders');
+    if (badge) badge.textContent = newOrders;
+    // Update pagination info
+    const info = document.getElementById('ordersPaginationInfo');
+    if (info) info.textContent = `${ORDERS_DATA.length} total orders`;
+  } else {
+    showToast('Could not load orders from API', 'error');
+  }
+}
+
+/* ══════════════════════════════════════════
+   STATS — load from /api/stats and update all cards + charts
+══════════════════════════════════════════ */
+async function loadStatsFromAPI() {
+  try {
+    const res    = await fetch(STATS_API);
+    const result = await res.json();
+    if (!result.success) return;
+
+    const d = result.data;
+
+    // ── Stat Cards ──
+    const el = (id) => document.getElementById(id);
+    if (el('stat-total-orders'))   el('stat-total-orders').textContent   = d.totalOrders.toLocaleString('en-IN');
+    if (el('stat-open-enquiries')) el('stat-open-enquiries').textContent = d.openEnquiries;
+    if (el('stat-new-customers'))  el('stat-new-customers').textContent  = d.totalCustomers.toLocaleString('en-IN');
+
+    // Monthly revenue — format as ₹X.XL or ₹XXK
+    if (el('stat-monthly-revenue')) {
+      const rev = d.monthlyRevenue;
+      el('stat-monthly-revenue').textContent = rev >= 100000
+        ? `₹${(rev/100000).toFixed(1)}L`
+        : `₹${(rev/1000).toFixed(0)}K`;
+    }
+
+    // Revenue change delta
+    if (el('stat-revenue-delta')) {
+      const sign = d.revenueChange >= 0 ? '▲' : '▼';
+      const cls  = d.revenueChange >= 0 ? 'delta-up' : 'delta-down';
+      el('stat-revenue-delta').className   = `stat-delta ${cls}`;
+      el('stat-revenue-delta').innerHTML   = `${sign} ${Math.abs(d.revenueChange)}% <span style="color:var(--grey);font-weight:400">vs last month</span>`;
+    }
+    if (el('stat-orders-delta')) {
+      el('stat-orders-delta').innerHTML = `<span style="color:var(--grey);font-weight:400">Total all time</span>`;
+    }
+
+    // ── Bar Charts (Revenue by Month) ──
+    if (d.revenueByMonth && d.revenueByMonth.length) {
+      renderBarChart('barChart', d.revenueByMonth.slice(-7));
+      renderBarChart('barChartFull', d.revenueByMonth);
+    }
+
+    // ── Donut Chart (Revenue by Category) ──
+    if (d.revenueByCategory && d.revenueByCategory.length) {
+      renderDonutFromData(d.revenueByCategory);
+    }
+
+    // ── Update donut centre text ──
+    const donutText = document.querySelector('svg.donut text:first-of-type');
+    if (donutText && d.monthlyRevenue) {
+      const rev = d.monthlyRevenue;
+      donutText.textContent = rev >= 100000 ? `₹${(rev/100000).toFixed(1)}L` : `₹${(rev/1000).toFixed(0)}K`;
+    }
+
+    // ── Analytics stat cards ──
+    if (el('analytics-avg-order')) {
+      const avg = d.totalOrders > 0 ? Math.round(d.monthlyRevenue / Math.max(1, (d.revenueByMonth.slice(-1)[0]?.orders || 1))) : 0;
+      el('analytics-avg-order').textContent = avg > 0 ? `₹${avg.toLocaleString('en-IN')}` : '—';
+    }
+
+    // ── Top Products by revenue ──
+    renderTopProductsFromOrders();
+
+  } catch (err) {
+    console.error('[BP Stats] load error:', err);
+  }
 }
 
 /* ══════════════════════════════════════════
@@ -1345,14 +1495,16 @@ function statusBadge(s) {
   return `<span class="status-badge ${cls}">${map[s].slice(map[s].indexOf(' ')+1)}</span>`;
 }
 
-function renderRecentOrders() {
+function renderRecentOrders(list) {
   const tbody = document.getElementById('recentOrdersBody');
-  tbody.innerHTML = ORDERS.slice(0,5).map(o => `
+  const data  = list || ORDERS_DATA.slice(0, 5);
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--grey);">No orders yet</td></tr>`; return; }
+  tbody.innerHTML = data.map(o => `
     <tr>
-      <td><span style="font-weight:700;color:var(--blue);">${o.id}</span></td>
-      <td><div class="td-name">${o.customer}</div><div class="td-sub">${o.company}</div></td>
+      <td><span style="font-weight:700;color:var(--blue);">${o.orderId || o.id}</span></td>
+      <td><div class="td-name">${o.customer}</div><div class="td-sub">${o.company||''}</div></td>
       <td>${o.product}</td>
-      <td style="font-weight:700;">₹${o.value.toLocaleString('en-IN')}</td>
+      <td style="font-weight:700;">₹${Number(o.value).toLocaleString('en-IN')}</td>
       <td>${statusBadge(o.status)}</td>
     </tr>
   `).join('');
@@ -1360,20 +1512,21 @@ function renderRecentOrders() {
 
 function renderOrders(list) {
   const tbody = document.getElementById('ordersTableBody');
-  tbody.innerHTML = (list || ORDERS).map(o => `
-    <tr>
-      <td><span style="font-weight:700;color:var(--blue);">${o.id}</span></td>
-      <td><div class="td-name">${o.customer}</div><div class="td-sub">${o.company}</div></td>
+  const data  = list || ORDERS_DATA;
+  if (!data.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--grey);">No orders yet. Click "+ Add Order" to create one.</td></tr>`; return; }
+  tbody.innerHTML = data.map(o => `
+    <tr data-order-id="${o.id}">
+      <td><span style="font-weight:700;color:var(--blue);">${o.orderId || o.id}</span></td>
+      <td><div class="td-name">${o.customer}</div><div class="td-sub">${o.company||''}</div></td>
       <td>${o.product}</td>
       <td>${o.qty}</td>
-      <td style="font-weight:700;">₹${o.value.toLocaleString('en-IN')}</td>
-      <td style="color:var(--grey);">${o.date}</td>
+      <td style="font-weight:700;">₹${Number(o.value).toLocaleString('en-IN')}</td>
+      <td style="color:var(--grey);">${o.date||'—'}</td>
       <td>${statusBadge(o.status)}</td>
       <td>
         <div class="row-actions">
-          <button class="ra-btn ra-view" title="View" onclick="showToast('Order ${o.id} details','')">👁</button>
-          <button class="ra-btn ra-edit" title="Edit status" onclick="cycleStatus(this,'${o.id}')">✏️</button>
-          <button class="ra-btn ra-del"  title="Delete" onclick="deleteRow(this)">🗑</button>
+          <button class="ra-btn ra-edit" title="Edit order" onclick="openOrderModal('${o.id}')">✏️</button>
+          <button class="ra-btn ra-del"  title="Delete order" onclick="deleteOrder('${o.id}', this)">🗑</button>
         </div>
       </td>
     </tr>
@@ -1543,15 +1696,28 @@ function renderBarChart(elId, data) {
 /* ══════════════════════════════════════════
    DONUT CHART
 ══════════════════════════════════════════ */
-function renderDonut() {
+const DONUT_DATA = [
+  { label:'Signage',        val:38, color:'#2980d9' },
+  { label:'Printing',       val:27, color:'#f0a500' },
+  { label:'Internal Brand', val:18, color:'#22a06b' },
+  { label:'LED Screens',    val:10, color:'#0d3b6e' },
+  { label:'Other',          val: 7, color:'#c8d4e4' },
+];
+
+function renderDonut() { renderDonutFromData(DONUT_DATA); }
+
+function renderDonutFromData(data) {
   const r = 38, cx = 50, cy = 50;
-  const circ = 2 * Math.PI * r;
-  let offset = 0;
+  const circ   = 2 * Math.PI * r;
+  const total  = data.reduce((s, d) => s + d.val, 0);
+  let offset   = 0;
   const segments = document.getElementById('donutSegments');
   const legend   = document.getElementById('donutLegend');
+  if (!segments || !legend) return;
 
-  segments.innerHTML = DONUT_DATA.map(d => {
-    const len = (d.val / 100) * circ;
+  segments.innerHTML = data.map(d => {
+    const pct = total > 0 ? (d.val / total) * 100 : 0;
+    const len = (pct / 100) * circ;
     const gap = 2;
     const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${d.color}"
       stroke-width="16"
@@ -1564,7 +1730,7 @@ function renderDonut() {
     return el;
   }).join('');
 
-  legend.innerHTML = DONUT_DATA.map(d => `
+  legend.innerHTML = data.map(d => `
     <div class="legend-item">
       <div class="legend-dot" style="background:${d.color}"></div>
       <span class="legend-label">${d.label}</span>
@@ -1576,16 +1742,36 @@ function renderDonut() {
 /* ══════════════════════════════════════════
    TOP PRODUCTS LIST
 ══════════════════════════════════════════ */
-function renderTopProducts() {
+function renderTopProducts() { renderTopProductsFromOrders(); }
+
+function renderTopProductsFromOrders() {
   const el = document.getElementById('topProductsList');
   if (!el) return;
-  const tops = [
-    { name:'ACP Fascia Sign Board', rev:96000, pct:82 },
-    { name:'3D LED Facade Sign', rev:76500, pct:65 },
-    { name:'Backlit Flex Banner', rev:51000, pct:43 },
-    { name:'Acrylic UV Print', rev:36000, pct:30 },
-    { name:'One Way Vision Film', rev:22800, pct:19 },
-  ];
+
+  // Aggregate revenue by product from live ORDERS_DATA
+  const map = {};
+  ORDERS_DATA.forEach(o => {
+    if (o.status === 'cancelled') return;
+    map[o.product] = (map[o.product] || 0) + Number(o.value);
+  });
+
+  let tops = Object.entries(map)
+    .sort(([,a],[,b]) => b - a)
+    .slice(0, 5)
+    .map(([name, rev]) => ({ name, rev }));
+
+  // Fallback if no real orders yet
+  if (!tops.length) {
+    tops = [
+      { name:'ACP Fascia Sign Board', rev:96000 },
+      { name:'3D LED Facade Sign',    rev:76500 },
+      { name:'Backlit Flex Banner',   rev:51000 },
+      { name:'Acrylic UV Print',      rev:36000 },
+      { name:'One Way Vision Film',   rev:22800 },
+    ];
+  }
+
+  const maxRev = tops[0].rev;
   el.innerHTML = tops.map(t => `
     <div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
@@ -1593,7 +1779,7 @@ function renderTopProducts() {
         <span style="font-size:12.5px;font-weight:700;color:var(--blue);">₹${(t.rev/1000).toFixed(0)}K</span>
       </div>
       <div style="height:6px;background:var(--border);border-radius:3px;">
-        <div style="height:6px;background:var(--blue-light);border-radius:3px;width:${t.pct}%;transition:width 0.6s ease;"></div>
+        <div style="height:6px;background:var(--blue-light);border-radius:3px;width:${Math.round((t.rev/maxRev)*100)}%;transition:width 0.6s ease;"></div>
       </div>
     </div>
   `).join('');
@@ -1604,11 +1790,14 @@ function renderTopProducts() {
 ══════════════════════════════════════════ */
 function filterOrders(q) {
   const lq = q.toLowerCase();
-  const filtered = ORDERS.filter(o => o.id.toLowerCase().includes(lq) || o.customer.toLowerCase().includes(lq) || o.product.toLowerCase().includes(lq));
-  renderOrders(filtered);
+  renderOrders(ORDERS_DATA.filter(o =>
+    (o.orderId||'').toLowerCase().includes(lq) ||
+    (o.customer||'').toLowerCase().includes(lq) ||
+    (o.product||'').toLowerCase().includes(lq)
+  ));
 }
 function filterOrdersByStatus(s) {
-  renderOrders(s ? ORDERS.filter(o => o.status === s.toLowerCase().replace(' ','-').replace('in-progress','progress')) : ORDERS);
+  renderOrders(s ? ORDERS_DATA.filter(o => o.status === s.toLowerCase().replace(' ','-').replace('in-progress','progress')) : ORDERS_DATA);
 }
 function filterProducts(q) {
   const lq = q.toLowerCase();
@@ -1629,7 +1818,7 @@ function filterEnquiries(s) {
 ══════════════════════════════════════════ */
 function globalSearchFn(q) {
   if (!q.trim()) return;
-  const order = ORDERS.find(o => o.id.toLowerCase().includes(q.toLowerCase()));
+  const order = ORDERS_DATA.find(o => (o.orderId||o.id||'').toLowerCase().includes(q.toLowerCase()) || (o.customer||'').toLowerCase().includes(q.toLowerCase()));
   if (order) { showPage2('orders'); filterOrders(q); }
 }
 function showPage2(id) {
@@ -1644,19 +1833,104 @@ function showPage2(id) {
 }
 
 /* ══════════════════════════════════════════
-   TABLE ROW ACTIONS
+   ORDER MODAL  (Add / Edit)
 ══════════════════════════════════════════ */
-const STATUS_CYCLE = ['new','pending','progress','complete'];
-function cycleStatus(btn, orderId) {
-  const row  = btn.closest('tr');
-  const cell = row.querySelector('.status-badge');
-  const cur  = Object.entries({ new:'New', pending:'Pending', progress:'In Progress', complete:'Complete' }).find(([,v]) => cell.textContent.trim() === v);
-  if (!cur) return;
-  const nextIdx = (STATUS_CYCLE.indexOf(cur[0]) + 1) % STATUS_CYCLE.length;
-  const next = STATUS_CYCLE[nextIdx];
-  cell.className = 'status-badge s-' + next;
-  cell.textContent = { new:'New', pending:'Pending', progress:'In Progress', complete:'Complete' }[next];
-  showToast(`Order ${orderId} → ${cell.textContent}`, 'success');
+function openOrderModal(id) {
+  _editingOrderId = id || null;
+  document.getElementById('orderModal').classList.add('open');
+  document.getElementById('modalOrderTitle').textContent = id ? 'Edit Order' : 'Add New Order';
+
+  ['om-customer','om-company','om-phone','om-product','om-qty','om-value','om-notes'].forEach(f => {
+    const el = document.getElementById(f); if (el) el.value = '';
+  });
+  document.getElementById('om-status').value   = 'new';
+  document.getElementById('om-source').value   = 'offline';
+  document.getElementById('om-category').value = 'Signage';
+
+  if (id) {
+    document.getElementById('om-customer').value = 'Loading…';
+    apiOrders('GET', id, null).then(result => {
+      const o = result?.success ? result.data : ORDERS_DATA.find(x => x.id === id);
+      if (!o) return;
+      document.getElementById('om-customer').value = o.customer || '';
+      document.getElementById('om-company').value  = o.company  || '';
+      document.getElementById('om-phone').value    = o.phone    || '';
+      document.getElementById('om-product').value  = o.product  || '';
+      document.getElementById('om-category').value = o.category || 'Signage';
+      document.getElementById('om-qty').value      = o.qty      || 1;
+      document.getElementById('om-value').value    = o.value    || '';
+      document.getElementById('om-status').value   = o.status   || 'new';
+      document.getElementById('om-source').value   = o.source   || 'offline';
+      document.getElementById('om-notes').value    = o.notes    || '';
+    });
+  }
+}
+function closeOrderModal() {
+  document.getElementById('orderModal').classList.remove('open');
+}
+
+async function saveOrder() {
+  const customer = document.getElementById('om-customer').value.trim();
+  const company  = document.getElementById('om-company').value.trim();
+  const phone    = document.getElementById('om-phone').value.trim();
+  const product  = document.getElementById('om-product').value.trim();
+  const category = document.getElementById('om-category').value;
+  const qty      = parseInt(document.getElementById('om-qty').value) || 1;
+  const value    = parseFloat(document.getElementById('om-value').value);
+  const status   = document.getElementById('om-status').value;
+  const source   = document.getElementById('om-source').value;
+  const notes    = document.getElementById('om-notes').value.trim();
+
+  if (!customer) { showToast('Customer name is required', 'error'); return; }
+  if (!product)  { showToast('Product is required', 'error');       return; }
+  if (isNaN(value) || value <= 0) { showToast('Valid order value is required', 'error'); return; }
+
+  const payload  = { customer, company, phone, product, category, qty, value, status, source, notes };
+  const saveBtn  = document.querySelector('#orderModal .btn-save');
+  saveBtn.textContent = 'Saving…';
+  saveBtn.disabled    = true;
+
+  const result = _editingOrderId
+    ? await apiOrders('PUT',  _editingOrderId, payload)
+    : await apiOrders('POST', null,            payload);
+
+  saveBtn.textContent = 'Save Order';
+  saveBtn.disabled    = false;
+
+  if (!result || !result.success) {
+    showToast(result?.error || 'Save failed', 'error'); return;
+  }
+
+  closeOrderModal();
+  showToast(`Order ${_editingOrderId ? 'updated' : 'created'} ✓`, 'success');
+  await Promise.all([loadOrdersFromAPI(), loadStatsFromAPI()]);
+
+  ACTIVITY.unshift({
+    type:'order', icon:'🧾', bg:'ad-order',
+    text:`<strong>Order ${_editingOrderId ? 'updated' : 'created'}</strong>`,
+    sub: `${customer} — ${product} ×${qty} — ₹${value.toLocaleString('en-IN')}`,
+    time:'Just now',
+  });
+  renderActivity();
+}
+
+async function deleteOrder(id, btn) {
+  if (!confirm('Delete this order? This cannot be undone.')) return;
+  const row = btn.closest('tr');
+  row.style.opacity = '0.4';
+  btn.disabled = true;
+
+  const result = await apiOrders('DELETE', id, null);
+  if (!result || !result.success) {
+    row.style.opacity = '1'; btn.disabled = false;
+    showToast(result?.error || 'Delete failed', 'error'); return;
+  }
+
+  row.style.opacity = '0';
+  setTimeout(() => row.remove(), 300);
+  ORDERS_DATA = ORDERS_DATA.filter(o => o.id !== id);
+  await loadStatsFromAPI();
+  showToast('Order deleted', '');
 }
 async function deleteProduct(id, btn) {
   if (!confirm(`Delete product ${id}? This cannot be undone.`)) return;
@@ -1684,14 +1958,6 @@ async function deleteProduct(id, btn) {
   showToast(`Product ${id} deleted`, '');
 }
 
-function deleteRow(btn) {
-  // Fallback for non-product rows (orders table)
-  const row = btn.closest('tr');
-  row.style.opacity    = '0';
-  row.style.transition = 'opacity 0.3s';
-  setTimeout(() => row.remove(), 300);
-  showToast('Row deleted', '');
-}
 async function deleteEnquiry(id) {
   if (!confirm('Remove this enquiry? This cannot be undone.')) return;
   const el = document.getElementById('eq-' + id);
@@ -1965,7 +2231,7 @@ function showToast(msg, type) {
    KEYBOARD ESC
 ══════════════════════════════════════════ */
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeProductModal(); closeCustomerModal(); }
+  if (e.key === 'Escape') { closeProductModal(); closeCustomerModal(); closeOrderModal(); }
 });
 document.getElementById('productModal').addEventListener('click', e => {
   if (e.target === document.getElementById('productModal')) closeProductModal();
@@ -1973,49 +2239,46 @@ document.getElementById('productModal').addEventListener('click', e => {
 document.getElementById('customerModal').addEventListener('click', e => {
   if (e.target === document.getElementById('customerModal')) closeCustomerModal();
 });
+document.getElementById('orderModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('orderModal')) closeOrderModal();
+});
 
 /* ══════════════════════════════════════════
    INIT — boot sequence
 ══════════════════════════════════════════ */
 (async function init() {
-  // Render non-API sections immediately (static data)
-  renderRecentOrders();
-  renderOrders();
   renderActivity();
-  renderBarChart('barChart', CHART_DATA);
-  renderBarChart('barChartFull', [
-    {month:'Apr',val:185000},{month:'May',val:210000},{month:'Jun',val:195000},
-    {month:'Jul',val:230000},{month:'Aug',val:260000},{month:'Sep',val:220000},
-    {month:'Oct',val:285000},{month:'Nov',val:310000},{month:'Dec',val:260000},
-    {month:'Jan',val:340000},{month:'Feb',val:295000},{month:'Mar',val:380000,highlight:true},
-  ]);
   renderDonut();
-  renderTopProducts();
 
-  // Show loading states while APIs load
+  // Loading placeholders
   document.getElementById('productsTableBody').innerHTML = `
     <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--grey);">
       <span style="display:inline-block;animation:spin 0.8s linear infinite;font-size:20px;margin-bottom:8px;">⟳</span><br>Loading products…
     </td></tr>`;
-
+  document.getElementById('ordersTableBody').innerHTML = `
+    <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--grey);">
+      <span style="display:inline-block;animation:spin 0.8s linear infinite;font-size:20px;margin-bottom:8px;">⟳</span><br>Loading orders…
+    </td></tr>`;
   document.getElementById('enquiryGrid').innerHTML = `
     <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--grey);">
       <span style="display:inline-block;animation:spin 0.8s linear infinite;font-size:20px;margin-bottom:8px;">⟳</span><br>Loading enquiries…
     </div>`;
 
-  // Load all three collections from live API in parallel
+  // Load everything in parallel
   await Promise.all([
+    loadOrdersFromAPI(),
     loadProductsFromAPI(),
     loadCustomersFromAPI(),
     loadEnquiriesFromAPI(),
+    loadStatsFromAPI(),
   ]);
 
-  // Show API status badge in topbar
+  // Analytics chart (full 12-month — will be overwritten by loadStatsFromAPI if data exists)
+  const pill = document.getElementById('apiStatusPill');
+  if (pill) { pill.className = 'api-status'; pill.innerHTML = '<span class="api-status-dot"></span> API live'; }
+
   const statusDot = document.querySelector('.tb-notif-dot');
-  if (statusDot) {
-    statusDot.style.background = '#22a06b';
-    statusDot.title = 'API connected';
-  }
+  if (statusDot) { statusDot.style.background = '#22a06b'; statusDot.title = 'API connected'; }
 })();
 </script>
 </body>
