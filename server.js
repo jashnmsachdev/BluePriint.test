@@ -1,7 +1,6 @@
 const express  = require("express");
 const mongoose = require("mongoose");
 const cors     = require("cors");
-const nodemailer = require("nodemailer");
 
 const app = express();
 app.use(express.json());
@@ -64,61 +63,7 @@ const Product = mongoose.model("Product", ProductSchema);
 
 
 /* ════════════════════════════════════════════
-   📧 NODEMAILER — email notification on new enquiry
-   Uses Gmail App Password stored in GMAIL_PASS env var.
-   Set in Render dashboard: GMAIL_USER and GMAIL_PASS
-════════════════════════════════════════════ */
-const emailTransporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.GMAIL_USER || 'bluepriint2005@gmail.com',
-    pass: process.env.GMAIL_PASS || 'fkipwnqoqpbywsfq',
-  },
-});
-
-async function sendEnquiryEmail(enquiry) {
-  const servicesList = (enquiry.services || []).join(', ') || 'Not specified';
-  const html = `
-    <h3 style="color:#0d3b6e;font-family:sans-serif;margin-bottom:16px;">
-      🔔 New Quote Request — BluePriint
-    </h3>
-    <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;width:100%;max-width:560px;">
-      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;width:130px;">Name</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${enquiry.name}</td></tr>
-      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Company</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${enquiry.company || '—'}</td></tr>
-      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Email</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">
-            <a href="mailto:${enquiry.email}">${enquiry.email}</a></td></tr>
-      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Phone</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">
-            <a href="tel:${enquiry.phone}">${enquiry.phone}</a></td></tr>
-      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">City</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${enquiry.city || '—'}</td></tr>
-      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;">Services</td>
-          <td style="padding:8px 12px;border-bottom:1px solid #dde6f5;">${servicesList}</td></tr>
-      <tr><td style="padding:8px 12px;background:#e8f1fb;font-weight:600;vertical-align:top;">Message</td>
-          <td style="padding:8px 12px;">${enquiry.message}</td></tr>
-    </table>
-    <p style="font-family:sans-serif;font-size:12px;color:#888;margin-top:16px;">
-      ✅ Saved to BluePriint CRM — ID: ${enquiry._id}
-    </p>
-  `;
-  try {
-    await emailTransporter.sendMail({
-      from:    `"BluePriint Website" <${process.env.GMAIL_USER || 'bluepriint2005@gmail.com'}>`,
-      to:      'print@bluepriint.in',
-      subject: `New Quote Request from ${enquiry.name} — BluePriint`,
-      html,
-    });
-    console.log(`✅ Enquiry email sent for ${enquiry.name}`);
-  } catch (err) {
-    // Email failure must NOT fail the API response — DB save is the source of truth
-    console.error('⚠️  Enquiry email failed (enquiry still saved to DB):', err.message);
-  }
-}
+   👤 CUSTOMER SCHEMA
    Tracks every customer who has placed an order or submitted an enquiry.
    orders / totalSpent are updated manually via PUT when orders are processed.
 ════════════════════════════════════════════ */
@@ -257,9 +202,6 @@ app.post("/api/enquiries", async (req, res) => {
     });
 
     await enquiry.save();
-
-    // Fire email notification — non-blocking, failure won't affect response
-    sendEnquiryEmail(enquiry);
 
     res.status(201).json({ success: true, data: enquiry });
   } catch (err) {
