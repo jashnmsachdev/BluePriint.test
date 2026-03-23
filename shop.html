@@ -543,6 +543,33 @@
     .modal-btn-wa { width: 100%; padding: 13px; background: #25d366; color: #fff; border: none; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: filter 0.2s; }
     .modal-btn-wa:hover { filter: brightness(1.08); }
 
+    /* Modal image navigation */
+    .modal-img { position: relative; background: var(--off); overflow: hidden; }
+    .modal-img-nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(255,255,255,0.92); border: none;
+      font-size: 22px; font-weight: 700; color: var(--blue);
+      cursor: pointer; z-index: 3;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 12px rgba(13,26,43,0.18);
+      transition: background 0.2s, transform 0.2s;
+    }
+    .modal-img-nav:hover { background: #fff; transform: translateY(-50%) scale(1.08); }
+    .modal-img-prev { left: 12px; }
+    .modal-img-next { right: 12px; }
+    .modal-img-dots {
+      position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px; z-index: 3;
+    }
+    .modal-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: rgba(255,255,255,0.5); cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .modal-dot.active { background: #fff; transform: scale(1.3); }
+    .modal-img img { transition: opacity 0.25s ease; }
+
     /* ─────────────────────────────────────────
        CUSTOM QUOTE BANNER
     ───────────────────────────────────────── */
@@ -759,17 +786,6 @@
       </div>
     </div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-title">Material</div>
-      <div class="filter-list">
-        <label class="filter-item"><input type="checkbox" checked/><span class="filter-check"></span><span class="filter-label">Flex / Vinyl</span></label>
-        <label class="filter-item"><input type="checkbox" checked/><span class="filter-check"></span><span class="filter-label">ACP / Aluminium</span></label>
-        <label class="filter-item"><input type="checkbox" checked/><span class="filter-check"></span><span class="filter-label">Acrylic</span></label>
-        <label class="filter-item"><input type="checkbox" checked/><span class="filter-check"></span><span class="filter-label">Canvas</span></label>
-        <label class="filter-item"><input type="checkbox" checked/><span class="filter-check"></span><span class="filter-label">LED / Light</span></label>
-      </div>
-    </div>
-
     <div style="text-align:center;">
       <span class="sidebar-clear" onclick="clearFilters()">✕ Clear all filters</span>
     </div>
@@ -899,9 +915,12 @@
 <!-- ── QUICK VIEW MODAL ── -->
 <div class="modal-overlay" id="quickViewModal" onclick="closeModal(event)">
   <div class="modal-box" id="modalBox">
-    <div class="modal-img">
-      <img id="modalImg" src="" alt=""/>
+    <div class="modal-img" id="modalImgWrap">
+      <img id="modalImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;"/>
       <button class="modal-close" onclick="closeModal()">✕</button>
+      <button class="modal-img-nav modal-img-prev" id="modalImgPrev" onclick="navModalImg(-1)" style="display:none;">‹</button>
+      <button class="modal-img-nav modal-img-next" id="modalImgNext" onclick="navModalImg(1)" style="display:none;">›</button>
+      <div class="modal-img-dots" id="modalImgDots"></div>
     </div>
     <div class="modal-body" id="modalBody">
       <!-- injected -->
@@ -930,6 +949,7 @@ let PRODUCTS_CACHE = [];
 
 // Filter/pagination state
 let activeCategory = 'all';
+let activeCategoryList = []; // empty = all; populated when sidebar checkboxes are used
 let activeBadge    = 'all';
 let activeSearch   = '';
 let currentView    = 'grid';
@@ -959,8 +979,11 @@ function saveCart() {
 async function fetchProducts(overrides = {}) {
   const params = new URLSearchParams();
 
-  // Category
-  const cat = overrides.cat ?? (activeCategory !== 'all' ? activeCategory : null);
+  // Category — if list has exactly 1 entry use it; otherwise no cat param (fetch all, filter client-side)
+  const cat = overrides.cat ?? (
+    activeCategoryList.length === 1 ? activeCategoryList[0]
+    : (activeCategoryList.length === 0 && activeCategory !== 'all' ? activeCategory : null)
+  );
   if (cat) params.set('cat', cat);
 
   // Badge
@@ -1118,13 +1141,18 @@ function renderCards(products, meta) {
     `<strong>${total}</strong> product${total !== 1 ? 's' : ''}`;
 
   // Normalise API field names (MongoDB uses _id; API may use category/description/image)
-  const norm = products.map(p => ({
+  let norm = products.map(p => ({
     ...p,
     id:   p.id   || p._id  || '',
     cat:  p.cat  || p.category || '',
     desc: p.desc || p.description || '',
     img:  p.img  || p.image || '',
   }));
+
+  // Client-side multi-category filter (when sidebar has 2+ cats selected)
+  if (activeCategoryList.length > 1) {
+    norm = norm.filter(p => activeCategoryList.includes(p.cat));
+  }
 
   grid.innerHTML = norm.map(p => `
     <div class="product-card reveal" data-id="${p.id}">
@@ -1211,11 +1239,47 @@ document.getElementById('catTabs').addEventListener('click', e => {
   document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
   activeCategory = tab.dataset.cat;
+  // Sync sidebar checkboxes: if a specific cat tab clicked, check only that; if 'all', check all
+  activeCategoryList = [];
+  document.querySelectorAll('#catFilters input[type="checkbox"]').forEach(cb => {
+    if (activeCategory === 'all') {
+      cb.checked = true;
+    } else {
+      cb.checked = (cb.dataset.cat === activeCategory);
+      if (cb.checked) activeCategoryList = [activeCategory];
+    }
+  });
   loadAndRender(true);
 });
 
 // Sort dropdown
 document.getElementById('sortSelect').addEventListener('change', () => loadAndRender(true));
+
+// Sidebar category checkboxes
+document.getElementById('catFilters').addEventListener('change', () => {
+  const allBoxes   = [...document.querySelectorAll('#catFilters input[type="checkbox"]')];
+  const checked    = allBoxes.filter(cb => cb.checked);
+
+  if (checked.length === 0 || checked.length === allBoxes.length) {
+    // None or all selected → show everything
+    activeCategoryList = [];
+    activeCategory     = 'all';
+    // Check all boxes so UI stays consistent
+    allBoxes.forEach(cb => { cb.checked = true; });
+  } else {
+    activeCategoryList = checked.map(cb => cb.dataset.cat);
+    activeCategory     = activeCategoryList.length === 1 ? activeCategoryList[0] : 'all';
+  }
+
+  // Sync toolbar tabs
+  document.querySelectorAll('.cat-tab').forEach(tab => {
+    const isAll     = activeCategoryList.length === 0;
+    const isSingle  = activeCategoryList.length === 1 && tab.dataset.cat === activeCategoryList[0];
+    tab.classList.toggle('active', (isAll && tab.dataset.cat === 'all') || isSingle);
+  });
+
+  loadAndRender(true);
+});
 
 // Badge filters
 document.querySelectorAll('.badge-filter').forEach(bf => {
@@ -1250,12 +1314,14 @@ function setView(v) {
    CLEAR FILTERS
 ══════════════════════════════════════════ */
 function clearFilters() {
-  activeCategory = 'all';
-  activeBadge    = 'all';
-  activeSearch   = '';
-  maxPrice       = 100000;
+  activeCategory     = 'all';
+  activeCategoryList = [];
+  activeBadge        = 'all';
+  activeSearch       = '';
+  maxPrice           = 100000;
   document.querySelectorAll('.cat-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
   document.querySelectorAll('.badge-filter').forEach((b, i) => b.classList.toggle('active', i === 0));
+  document.querySelectorAll('#catFilters input[type="checkbox"]').forEach(cb => { cb.checked = true; });
   document.getElementById('priceSlider').value = 100000;
   document.getElementById('priceMax').textContent = 'Any price';
   loadAndRender(true);
@@ -1389,6 +1455,32 @@ function checkoutWhatsApp() {
    QUICK VIEW MODAL (fetches from API)
 ══════════════════════════════════════════ */
 
+/* ══════════════════════════════════════════
+   QUICK VIEW MODAL — image gallery state
+══════════════════════════════════════════ */
+let modalImages = [];
+let modalImgIdx = 0;
+
+function navModalImg(dir) {
+  modalImgIdx = (modalImgIdx + dir + modalImages.length) % modalImages.length;
+  const imgEl = document.getElementById('modalImg');
+  imgEl.style.opacity = '0';
+  setTimeout(() => {
+    imgEl.src = modalImages[modalImgIdx];
+    imgEl.style.opacity = '1';
+  }, 120);
+  updateModalDots();
+}
+
+function updateModalDots() {
+  const dotsEl = document.getElementById('modalImgDots');
+  if (!dotsEl) return;
+  if (modalImages.length <= 1) { dotsEl.innerHTML = ''; return; }
+  dotsEl.innerHTML = modalImages.map((_, i) =>
+    `<span class="modal-dot${i === modalImgIdx ? ' active' : ''}" onclick="navModalImg(${i - modalImgIdx})"></span>`
+  ).join('');
+}
+
 async function openQuickView(id) {
   const modal = document.getElementById('quickViewModal');
   const imgEl = document.getElementById('modalImg');
@@ -1409,8 +1501,21 @@ async function openQuickView(id) {
 
   const norm = { ...p, cat: p.cat || p.category, desc: p.desc || p.description, img: p.img || p.image };
 
-  imgEl.src = norm.img;
+  // Build gallery — primary img + any extra images array, deduplicated
+  const extras = Array.isArray(norm.images) ? norm.images : [];
+  const allImgs = [norm.img, ...extras].filter(Boolean);
+  modalImages = [...new Set(allImgs)];
+  modalImgIdx = 0;
+
+  imgEl.src = modalImages[0];
   imgEl.alt = norm.name;
+  imgEl.style.opacity = '1';
+
+  // Show / hide navigation controls
+  const hasMany = modalImages.length > 1;
+  document.getElementById('modalImgPrev').style.display = hasMany ? 'flex' : 'none';
+  document.getElementById('modalImgNext').style.display = hasMany ? 'flex' : 'none';
+  updateModalDots();
 
   const badgeCls = norm.badge === 'sale' ? 'badge-sale' : norm.badge === 'new' ? 'badge-new' : 'badge-popular';
   const badgeColor = norm.badge === 'new' ? 'var(--blue)' : '#fff';
