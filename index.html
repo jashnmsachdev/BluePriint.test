@@ -879,30 +879,65 @@
     }
 
     /* ── CLIENTS ── */
-    .clients-section { padding: 56px 0 40px; border-top: 1px solid rgba(13,59,110,0.08); }
-    .clients-label { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey); margin-bottom: 36px; }
+    .clients-section { padding: 56px 0 48px; border-top: 1px solid rgba(13,59,110,0.08); }
+    .clients-label { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey); margin-bottom: 40px; }
     .clients-scroll { overflow: hidden; width: 100%; }
     .clients-track {
       display: flex;
       align-items: center;
-      gap: 56px;
+      gap: 0;
       width: max-content;
-      animation: clientScroll 28s linear infinite;
+      animation: clientScroll 30s linear infinite;
     }
     .clients-track:hover { animation-play-state: paused; }
+
     .client-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 140px;
+      height: 72px;
+      padding: 0 20px;
+      flex-shrink: 0;
+      position: relative;
+      cursor: default;
+      transition: all 0.3s;
+    }
+    .client-pill img {
+      max-width: 100px;
+      max-height: 38px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      filter: grayscale(100%) opacity(0.35);
+      transition: filter 0.35s ease, transform 0.3s ease;
+      display: block;
+    }
+    .client-pill:hover img {
+      filter: grayscale(0%) opacity(1);
+      transform: scale(1.08);
+    }
+    /* Fallback text shown only when image fails to load */
+    .client-pill .client-name {
       font-family: var(--serif);
-      font-size: 19px;
+      font-size: 15px;
       font-weight: 600;
-      color: rgba(13,59,110,0.25);
+      color: rgba(13,59,110,0.28);
       white-space: nowrap;
       transition: color 0.3s;
-      cursor: default;
-      display: flex;
-      align-items: center;
+      display: none; /* hidden by default, shown via JS onerror */
     }
-    .client-pill .client-name { color: inherit; }
-    .client-pill:hover { color: var(--blue); }
+    .client-pill:hover .client-name { color: var(--blue); }
+    /* Thin separator between pills */
+    .client-pill + .client-pill::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%;
+      width: 1px;
+      background: rgba(13,59,110,0.08);
+    }
+
     @keyframes clientScroll {
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
@@ -1557,34 +1592,37 @@
 
 <!-- ── CLIENTS ── -->
 <div class="clients-section">
-  <div class="clients-label">Trusted by brands across India</div>
+  <div class="clients-label">Trusted by leading brands across India</div>
   <div class="clients-scroll">
-    <div class="clients-track">
-      <div class="client-pill"><span class="client-name">Bajaj</span></div>
-      <div class="client-pill"><span class="client-name">Mother Dairy</span></div>
-      <div class="client-pill"><span class="client-name">Pepsi</span></div>
-      <div class="client-pill"><span class="client-name">Blackberry</span></div>
-      <div class="client-pill"><span class="client-name">Wella</span></div>
-      <div class="client-pill"><span class="client-name">Hero</span></div>
-      <div class="client-pill"><span class="client-name">Anchor</span></div>
-      <div class="client-pill"><span class="client-name">Aiwa</span></div>
-      <div class="client-pill"><span class="client-name">Valvoline</span></div>
-      <div class="client-pill"><span class="client-name">ISBF</span></div>
-      <div class="client-pill"><span class="client-name">Crystal</span></div>
-      <div class="client-pill"><span class="client-name">Affinity Express</span></div>
-      <!-- duplicate set for seamless loop -->
-      <div class="client-pill"><span class="client-name">Bajaj</span></div>
-      <div class="client-pill"><span class="client-name">Mother Dairy</span></div>
-      <div class="client-pill"><span class="client-name">Pepsi</span></div>
-      <div class="client-pill"><span class="client-name">Blackberry</span></div>
-      <div class="client-pill"><span class="client-name">Wella</span></div>
-      <div class="client-pill"><span class="client-name">Hero</span></div>
-      <div class="client-pill"><span class="client-name">Anchor</span></div>
-      <div class="client-pill"><span class="client-name">Aiwa</span></div>
-      <div class="client-pill"><span class="client-name">Valvoline</span></div>
-      <div class="client-pill"><span class="client-name">ISBF</span></div>
-      <div class="client-pill"><span class="client-name">Crystal</span></div>
-      <div class="client-pill"><span class="client-name">Affinity Express</span></div>
+    <div class="clients-track" id="clientsTrack">
+
+      <div class="client-pill"><img src="https://logo.clearbit.com/bajajauto.com"     alt="Bajaj"            onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Bajaj</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/motherdairy.com"   alt="Mother Dairy"     onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Mother Dairy</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/pepsi.com"          alt="Pepsi"            onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Pepsi</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/blackberry.com"    alt="Blackberry"       onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Blackberry</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/wella.com"          alt="Wella"            onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Wella</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/heromotocorp.com"  alt="Hero"             onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Hero</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/anchorbyjajaj.com" alt="Anchor"           onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Anchor</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/aiwa.com"           alt="Aiwa"             onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Aiwa</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/valvoline.com"     alt="Valvoline"        onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Valvoline</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/isbf.edu.in"       alt="ISBF"             onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">ISBF</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/affinityexpress.com" alt="Affinity Express" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Affinity Express</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/hpindia.com"       alt="HP"               onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">HP</span></div>
+
+      <!-- duplicate set for seamless infinite loop -->
+      <div class="client-pill"><img src="https://logo.clearbit.com/bajajauto.com"     alt="Bajaj"            onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Bajaj</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/motherdairy.com"   alt="Mother Dairy"     onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Mother Dairy</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/pepsi.com"          alt="Pepsi"            onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Pepsi</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/blackberry.com"    alt="Blackberry"       onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Blackberry</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/wella.com"          alt="Wella"            onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Wella</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/heromotocorp.com"  alt="Hero"             onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Hero</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/anchorbyjajaj.com" alt="Anchor"           onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Anchor</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/aiwa.com"           alt="Aiwa"             onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Aiwa</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/valvoline.com"     alt="Valvoline"        onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Valvoline</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/isbf.edu.in"       alt="ISBF"             onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">ISBF</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/affinityexpress.com" alt="Affinity Express" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">Affinity Express</span></div>
+      <div class="client-pill"><img src="https://logo.clearbit.com/hpindia.com"       alt="HP"               onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span class="client-name">HP</span></div>
+
     </div>
   </div>
 </div>
