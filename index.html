@@ -988,16 +988,17 @@
       gap: 12px;
     }
     .footer-bottom a { color: var(--blue-light); }
-    .footer-map {
-      margin: 32px -60px 0;
+
+    /* ── MAP EMBED (matches contact.html style) ── */
+    .footer-map-wrap {
+      margin-top: 20px;
+      border-radius: 14px;
       overflow: hidden;
-      border-top: 1px solid rgba(255,255,255,0.07);
-      opacity: 0.85;
-      transition: opacity 0.3s;
+      box-shadow: 0 4px 24px rgba(13,59,110,0.18);
+      border: 1px solid rgba(255,255,255,0.1);
     }
-    .footer-map:hover { opacity: 1; }
-    @media (max-width: 960px) {
-      .footer-map { margin: 28px -24px 0; }
+    .footer-map-wrap iframe {
+      display: block; width: 100%; height: 200px; border: none;
     }
 
     /* ── SCROLL REVEAL ── */
@@ -1657,18 +1658,15 @@
       <div class="footer-contact-item">📍 B-7, First Floor, Rama Road Industrial Area, New Delhi – 110015</div>
       <div class="footer-contact-item">📞 <a href="tel:+919717027607" style="color:rgba(255,255,255,0.6)">+91 9717027607</a></div>
       <div class="footer-contact-item">✉ <a href="/cdn-cgi/l/email-protection#1666647f786256747a637366647f7f7862387f78" style="color:rgba(255,255,255,0.6)"><span class="__cf_email__" data-cfemail="2454564d4a50644648514154564d4d4a500a4d4a">[email&#160;protected]</span></a></div>
+      <div class="footer-map-wrap">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3501.1853684465887!2d77.13146325364227!3d28.654167828942608!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d034f0440504d%3A0x1cc186e4ecc634c2!2sDEZHUB-%20LED%20SCREENS%20SIGNAGES%20NEONS%20SIGNS!5e0!3m2!1sen!2sin!4v1773584831045!5m2!1sen!2sin"
+          allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+          title="BluePriint Location — Rama Road, New Delhi">
+        </iframe>
+      </div>
     </div>
   </div>
-
-  <!-- ── GOOGLE MAPS ── -->
-  <div class="footer-map">
-    <iframe
-      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3501.1!2d77.1368!3d28.6524!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d03b5bcd6e1c1%3A0x6b8f4b2e9e3d7a5f!2sRama%20Road%20Industrial%20Area%2C%20New%20Delhi%2C%20Delhi%20110015!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
-      width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy"
-      referrerpolicy="no-referrer-when-downgrade" title="BluePriint Location — Rama Road, New Delhi">
-    </iframe>
-  </div>
-
   <div class="footer-bottom">
     <span>© 2024 BluePriint. All rights reserved.</span>
     <span>Made with ♥ in New Delhi</span>
