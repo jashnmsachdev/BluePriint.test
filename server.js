@@ -41,7 +41,7 @@ function requireAdminKey(req, res, next) {
     Cloudinary is used for image hosting in this project.
     ════════════════════════════════════════════ */
 
-    import { v2 as cloudinary } from 'cloudinary';
+const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
   cloud_name: 'dschflths',
