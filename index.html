@@ -879,13 +879,15 @@
     }
 
     /* ── CLIENTS ── */
-    .clients-section { padding: 64px 60px; border-top: 1px solid rgba(13,59,110,0.08); }
-    .clients-label { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey); margin-bottom: 40px; }
-    .clients-scroll { overflow: hidden; }
+    .clients-section { padding: 56px 0 40px; border-top: 1px solid rgba(13,59,110,0.08); }
+    .clients-label { text-align: center; font-size: 12px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey); margin-bottom: 36px; }
+    .clients-scroll { overflow: hidden; width: 100%; }
     .clients-track {
-      display: flex; gap: 56px;
-      animation: scroll 20s linear infinite;
+      display: flex;
+      align-items: center;
+      gap: 56px;
       width: max-content;
+      animation: clientScroll 28s linear infinite;
     }
     .clients-track:hover { animation-play-state: paused; }
     .client-pill {
@@ -896,62 +898,15 @@
       white-space: nowrap;
       transition: color 0.3s;
       cursor: default;
+      display: flex;
+      align-items: center;
     }
+    .client-pill .client-name { color: inherit; }
     .client-pill:hover { color: var(--blue); }
-    @keyframes scroll {
-      0%   { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
+    @keyframes clientScroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
     }
-    .client-pill{
-  position:relative;
-  width:120px;
-  height:60px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin-right:40px;
-}
-
-.client-pill img{
-  max-width:100px;
-  max-height:40px;
-  transition:all .4s ease;
-  filter:grayscale(100%);
-}
-
-.client-name{
-  position:absolute;
-  font-size:14px;
-  font-weight:600;
-  opacity:0;
-  transition:opacity .3s ease;
-  color:var(--blue);
-}
-
-/* hover reveal */
-.client-pill:hover img{
-  filter:grayscale(0%);
-  opacity:.25;
-}
-
-.client-pill:hover .client-name{
-  opacity:1;
-}
-    .clients-track{
-  display:flex;
-  align-items:center;
-  gap:40px;
-  width:max-content;
-  animation:clientScroll 28s linear infinite;
-}
-    @keyframes clientScroll{
-  from{
-    transform:translateX(0);
-  }
-  to{
-    transform:translateX(-50%);
-  }
-}
 
     /* ── CTA BANNER ── */
     .cta-banner {
@@ -1038,10 +993,145 @@
     .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.65s ease, transform 0.65s ease; }
     .reveal.up { opacity: 1; transform: translateY(0); }
 
+    /* ── HAMBURGER BUTTON ── */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 40px; height: 40px;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      background: none;
+      border: none;
+      flex-shrink: 0;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 22px; height: 2px;
+      background: var(--blue);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── MOBILE MENU OVERLAY ── */
+    .mobile-menu-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(13,26,43,0.55);
+      z-index: 198;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .mobile-menu-overlay.open { opacity: 1; }
+
+    /* ── MOBILE NAV DRAWER ── */
+    .mobile-menu {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: min(320px, 88vw);
+      background: #fff;
+      z-index: 199;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      box-shadow: -8px 0 40px rgba(13,26,43,0.14);
+    }
+    .mobile-menu.open { transform: translateX(0); }
+
+    .mobile-menu-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(13,59,110,0.1);
+      position: sticky; top: 0; background: #fff; z-index: 2;
+    }
+    .mobile-menu-logo { font-size: 20px; font-weight: 800; color: var(--blue); }
+    .mobile-menu-logo span { color: var(--blue-light); }
+    .mobile-menu-close {
+      width: 34px; height: 34px; border-radius: 8px; border: none;
+      background: var(--blue-pale); color: var(--blue);
+      font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mobile-menu-links {
+      list-style: none;
+      display: flex; flex-direction: column;
+      padding: 12px 0;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .mobile-menu-links li a {
+      display: flex; align-items: center;
+      padding: 13px 24px;
+      font-size: 15px; font-weight: 500;
+      color: var(--ink);
+      border-left: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    .mobile-menu-links li a:hover {
+      background: var(--blue-pale);
+      color: var(--blue);
+      border-left-color: var(--blue-light);
+    }
+    .mobile-menu-links .mm-shop a {
+      background: var(--blue-pale); color: var(--blue);
+      font-weight: 600; border-radius: 8px; margin: 6px 16px;
+      padding: 12px 16px; border: 1.5px solid rgba(26,95,168,0.2);
+    }
+    .mobile-menu-links .mm-cta a {
+      background: var(--blue-light); color: #fff !important;
+      font-weight: 700; border-radius: 8px; margin: 4px 16px;
+      padding: 13px 16px;
+    }
+    .mobile-menu-footer {
+      padding: 16px 24px;
+      border-top: 1px solid rgba(13,59,110,0.1);
+      font-size: 12.5px; color: var(--grey);
+    }
+
+    /* ── CLIENTS SECTION FIX ── */
+    .clients-section {
+      padding: 56px 0 40px;
+      border-top: 1px solid rgba(13,59,110,0.08);
+      overflow: hidden;    /* ← KEY: prevents the track from bleeding */
+    }
+    .clients-scroll { overflow: hidden; width: 100%; }
+
+    /* ── PRODUCT SKELETON (loading state) ── */
+    @keyframes shimmer {
+      0%   { background-position: -600px 0; }
+      100% { background-position:  600px 0; }
+    }
+    .product-skeleton {
+      flex: 0 0 260px;
+      scroll-snap-align: start;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(13,59,110,0.09);
+    }
+    .product-skeleton .sk-img  { height: 200px; }
+    .product-skeleton .sk-line {
+      border-radius: 4px;
+      background: linear-gradient(90deg, #e8f1fb 25%, #f4f7fc 50%, #e8f1fb 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    .product-skeleton .sk-body { padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 960px) {
-      nav, .topbar, .section, .process-section, .testi-section, .clients-section { padding-left: 24px; padding-right: 24px; }
+      nav, .topbar, .section, .process-section, .testi-section { padding-left: 24px; padding-right: 24px; }
       .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      .mobile-menu-overlay { display: block; pointer-events: none; }
+      .mobile-menu-overlay.open { pointer-events: auto; }
       .slide-content { padding: 0 32px; }
       .slider-arrows, .slider-dots { left: 32px; right: 32px; }
       .about-strip { grid-template-columns: 1fr; }
@@ -1057,6 +1147,13 @@
       .cta-banner { grid-template-columns: 1fr; padding: 56px 24px; }
       .footer-grid { grid-template-columns: 1fr 1fr; }
       .trust-bar { padding: 16px 24px; gap: 24px; }
+      .topbar { display: none; } /* hide topbar on mobile to save space */
+    }
+    @media (max-width: 600px) {
+      .footer-grid { grid-template-columns: 1fr; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .stats-bar { grid-template-columns: repeat(2,1fr); }
+      .services-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -1078,14 +1175,14 @@
 <div class="topbar">
   <span>📍 1, Lakshmi Garden, Opp. Metro Pillar No. 339, Moti Nagar, New Delhi – 110015 &nbsp;|&nbsp; Ramesh Nagar Metro Station</span>
   <div class="topbar-right">
-   <a href="mailto:dezhub@gmail.com">Send Email</a>
+   <a href="/cdn-cgi/l/email-protection#d9bdbca3b1acbb99beb4b8b0b5f7bab6b4">Send Email</a>
     <a href="tel:+919717027607">📞 +91 9717027607</a>
     <span>🕐 Mon–Fri 10:30–20:30 &nbsp;|&nbsp; Sat till 17:30</span>
   </div>
 </div>
 
 <!-- ── NAV ── -->
-<nav>
+<nav id="mainNav">
   <div class="nav-logo">Blue<span>Priint</span></div>
   <ul class="nav-links">
     <li><a href="index.html">Home</a></li>
@@ -1099,7 +1196,32 @@
     <li><a href="contact.html">Contact us</a></li>
     <li><a href="tel:+919717027607" class="nav-cta">📞 Call Now</a></li>
   </ul>
+  <button class="nav-hamburger" id="hamburgerBtn" aria-label="Open menu" onclick="toggleMobileMenu()">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- ── MOBILE MENU ── -->
+<div class="mobile-menu-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu-header">
+    <div class="mobile-menu-logo">Blue<span>Priint</span></div>
+    <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
+  </div>
+  <ul class="mobile-menu-links">
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="about.html">ℹ️ About Us</a></li>
+    <li><a href="#services">🔧 Services</a></li>
+    <li><a href="#">🏭 Infrastructure</a></li>
+    <li><a href="#">📸 Projects</a></li>
+    <li><a href="#">❓ FAQ</a></li>
+    <li><a href="#">📝 Blog</a></li>
+    <li><a href="contact.html">📬 Contact Us</a></li>
+    <li class="mm-shop"><a href="shop.html">🛒 Shop Online</a></li>
+    <li class="mm-cta"><a href="tel:+919717027607">📞 Call Now: +91 9717027607</a></li>
+  </ul>
+  <div class="mobile-menu-footer">📍 Rama Road Industrial Area, New Delhi – 110015</div>
+</div>
 
 <!-- ── HERO SLIDER ── -->
 <section class="hero" id="hero">
@@ -1422,94 +1544,36 @@
 </section>
 
 <!-- ── CLIENTS ── -->
-<div class="clients-track">
-
-  <div class="client-pill">
-    <img src="logos/bajaj.png" alt="Bajaj">
-    <span class="client-name">Bajaj</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="assets/images/brands/Mother dairy.jpg" alt="Mother-Dairy">
-    <span class="client-name">Mother Dairy</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="logos/pepsi.png" alt="Pepsi">
-    <span class="client-name">Pepsi</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="logos/motherdairy.png" alt="Mother Dairy">
-    <span class="client-name">Mother Dairy</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="logos/blackberry.png" alt="Blackberry">
-    <span class="client-name">Blackberry</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="logos/wella.png" alt="Wella">
-    <span class="client-name">Wella</span>
-  </div>
- <div class="client-pill">
-    <img src="logos/bajaj.png" alt="Bajaj">
-    <span class="client-name">Bajaj</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="assets/images/brands/Mother dairy.jpg" alt="Mother-Dairy">
-    <span class="client-name">Mother Dairy</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="logos/pepsi.png" alt="Pepsi">
-    <span class="client-name">Pepsi</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="logos/motherdairy.png" alt="Mother Dairy">
-    <span class="client-name">Mother Dairy</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="logos/blackberry.png" alt="Blackberry">
-    <span class="client-name">Blackberry</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="logos/wella.png" alt="Wella">
-    <span class="client-name">Wella</span>
-  </div>
-   <div class="client-pill">
-    <img src="logos/bajaj.png" alt="Bajaj">
-    <span class="client-name">Bajaj</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="assets/images/brands/Mother dairy.jpg" alt="Mother-Dairy">
-    <span class="client-name">Mother Dairy</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="logos/pepsi.png" alt="Pepsi">
-    <span class="client-name">Pepsi</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="logos/motherdairy.png" alt="Mother Dairy">
-    <span class="client-name">Mother Dairy</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="logos/blackberry.png" alt="Blackberry">
-    <span class="client-name">Blackberry</span>
-  </div>
-
-  <div class="client-pill">
-    <img src="logos/wella.png" alt="Wella">
-    <span class="client-name">Wella</span>
+<div class="clients-section">
+  <div class="clients-label">Trusted by brands across India</div>
+  <div class="clients-scroll">
+    <div class="clients-track">
+      <div class="client-pill"><span class="client-name">Bajaj</span></div>
+      <div class="client-pill"><span class="client-name">Mother Dairy</span></div>
+      <div class="client-pill"><span class="client-name">Pepsi</span></div>
+      <div class="client-pill"><span class="client-name">Blackberry</span></div>
+      <div class="client-pill"><span class="client-name">Wella</span></div>
+      <div class="client-pill"><span class="client-name">Hero</span></div>
+      <div class="client-pill"><span class="client-name">Anchor</span></div>
+      <div class="client-pill"><span class="client-name">Aiwa</span></div>
+      <div class="client-pill"><span class="client-name">Valvoline</span></div>
+      <div class="client-pill"><span class="client-name">ISBF</span></div>
+      <div class="client-pill"><span class="client-name">Crystal</span></div>
+      <div class="client-pill"><span class="client-name">Affinity Express</span></div>
+      <!-- duplicate set for seamless loop -->
+      <div class="client-pill"><span class="client-name">Bajaj</span></div>
+      <div class="client-pill"><span class="client-name">Mother Dairy</span></div>
+      <div class="client-pill"><span class="client-name">Pepsi</span></div>
+      <div class="client-pill"><span class="client-name">Blackberry</span></div>
+      <div class="client-pill"><span class="client-name">Wella</span></div>
+      <div class="client-pill"><span class="client-name">Hero</span></div>
+      <div class="client-pill"><span class="client-name">Anchor</span></div>
+      <div class="client-pill"><span class="client-name">Aiwa</span></div>
+      <div class="client-pill"><span class="client-name">Valvoline</span></div>
+      <div class="client-pill"><span class="client-name">ISBF</span></div>
+      <div class="client-pill"><span class="client-name">Crystal</span></div>
+      <div class="client-pill"><span class="client-name">Affinity Express</span></div>
+    </div>
   </div>
 </div>
 
@@ -1525,117 +1589,10 @@
 
   <div class="products-scroll-wrapper">
     <div class="products-row" id="productsRow">
-
-      <div class="product-card reveal" data-product-id="BP-001" data-sku="flex-banner-3x2">
-        <div class="product-img-wrap">
-          <span class="product-badge">Popular</span>
-          <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Printing/Backlit-Flex/3.jpg" alt="Backlit Flex Banner" loading="lazy"/>
-        </div>
-        <div class="product-info">
-          <div class="product-category">Printing</div>
-          <div class="product-name">Backlit Flex Banner</div>
-          <div class="product-desc">High-brightness backlit flex for shop fronts, malls and outdoor displays.</div>
-          <div class="product-price-row">
-            <span class="product-price">&#8377;850</span>
-            <span class="product-price-old">&#8377;1,100</span>
-          </div>
-        </div>
-        <div class="product-footer">
-          <button class="btn-buy-now" onclick="addToCart('BP-001')">Buy Now</button>
-        </div>
-      </div>
-
-      <div class="product-card reveal" data-product-id="BP-002" data-sku="acp-signboard-2x1">
-        <div class="product-img-wrap">
-          <span class="product-badge sale">Sale</span>
-          <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Signage Solutions/ACPSignage.JPG" alt="ACP Sign Board" loading="lazy"/>
-        </div>
-        <div class="product-info">
-          <div class="product-category">Signage</div>
-          <div class="product-name">ACP Fascia Sign Board</div>
-          <div class="product-desc">Durable aluminium composite panel signage for shops and offices.</div>
-          <div class="product-price-row">
-            <span class="product-price">&#8377;3,200</span>
-            <span class="product-price-old">&#8377;4,000</span>
-          </div>
-        </div>
-        <div class="product-footer">
-          <button class="btn-buy-now" onclick="addToCart('BP-002')">Buy Now</button>
-        </div>
-      </div>
-
-      <div class="product-card reveal" data-product-id="BP-003" data-sku="canvas-print-a1">
-        <div class="product-img-wrap">
-          <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Printing/canvas/3.jpg" alt="Canvas Print" loading="lazy"/>
-        </div>
-        <div class="product-info">
-          <div class="product-category">Printing</div>
-          <div class="product-name">Premium Canvas Print</div>
-          <div class="product-desc">Gallery-quality canvas prints for offices, showrooms and retail walls.</div>
-          <div class="product-price-row">
-            <span class="product-price">&#8377;1,200</span>
-          </div>
-        </div>
-        <div class="product-footer">
-          <button class="btn-buy-now" onclick="addToCart('BP-003')">Buy Now</button>
-        </div>
-      </div>
-
-      <div class="product-card reveal" data-product-id="BP-004" data-sku="one-way-vision-roll">
-        <div class="product-img-wrap">
-          <span class="product-badge">New</span>
-          <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Printing/one way vison/3.jpg" alt="One Way Vision" loading="lazy"/>
-        </div>
-        <div class="product-info">
-          <div class="product-category">Printing</div>
-          <div class="product-name">One Way Vision Film</div>
-          <div class="product-desc">See-through vinyl for glass facades — privacy outside, visibility inside.</div>
-          <div class="product-price-row">
-            <span class="product-price">&#8377;950</span>
-            <span class="product-price-old">&#8377;1,200</span>
-          </div>
-        </div>
-        <div class="product-footer">
-          <button class="btn-buy-now" onclick="addToCart('BP-004')">Buy Now</button>
-        </div>
-      </div>
-
-      <div class="product-card reveal" data-product-id="BP-005" data-sku="translite-clip-on">
-        <div class="product-img-wrap">
-          <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Internal Branding/Clip on translites/Picture30.jpg" alt="Clip-on Translite" loading="lazy"/>
-        </div>
-        <div class="product-info">
-          <div class="product-category">Internal Branding</div>
-          <div class="product-name">Clip-on Translite</div>
-          <div class="product-desc">Backlit translites for in-store branding, aisle displays and product promotions.</div>
-          <div class="product-price-row">
-            <span class="product-price">&#8377;2,400</span>
-          </div>
-        </div>
-        <div class="product-footer">
-          <button class="btn-buy-now" onclick="addToCart('BP-005')">Buy Now</button>
-        </div>
-      </div>
-
-      <div class="product-card reveal" data-product-id="BP-006" data-sku="acrylic-print-a2">
-        <div class="product-img-wrap">
-          <span class="product-badge sale">Sale</span>
-          <img src="https://blue-priint.github.io/assets/images/Bluepriint Images/Printing/Acrylic/3.jpg" alt="Acrylic Print" loading="lazy"/>
-        </div>
-        <div class="product-info">
-          <div class="product-category">Printing</div>
-          <div class="product-name">Acrylic UV Print</div>
-          <div class="product-desc">Vibrant, scratch-resistant UV prints on clear or white acrylic sheets.</div>
-          <div class="product-price-row">
-            <span class="product-price">&#8377;1,800</span>
-            <span class="product-price-old">&#8377;2,200</span>
-          </div>
-        </div>
-        <div class="product-footer">
-          <button class="btn-buy-now" onclick="addToCart('BP-006')">Buy Now</button>
-        </div>
-      </div>
-
+      <!-- Skeleton loaders shown while API warms up -->
+      <div class="product-skeleton"><div class="sk-img sk-line"></div><div class="sk-body"><div class="sk-line" style="height:10px;width:50%"></div><div class="sk-line" style="height:16px;width:85%"></div><div class="sk-line" style="height:12px;width:70%"></div><div class="sk-line" style="height:36px;border-radius:8px;"></div></div></div>
+      <div class="product-skeleton"><div class="sk-img sk-line"></div><div class="sk-body"><div class="sk-line" style="height:10px;width:50%"></div><div class="sk-line" style="height:16px;width:85%"></div><div class="sk-line" style="height:12px;width:70%"></div><div class="sk-line" style="height:36px;border-radius:8px;"></div></div></div>
+      <div class="product-skeleton"><div class="sk-img sk-line"></div><div class="sk-body"><div class="sk-line" style="height:10px;width:50%"></div><div class="sk-line" style="height:16px;width:85%"></div><div class="sk-line" style="height:12px;width:70%"></div><div class="sk-line" style="height:36px;border-radius:8px;"></div></div></div>
     </div>
   </div>
 
@@ -1698,70 +1655,183 @@
 </footer>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  // ── Slider ──
-  let current = 0;
-  const slides = document.querySelectorAll('.slide');
-  const dots   = document.querySelectorAll('.dot');
+/* ═══════════════════════════════════════════════════
+   A ── BACKEND WARM PING
+   Fires immediately on page load. Render free tier
+   spins down after 15 min of inactivity. This silent
+   ping starts the boot so the shop page is ready by
+   the time the user navigates there (~30–50 s boot).
+═══════════════════════════════════════════════════ */
+(function warmPingBackend() {
+  const API = 'https://bluepriint-test.onrender.com';
+  fetch(`${API}/api/products?limit=1`, { method: 'GET', mode: 'cors' })
+    .then(() => console.log('✅ Backend warm — ready for shop'))
+    .catch(() => console.log('⏳ Backend warming up…'));
+})();
 
-  function goSlide(n) {
-    slides[current].classList.remove('active');
-    dots[current].classList.remove('active');
-    current = (n + slides.length) % slides.length;
-    slides[current].classList.add('active');
-    dots[current].classList.add('active');
+/* ═══════════════════════════════════════════════════
+   B ── MOBILE MENU
+═══════════════════════════════════════════════════ */
+function toggleMobileMenu() {
+  const btn     = document.getElementById('hamburgerBtn');
+  const menu    = document.getElementById('mobileMenu');
+  const overlay = document.getElementById('mobileOverlay');
+  const isOpen  = menu.classList.contains('open');
+  if (isOpen) {
+    closeMobileMenu();
+  } else {
+    btn.classList.add('open');
+    menu.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
-  function nextSlide() { goSlide(current + 1); }
-  function prevSlide() { goSlide(current - 1); }
-  setInterval(nextSlide, 5500);
+}
+function closeMobileMenu() {
+  document.getElementById('hamburgerBtn').classList.remove('open');
+  document.getElementById('mobileMenu').classList.remove('open');
+  document.getElementById('mobileOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobileMenu(); });
 
-  // ── Scroll Reveal ──
-  const revealEls = document.querySelectorAll('.reveal');
-  const revealObs = new IntersectionObserver((entries) => {
-    entries.forEach((e, i) => {
-      if (e.isIntersecting) {
-        setTimeout(() => e.target.classList.add('up'), i * 80);
-        revealObs.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.08 });
-  revealEls.forEach(el => revealObs.observe(el));
+/* ═══════════════════════════════════════════════════
+   HERO SLIDER
+═══════════════════════════════════════════════════ */
+let current = 0;
+const slides = document.querySelectorAll('.slide');
+const dots   = document.querySelectorAll('.dot');
 
-  // ── Product carousel arrows ──
-  (function() {
-    const row  = document.getElementById('productsRow');
-    const prev = document.getElementById('prodPrev');
-    const next = document.getElementById('prodNext');
-    if (!row || !prev || !next) return;
-    const SCROLL_BY = 284;
-    next.addEventListener('click', () => { row.scrollBy({ left: SCROLL_BY, behavior: 'smooth' }); });
-    prev.addEventListener('click', () => { row.scrollBy({ left: -SCROLL_BY, behavior: 'smooth' }); });
-    let isDown = false, startX, scrollLeft;
-    row.addEventListener('mousedown',  e => { isDown = true; startX = e.pageX - row.offsetLeft; scrollLeft = row.scrollLeft; });
-    row.addEventListener('mouseleave', () => isDown = false);
-    row.addEventListener('mouseup',    () => isDown = false);
-    row.addEventListener('mousemove',  e => {
-      if (!isDown) return;
-      e.preventDefault();
-      row.scrollLeft = scrollLeft - (e.pageX - row.offsetLeft - startX);
-    });
-  })();
+function goSlide(n) {
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = (n + slides.length) % slides.length;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+function nextSlide() { goSlide(current + 1); }
+function prevSlide() { goSlide(current - 1); }
+setInterval(nextSlide, 5500);
 
-  // addToCart stub — wire to POST /api/cart later
-  function addToCart(productId) {
-    const card = document.querySelector('[data-product-id="' + productId + '"]');
-    if (!card) return;
-    const btn = card.querySelector('.btn-buy-now');
-    const orig = btn.textContent;
-    btn.textContent = '\u2713 Added!';
-    btn.style.background = '#22a06b';
-    setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1800);
-  }
-
-  // Nav shadow on scroll
-  window.addEventListener('scroll', () => {
-    document.querySelector('nav').style.boxShadow =
-      window.scrollY > 30 ? '0 4px 24px rgba(13,59,110,0.1)' : '0 2px 16px rgba(13,59,110,0.06)';
+/* ═══════════════════════════════════════════════════
+   SCROLL REVEAL
+═══════════════════════════════════════════════════ */
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('up'), i * 80);
+      revealObs.unobserve(e.target);
+    }
   });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ═══════════════════════════════════════════════════
+   PRODUCT CAROUSEL ARROWS + DRAG
+═══════════════════════════════════════════════════ */
+(function() {
+  const row  = document.getElementById('productsRow');
+  const prev = document.getElementById('prodPrev');
+  const next = document.getElementById('prodNext');
+  if (!row || !prev || !next) return;
+  const SCROLL_BY = 284;
+  next.addEventListener('click', () => row.scrollBy({ left:  SCROLL_BY, behavior: 'smooth' }));
+  prev.addEventListener('click', () => row.scrollBy({ left: -SCROLL_BY, behavior: 'smooth' }));
+  let isDown = false, startX, scrollLeft;
+  row.addEventListener('mousedown',  e => { isDown = true; startX = e.pageX - row.offsetLeft; scrollLeft = row.scrollLeft; });
+  row.addEventListener('mouseleave', () => isDown = false);
+  row.addEventListener('mouseup',    () => isDown = false);
+  row.addEventListener('mousemove',  e => {
+    if (!isDown) return;
+    e.preventDefault();
+    row.scrollLeft = scrollLeft - (e.pageX - row.offsetLeft - startX);
+  });
+})();
+
+/* ═══════════════════════════════════════════════════
+   C ── PRODUCTS FROM BACKEND API
+   Fetches top-6 products (newest sort). Falls back to
+   a static set if the API is still cold or fails.
+═══════════════════════════════════════════════════ */
+const API_BASE = 'https://bluepriint-test.onrender.com';
+
+const FALLBACK_PRODUCTS = [
+  { id:'bp-f1', name:'Backlit Flex Banner',   category:'Printing',          price:850,  oldPrice:1100, badge:'popular', image:'https://blue-priint.github.io/assets/images/Bluepriint%20Images/Printing/Backlit-Flex/3.jpg',         description:'High-brightness backlit flex for shop fronts, malls and outdoor displays.' },
+  { id:'bp-f2', name:'ACP Fascia Sign Board',  category:'Signage',           price:3200, oldPrice:4000, badge:'sale',    image:'https://blue-priint.github.io/assets/images/Bluepriint%20Images/Signage%20Solutions/ACPSignage.JPG',  description:'Durable aluminium composite panel signage for shops and offices.' },
+  { id:'bp-f3', name:'Premium Canvas Print',   category:'Printing',          price:1200, oldPrice:null, badge:null,      image:'https://blue-priint.github.io/assets/images/Bluepriint%20Images/Printing/canvas/3.jpg',               description:'Gallery-quality canvas prints for offices, showrooms and retail walls.' },
+  { id:'bp-f4', name:'One Way Vision Film',    category:'Printing',          price:950,  oldPrice:1200, badge:'new',     image:'https://blue-priint.github.io/assets/images/Bluepriint%20Images/Printing/one%20way%20vison/3.jpg',   description:'See-through vinyl for glass facades — privacy outside, visibility inside.' },
+  { id:'bp-f5', name:'Clip-on Translite',      category:'Internal Branding', price:2400, oldPrice:null, badge:null,      image:'https://blue-priint.github.io/assets/images/Bluepriint%20Images/Internal%20Branding/Clip%20on%20translites/Picture30.jpg', description:'Backlit translites for in-store branding and aisle displays.' },
+  { id:'bp-f6', name:'Acrylic UV Print',       category:'Printing',          price:1800, oldPrice:2200, badge:'sale',    image:'https://blue-priint.github.io/assets/images/Bluepriint%20Images/Printing/Acrylic/3.jpg',             description:'Vibrant, scratch-resistant UV prints on clear or white acrylic sheets.' },
+];
+
+/* D ── "ENQUIRE NOW" → WhatsApp
+   Opens WA with pre-filled message containing product
+   name, SKU and a polite enquiry. */
+function enquireProduct(name, sku) {
+  const msg = `Hi BluePriint 👋, I'm interested in *${name}*${sku ? ' (SKU: ' + sku + ')' : ''} and would like pricing & availability details. Please get back to me. Thank you!`;
+  window.open(`https://wa.me/919717027607?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+function badgeHTML(badge) {
+  if (!badge) return '';
+  const cls = badge === 'sale' ? ' sale' : badge === 'new' ? ' new' : '';
+  const lbl = badge.charAt(0).toUpperCase() + badge.slice(1);
+  return `<span class="product-badge${cls}">${lbl}</span>`;
+}
+
+function buildProductCard(p) {
+  const id  = p.id || p._id || '';
+  const sku = p.sku || '';
+  const img = p.image || p.img || '';
+  const cat = p.category || p.cat || '';
+  const desc = (p.description || p.desc || '').slice(0, 90) + ((p.description||p.desc||'').length > 90 ? '…' : '');
+  const price    = Number(p.price).toLocaleString('en-IN');
+  const oldPrice = p.oldPrice ? `<span class="product-price-old">&#8377;${Number(p.oldPrice).toLocaleString('en-IN')}</span>` : '';
+
+  return `
+  <div class="product-card reveal" data-product-id="${id}" data-sku="${sku}">
+    <div class="product-img-wrap">
+      ${badgeHTML(p.badge)}
+      <img src="${img}" alt="${p.name}" loading="lazy"
+        onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'260\' height=\'200\'%3E%3Crect fill=\'%23e8f1fb\' width=\'260\' height=\'200\'/%3E%3C/svg%3E'"/>
+    </div>
+    <div class="product-info">
+      <div class="product-category">${cat}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-desc">${desc}</div>
+      <div class="product-price-row">
+        <span class="product-price">&#8377;${price}</span>
+        ${oldPrice}
+      </div>
+    </div>
+    <div class="product-footer">
+      <button class="btn-buy-now" onclick="enquireProduct('${p.name.replace(/'/g,"\\'")}','${sku}')">💬 Enquire Now</button>
+    </div>
+  </div>`;
+}
+
+async function loadFeaturedProducts() {
+  const row = document.getElementById('productsRow');
+  try {
+    const res  = await fetch(`${API_BASE}/api/products?limit=6&sort=newest`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    const products = json.data && json.data.length ? json.data : FALLBACK_PRODUCTS;
+    row.innerHTML = products.map(buildProductCard).join('');
+  } catch (err) {
+    console.warn('API not ready, using fallback products:', err.message);
+    row.innerHTML = FALLBACK_PRODUCTS.map(buildProductCard).join('');
+  }
+  // Re-observe new cards for scroll reveal
+  row.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+}
+
+loadFeaturedProducts();
+
+/* ═══════════════════════════════════════════════════
+   NAV SHADOW ON SCROLL
+═══════════════════════════════════════════════════ */
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').style.boxShadow =
+    window.scrollY > 10 ? '0 4px 28px rgba(13,59,110,0.13)' : '0 2px 16px rgba(13,59,110,0.06)';
+});
 </script>
-</body>
-</html>
