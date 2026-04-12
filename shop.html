@@ -1055,7 +1055,10 @@ async function fetchProducts(overrides = {}) {
 async function fetchProductById(id) {
   // Try cache first (match on both id and _id to handle MongoDB docs)
   const cached = PRODUCTS_CACHE.find(p => p.id === id || p._id === id);
-  if (cached) return cached;
+  if (cached) {
+    // Ensure variants is always an array even if cache entry predates the field
+    return { ...cached, variants: Array.isArray(cached.variants) ? cached.variants : [] };
+  }
 
   try {
     const res = await fetch(`${API_BASE}/api/products/${id}`);
@@ -1064,8 +1067,13 @@ async function fetchProductById(id) {
     // Support both { success, data } envelope and bare object responses
     const product = json.success ? json.data : (json._id || json.id ? json : null);
     if (!product) return null;
-    // Normalise MongoDB _id → id
-    return { ...product, id: product.id || product._id };
+    // Normalise MongoDB _id → id and guarantee variants array
+    return {
+      ...product,
+      id:       product.id || product._id,
+      variants: Array.isArray(product.variants) ? product.variants : [],
+      images:   Array.isArray(product.images)   ? product.images   : [],
+    };
   } catch (err) {
     console.error('[BP Shop] Single product fetch failed:', err);
     return null;
@@ -1128,7 +1136,14 @@ async function loadAndRender(resetPage = false) {
   // Populate cache for cart / quick-view lookups (normalise _id → id for MongoDB docs)
   products.forEach(p => {
     const id = p.id || p._id;
-    if (id && !PRODUCTS_CACHE.find(c => c.id === id)) PRODUCTS_CACHE.push({ ...p, id });
+    if (id && !PRODUCTS_CACHE.find(c => c.id === id)) {
+      PRODUCTS_CACHE.push({
+        ...p,
+        id,
+        variants: Array.isArray(p.variants) ? p.variants : [],
+        images:   Array.isArray(p.images)   ? p.images   : [],
+      });
+    }
   });
 
   renderCards(products, meta);
