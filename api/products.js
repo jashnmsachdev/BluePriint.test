@@ -59,6 +59,17 @@ let PRODUCTS = [
       '48-hour express turnaround',
     ],
     image: IMG + 'Printing/Backlit-Flex/3.jpg',
+    images: [],          // additional gallery images (Quick View carousel)
+    variants: [],        // variant options — see schema note below
+    /* VARIANT SCHEMA EXAMPLE (remove this comment in production):
+    variants: [
+      { type: 'Material', label: 'Standard Flex', price: 850,  oldPrice: 1100, images: [] },
+      { type: 'Material', label: 'Premium Flex',  price: 1100, oldPrice: null, images: [] },
+      { type: 'Size',     label: '3×2 ft',        price: 850,  images: [] },
+      { type: 'Size',     label: '6×4 ft',        price: 1600, images: [] },
+      // For Color variants add a `color` hex: { type: 'Color', label: 'Blue', color: '#1a5fa8', price: 850, images: ['url'] }
+    ],
+    */
     stock: 'in_stock',
     active: true,
     createdAt: '2024-01-10T08:00:00Z',
@@ -645,7 +656,7 @@ function setCORS(req, res) {
     : allowedOrigins[0];
 
   res.setHeader('Access-Control-Allow-Origin',  allow);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key, Authorization');
   res.setHeader('Access-Control-Max-Age',       '86400');
   res.setHeader('Vary',                         'Origin');
@@ -774,6 +785,17 @@ function validateUpdate(body) {
 
   if (body.active !== undefined && typeof body.active !== 'boolean')
     errors.push('active must be a boolean');
+
+  // variants — array of { type, label, price?, oldPrice?, color?, images? }
+  if (body.variants !== undefined && !Array.isArray(body.variants))
+    errors.push('variants must be an array');
+
+  // images — array of additional image URLs (gallery)
+  if (body.images !== undefined && !Array.isArray(body.images))
+    errors.push('images must be an array of URL strings');
+
+  // workNotes — free-text field set by employees; no format restriction
+  // (no validation needed — any string is valid)
 
   return errors;
 }
@@ -921,6 +943,8 @@ export default function handler(req, res) {
       tags:        Array.isArray(body.tags)     ? body.tags     : [],
       features:    Array.isArray(body.features) ? body.features : [],
       image:       (body.image || '').trim(),
+      images:      Array.isArray(body.images)   ? body.images   : [],
+      variants:    Array.isArray(body.variants) ? body.variants : [],
       stock:       body.stock || 'in_stock',
       active:      body.active !== false,
       createdAt:   now(),
@@ -971,6 +995,35 @@ export default function handler(req, res) {
     });
   }
 
+  // ── PATCH (partial update — workNotes, status, etc.) ─────
+  if (method === 'PATCH') {
+    if (!isAuthorised(req))
+      return send(res, 401, { success: false, error: 'Unauthorised — valid x-admin-key required' });
+
+    const targetId = query.id;
+    if (!targetId)
+      return send(res, 400, { success: false, error: 'Query param "id" is required for PATCH' });
+
+    const index = PRODUCTS.findIndex((p) => p.id === targetId);
+    if (index === -1)
+      return send(res, 404, { success: false, error: `Product "${targetId}" not found` });
+
+    // Only allow safe partial fields — strip immutable ones
+    const { id: _id, createdAt: _ca, ...patch } = body || {};
+
+    PRODUCTS[index] = {
+      ...PRODUCTS[index],
+      ...patch,
+      updatedAt: now(),
+    };
+
+    return send(res, 200, {
+      success: true,
+      message: 'Product patched',
+      data:    PRODUCTS[index],
+    });
+  }
+
   // ── DELETE ───────────────────────────────────────────────
   if (method === 'DELETE') {
     if (!isAuthorised(req))
@@ -997,7 +1050,7 @@ export default function handler(req, res) {
   return send(res, 405, {
     success: false,
     error:   `Method "${method}" is not supported on this endpoint`,
-    allowed: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowed: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 }
 
