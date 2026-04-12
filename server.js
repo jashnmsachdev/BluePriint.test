@@ -53,10 +53,27 @@ cloudinary.config({
 ════════════════════════════════════════════════════════════ */
 
 /* ── PRODUCT ──────────────────────────────────────────────
-   `image`  → primary/cover photo (used by shop card + cart)
-   `images` → additional gallery photos (used by Quick View
-               left/right carousel added in shop.html)
+   `image`    → primary/cover photo (used by shop card + cart)
+   `images`   → additional gallery photos (Quick View carousel)
+   `variants` → array of selectable options shown in Quick View
+                each variant: { type, label, price?, oldPrice?,
+                                color?, images? }
+   `active`   → soft-delete flag (false = hidden from shop)
 ─────────────────────────────────────────────────────────── */
+
+/* Variant sub-schema — kept flexible so any type string works */
+const VariantSchema = new mongoose.Schema(
+  {
+    type:     { type: String, required: true, trim: true }, // "Color" | "Size" | "Material" | etc.
+    label:    { type: String, required: true, trim: true }, // "Blue" | "3×2 ft" | "Acrylic"
+    price:    { type: Number, default: null },              // overrides base price when selected
+    oldPrice: { type: Number, default: null },              // crossed-out price for this variant
+    color:    { type: String, default: null },              // hex string for color-swatch chip
+    images:   { type: [String], default: [] },             // variant-specific gallery images
+  },
+  { _id: false } // embedded — no separate _id needed
+);
+
 const ProductSchema = new mongoose.Schema(
   {
     name:        { type: String, required: true, trim: true },
@@ -64,13 +81,15 @@ const ProductSchema = new mongoose.Schema(
     oldPrice:    { type: Number, default: null },
     category:    { type: String, required: true, trim: true },
     description: { type: String, default: "" },
-    image:       { type: String, default: "" },   // primary photo
-    images:      { type: [String], default: [] }, // extra gallery photos
+    image:       { type: String, default: "" },        // primary photo
+    images:      { type: [String], default: [] },      // extra gallery photos
+    variants:    { type: [VariantSchema], default: [] }, // Quick View variant chips
     badge:       { type: String, enum: ["popular", "sale", "new", "custom", null], default: null },
     tags:        { type: [String], default: [] },
     features:    { type: [String], default: [] },
     sku:         { type: String, default: "", trim: true },
     stock:       { type: String, default: "In Stock" },
+    active:      { type: Boolean, default: true },     // false = hidden from shop listing
   },
   {
     timestamps: true,
@@ -108,6 +127,7 @@ const OrderSchema = new mongoose.Schema(
       default: "offline",
     },
     notes:     { type: String, default: "" },
+    workNotes: { type: String, default: "" }, // employee-facing production notes (not shown in revenue views)
     orderDate: { type: Date, default: Date.now },
   },
   {
@@ -221,6 +241,12 @@ app.get("/api/products", async (req, res) => {
     if (maxPrice) filter.price    = { $lte: Number(maxPrice) };
     if (q)        filter.$text    = { $search: q };
 
+    // Hide inactive products from the shop by default.
+    // Admin can pass ?active=all to see everything (used by dashboard).
+    if (req.query.active !== "all") {
+      filter.active = { $ne: false };
+    }
+
     const sortMap = {
       newest:     { createdAt: -1 },
       price_asc:  { price:     1  },
@@ -284,6 +310,25 @@ app.put("/api/products/:id", requireAdminKey, async (req, res) => {
     res.json({ success: true, data: product });
   } catch (err) {
     console.error("PUT /api/products/:id error:", err);
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// PATCH /api/products/:id  — partial update (variants, active flag, workNotes, etc.)
+//   Safer than PUT for single-field changes — only touches fields sent in body.
+app.patch("/api/products/:id", requireAdminKey, async (req, res) => {
+  try {
+    // Strip immutable fields so callers can't accidentally overwrite _id / createdAt
+    const { _id, createdAt, ...patch } = req.body;
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $set: patch },
+      { new: true, runValidators: true }
+    ).lean();
+    if (!product) return res.status(404).json({ success: false, error: "Product not found" });
+    res.json({ success: true, data: product });
+  } catch (err) {
+    console.error("PATCH /api/products/:id error:", err);
     res.status(400).json({ success: false, error: err.message });
   }
 });
@@ -366,6 +411,25 @@ app.put("/api/orders/:id", requireAdminKey, async (req, res) => {
     res.json({ success: true, data: order });
   } catch (err) {
     console.error("PUT /api/orders/:id error:", err);
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// PATCH /api/orders/:id  — partial update (workNotes, status, etc.)
+//   Used by the employee dashboard to save work notes without
+//   resending the full order object.
+app.patch("/api/orders/:id", requireAdminKey, async (req, res) => {
+  try {
+    const { _id, createdAt, orderId, ...patch } = req.body; // orderId is immutable
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { $set: patch },
+      { new: true, runValidators: true }
+    ).lean();
+    if (!order) return res.status(404).json({ success: false, error: "Order not found" });
+    res.json({ success: true, data: order });
+  } catch (err) {
+    console.error("PATCH /api/orders/:id error:", err);
     res.status(400).json({ success: false, error: err.message });
   }
 });
@@ -645,7 +709,9 @@ app.get("/api/stats", async (req, res) => {
 
 /* ════════════════════════════════════════════════════════════
    🧪  SEED ROUTE  —  GET /api/seed
-   One-time sample data. Visit once, then remove or protect.
+   Inserts the full 6-product starter catalogue with variants.
+   Visit once, then protect or remove this route in production.
+   Skips automatically if products already exist in the DB.
 ════════════════════════════════════════════════════════════ */
 app.get("/api/seed", async (req, res) => {
   try {
@@ -653,48 +719,134 @@ app.get("/api/seed", async (req, res) => {
     if (existing > 0) {
       return res.json({
         success: false,
-        message: `DB already has ${existing} products — seeding skipped.`,
+        message: `DB already has ${existing} products — seeding skipped. Pass ?force=1 to re-seed.`,
       });
     }
 
+    const IMG = "https://blue-priint.github.io/assets/images/Bluepriint%20Images/";
+
     const sampleProducts = [
       {
-        name: "Backlit Flex Banner",
-        price: 85, oldPrice: 110,
+        name: "Backlit Flex Banner", sku: "flex-banner",
+        price: 850, oldPrice: 1100,
         category: "Printing", badge: "popular",
-        description: "High-quality backlit flex for illuminated signage boards.",
-        image:  "https://blue-priint.github.io/assets/images/Bluepriint%20Images/Printing/Backlit-Flex/3.jpg",
-        images: [],
-        tags: ["flex", "backlit", "banner"],
-        features: ["UV-resistant ink", "Glossy finish", "Custom sizes"],
-        sku: "PRT-BLF-001",
+        description: "High-brightness backlit flex for shop fronts, malls and outdoor displays. UV-resistant ink that glows brilliantly at night.",
+        image:  IMG + "Printing/Backlit-Flex/3.jpg",
+        images: [IMG + "Printing/Backlit-Flex/3.jpg"],
+        tags: ["Flex", "Backlit", "UV Print"],
+        features: ["Available in all custom sizes", "UV-resistant weatherproof ink", "48-hour express turnaround"],
+        variants: [
+          { type: "Material", label: "Standard Flex", price: 850,  oldPrice: 1100, images: [IMG + "Printing/Backlit-Flex/3.jpg"] },
+          { type: "Material", label: "Premium Flex",  price: 1100, oldPrice: null, images: [IMG + "Printing/Backlit-Flex/3.jpg"] },
+          { type: "Size", label: "3×2 ft",  price: 850,  images: [] },
+          { type: "Size", label: "6×4 ft",  price: 1400, images: [] },
+          { type: "Size", label: "10×5 ft", price: 2200, images: [] },
+        ],
+        stock: "in_stock", active: true,
       },
       {
-        name: "ACP Signage Board",
-        price: 320,
+        name: "ACP Fascia Sign Board", sku: "acp-signboard",
+        price: 3200, oldPrice: 4000,
+        category: "Signage", badge: "sale",
+        description: "Durable aluminium composite panel signage for shops, offices and commercial spaces. Professional finish that lasts years.",
+        image:  IMG + "Signage%20Solutions/ACPSignage.JPG",
+        images: [IMG + "Signage%20Solutions/ACPSignage.JPG"],
+        tags: ["ACP", "Aluminium", "Fascia"],
+        features: ["Weather-resistant ACP panel", "Custom shape & size fabrication", "LED backlit options available"],
+        variants: [
+          { type: "Finish", label: "Matte White",  color: "#f0f0f0", price: 3200, oldPrice: 4000, images: [IMG + "Signage%20Solutions/ACPSignage.JPG"] },
+          { type: "Finish", label: "Gloss Black",  color: "#1a1a1a", price: 3500, oldPrice: 4200, images: [IMG + "Signage%20Solutions/ACPSignage.JPG"] },
+          { type: "Finish", label: "Brushed Gold", color: "#c9a84c", price: 4200, oldPrice: 5000, images: [IMG + "Signage%20Solutions/ACPSignage.JPG"] },
+          { type: "Size", label: "3×1 ft",  price: 3200, images: [] },
+          { type: "Size", label: "6×2 ft",  price: 5800, images: [] },
+          { type: "Size", label: "10×3 ft", price: 9500, images: [] },
+        ],
+        stock: "in_stock", active: true,
+      },
+      {
+        name: "Acrylic UV Print", sku: "acrylic-uv-print",
+        price: 1800, oldPrice: 2200,
+        category: "Printing", badge: "sale",
+        description: "Vibrant, scratch-resistant UV prints on clear or white acrylic. The premium choice for brand displays.",
+        image:  IMG + "Printing/Acrylic/3.jpg",
+        images: [IMG + "Printing/Acrylic/3.jpg"],
+        tags: ["Acrylic", "UV Print", "Scratch-Resistant"],
+        features: ["Crystal-clear acrylic substrate", "Scratch & fade resistant", "Standoff or flush mounting"],
+        variants: [
+          { type: "Material", label: "Clear Acrylic",  color: "#d6eeff", price: 1800, oldPrice: 2200, images: [IMG + "Printing/Acrylic/3.jpg"] },
+          { type: "Material", label: "White Acrylic",  color: "#ffffff", price: 1800, oldPrice: 2200, images: [IMG + "Printing/Acrylic/3.jpg"] },
+          { type: "Material", label: "Black Acrylic",  color: "#1a1a1a", price: 2000, oldPrice: 2400, images: [IMG + "Printing/Acrylic/3.jpg"] },
+          { type: "Thickness", label: "3mm", price: 1800, images: [] },
+          { type: "Thickness", label: "5mm", price: 2100, images: [] },
+          { type: "Thickness", label: "8mm", price: 2600, images: [] },
+        ],
+        stock: "in_stock", active: true,
+      },
+      {
+        name: "3D LED Facade Sign", sku: "facade-3d-led",
+        price: 8500, oldPrice: null,
+        category: "Signage", badge: "popular",
+        description: "Dramatic illuminated facade signs with 3D LED letters that transform storefronts into landmark destinations after dark.",
+        image:  IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg",
+        images: [IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg"],
+        tags: ["3D LED", "Facade", "Channel Letters"],
+        features: ["Custom 3D letter fabrication", "RGB or single-colour LED", "Includes installation & wiring"],
+        variants: [
+          { type: "LED Color", label: "Warm White", color: "#ffe4b5", price: 8500,  images: [IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg"] },
+          { type: "LED Color", label: "Cool White", color: "#e8f4ff", price: 8500,  images: [IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg"] },
+          { type: "LED Color", label: "RGB Color",  color: "#9b59b6", price: 10500, images: [IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg"] },
+          { type: "Material", label: "Acrylic Face",  price: 8500,  images: [] },
+          { type: "Material", label: "SS Metal Face", price: 12000, images: [] },
+        ],
+        stock: "in_stock", active: true,
+      },
+      {
+        name: "Neon Flex LED Sign", sku: "neon-flex-sign",
+        price: 4500, oldPrice: 5500,
         category: "Signage", badge: "new",
-        description: "Aluminium composite panel signs for shops and offices.",
-        image:  "https://blue-priint.github.io/assets/images/Bluepriint%20Images/Printing/Backlit-Flex/3.jpg",
-        images: [],
-        tags: ["ACP", "metal", "signboard"],
-        features: ["3mm ACP sheet", "Digital print overlay", "Weatherproof"],
-        sku: "SGN-ACP-001",
+        description: "Custom neon flex LED signs for restaurants, retail and office interiors. Warm glow, low power consumption.",
+        image:  IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg",
+        images: [IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg"],
+        tags: ["Neon", "LED", "Custom Shape"],
+        features: ["Custom shape bending", "Energy-efficient LED neon", "Indoor & outdoor versions"],
+        variants: [
+          { type: "Color", label: "Warm White", color: "#ffe4b5", price: 4500, oldPrice: 5500, images: [] },
+          { type: "Color", label: "Neon Red",   color: "#ff3b3b", price: 4500, oldPrice: 5500, images: [] },
+          { type: "Color", label: "Neon Blue",  color: "#2980d9", price: 4500, oldPrice: 5500, images: [] },
+          { type: "Color", label: "Neon Green", color: "#22a06b", price: 4500, oldPrice: 5500, images: [] },
+          { type: "Color", label: "RGB",        color: "#9b59b6", price: 5800, oldPrice: 7000, images: [] },
+          { type: "Mount", label: "Indoor",  price: 4500, images: [] },
+          { type: "Mount", label: "Outdoor", price: 5500, images: [] },
+        ],
+        stock: "in_stock", active: true,
       },
       {
-        name: "LED Glow Sign Board",
-        price: 1200, oldPrice: 1500,
-        category: "LED Screens", badge: "sale",
-        description: "Custom LED neon or channel-letter glow sign boards.",
-        image:  "https://blue-priint.github.io/assets/images/Bluepriint%20Images/Printing/Backlit-Flex/3.jpg",
-        images: [],
-        tags: ["LED", "glow", "neon"],
-        features: ["Energy efficient", "Long life LEDs", "IP65 weatherproof"],
-        sku: "LED-GLW-001",
+        name: "Vinyl Wall Wrap", sku: "vinyl-wall-wrap",
+        price: 560, oldPrice: null,
+        category: "Printing", badge: null,
+        description: "Full-colour adhesive vinyl wall graphics for offices, retail showrooms and hospitality spaces. Easy to apply and remove.",
+        image:  IMG + "Printing/one%20way%20vison/3.jpg",
+        images: [IMG + "Printing/one%20way%20vison/3.jpg"],
+        tags: ["Vinyl", "Wall Graphics", "Office"],
+        features: ["Air-release adhesive vinyl", "Repositionable up to 24 hrs", "Matte or gloss finish"],
+        variants: [
+          { type: "Finish", label: "Matte",    color: "#e0e0e0", price: 560, images: [] },
+          { type: "Finish", label: "Gloss",    color: "#b0d0ff", price: 560, images: [] },
+          { type: "Finish", label: "Textured", color: "#c8b89a", price: 680, images: [] },
+          { type: "Size", label: "Per sq.ft", price: 560,  images: [] },
+          { type: "Size", label: "10×8 ft",   price: 4200, images: [] },
+          { type: "Size", label: "Full wall",  price: 8500, images: [] },
+        ],
+        stock: "in_stock", active: true,
       },
     ];
 
     await Product.insertMany(sampleProducts);
-    res.json({ success: true, message: `${sampleProducts.length} sample products seeded.` });
+    res.json({
+      success: true,
+      message: `${sampleProducts.length} products seeded with variants.`,
+      ids: sampleProducts.map(p => p.sku),
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
