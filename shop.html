@@ -510,7 +510,6 @@
     }
     .modal-overlay.open .modal-box { transform: scale(1); }
     .modal-img { position: relative; background: var(--off); display: flex; align-items: center; justify-content: center; }
-    .modal-img img { width: 100%; height: 100%; object-fit: contain; }
     .modal-body { padding: 36px 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
     .modal-close {
       position: absolute; top: 14px; right: 14px;
@@ -542,31 +541,6 @@
     .modal-btn-add:hover { background: var(--blue-light); }
     .modal-btn-wa { width: 100%; padding: 13px; background: #25d366; color: #fff; border: none; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: filter 0.2s; }
     .modal-btn-wa:hover { filter: brightness(1.08); }
-
-    /* ── VARIANT SELECTOR ── */
-    .modal-variants { display: flex; flex-direction: column; gap: 12px; }
-    .variant-group { display: flex; flex-direction: column; gap: 7px; }
-    .variant-type-label {
-      font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--grey);
-    }
-    .variant-type-label span { font-weight: 600; color: var(--ink); margin-left: 6px; letter-spacing: 0; text-transform: none; font-size: 12.5px; }
-    .variant-options { display: flex; flex-wrap: wrap; gap: 7px; }
-    .variant-chip {
-      padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
-      border: 1.5px solid var(--grey-light); background: #fff; color: var(--ink);
-      cursor: pointer; transition: all 0.18s; user-select: none;
-    }
-    .variant-chip:hover { border-color: var(--blue-light); color: var(--blue); background: var(--blue-pale); }
-    .variant-chip.active {
-      background: var(--blue); color: #fff; border-color: var(--blue);
-      box-shadow: 0 2px 10px rgba(13,59,110,0.22);
-    }
-    .variant-chip.color-chip { display: flex; align-items: center; gap: 7px; }
-    .variant-color-swatch {
-      width: 13px; height: 13px; border-radius: 50%;
-      border: 1.5px solid rgba(0,0,0,0.12); flex-shrink: 0;
-    }
 
     /* Modal image navigation */
     .modal-img { position: relative; background: var(--off); overflow: hidden; display: flex; align-items: center; justify-content: center; }
@@ -669,6 +643,35 @@
       .products-grid { grid-template-columns: 1fr; }
       .cart-drawer { width: 100vw; }
       .footer-grid { grid-template-columns: 1fr; }
+    }
+    /* ─────────────────────────────────────────
+       VARIANT SELECTOR (Quick View)
+    ───────────────────────────────────────── */
+    .modal-variants { display: flex; flex-direction: column; gap: 14px; }
+    .variant-group  { display: flex; flex-direction: column; gap: 8px; }
+    .variant-type-label {
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--grey);
+    }
+    .variant-type-label .vl-selected {
+      font-weight: 600; color: var(--ink);
+      margin-left: 6px; letter-spacing: 0;
+      text-transform: none; font-size: 12.5px;
+    }
+    .variant-options { display: flex; flex-wrap: wrap; gap: 7px; }
+    .variant-chip {
+      padding: 6px 14px; border-radius: 6px;
+      font-size: 13px; font-weight: 500; font-family: var(--sans);
+      border: 1.5px solid var(--grey-light); background: #fff; color: var(--ink);
+      cursor: pointer; transition: all 0.18s; user-select: none;
+    }
+    .variant-chip:hover  { border-color: var(--blue-light); color: var(--blue); background: var(--blue-pale); }
+    .variant-chip.active { background: var(--blue); color: #fff; border-color: var(--blue); box-shadow: 0 2px 10px rgba(13,59,110,0.22); }
+    .variant-chip.color-chip { display: flex; align-items: center; gap: 7px; }
+    .variant-color-swatch {
+      width: 13px; height: 13px; border-radius: 50%;
+      border: 1.5px solid rgba(0,0,0,0.12); flex-shrink: 0;
+      display: inline-block;
     }
   </style>
 </head>
@@ -941,7 +944,7 @@
 <div class="modal-overlay" id="quickViewModal" onclick="closeModal(event)">
   <div class="modal-box" id="modalBox">
     <div class="modal-img" id="modalImgWrap">
-      <img id="modalImg" src="" alt="" style="width:100%;height:100%;object-fit:contain;"/>
+      <img id="modalImg" src="" alt="" style="width:100%;height:100%;object-fit:contain;transition:opacity 0.25s ease;"/>
       <button class="modal-close" onclick="closeModal()">✕</button>
       <button class="modal-img-nav modal-img-prev" id="modalImgPrev" onclick="navModalImg(-1)" style="display:none;">‹</button>
       <button class="modal-img-nav modal-img-next" id="modalImgNext" onclick="navModalImg(1)" style="display:none;">›</button>
@@ -1477,11 +1480,7 @@ function checkoutWhatsApp() {
 }
 
 /* ══════════════════════════════════════════
-   QUICK VIEW MODAL (fetches from API)
-══════════════════════════════════════════ */
-
-/* ══════════════════════════════════════════
-   QUICK VIEW MODAL — image gallery state
+   QUICK VIEW — gallery state
 ══════════════════════════════════════════ */
 let modalImages = [];
 let modalImgIdx = 0;
@@ -1509,68 +1508,49 @@ function updateModalDots() {
 /* ══════════════════════════════════════════
    QUICK VIEW — variant state
 ══════════════════════════════════════════ */
-let _qvProduct = null;          // full product object for current quick view
-let _qvSelectedVariants = {};   // { "Color": "Blue", "Material": "Acrylic" }
+let _qvProduct = null;          // full normalised product for active quick view
+let _qvSelected = {};           // { "Color": "Blue", "Material": "Glass" }
 
-/**
- * Group variants array by their `type` field.
- * variants: [{ type, label, price, images, color? }]
- * Returns: { Color: [...], Material: [...], Size: [...] }
- */
-function groupVariantsByType(variants) {
-  const groups = {};
+/** Group variants array by their `type` field */
+function _groupVariants(variants) {
+  const g = {};
   (variants || []).forEach(v => {
-    if (!groups[v.type]) groups[v.type] = [];
-    groups[v.type].push(v);
+    if (!g[v.type]) g[v.type] = [];
+    g[v.type].push(v);
   });
-  return groups;
+  return g;
 }
 
-/**
- * Get the best-matching variant given current selections.
- * Priority: an entry whose type+label match any active selection.
- * Falls back to first variant in the first group.
- */
-function getActiveVariant(variants) {
+/** Return the best-matching variant object for current selections, or first variant */
+function _activeVariant(variants) {
   if (!variants || !variants.length) return null;
-  // Try to find one that matches ALL current selections
-  const selEntries = Object.entries(_qvSelectedVariants);
-  if (selEntries.length) {
-    const match = variants.find(v =>
-      selEntries.some(([type, label]) => v.type === type && v.label === label)
-    );
+  const entries = Object.entries(_qvSelected);
+  if (entries.length) {
+    const match = variants.find(v => entries.some(([t, l]) => v.type === t && v.label === l));
     if (match) return match;
   }
   return variants[0];
 }
 
-/** Update modal price display */
-function updateModalPrice(price, oldPrice) {
-  const priceEl = document.getElementById('modalPriceLive');
-  const oldEl   = document.getElementById('modalOldPriceLive');
-  if (priceEl) priceEl.textContent = `₹${price.toLocaleString('en-IN')}`;
-  if (oldEl)   oldEl.textContent   = oldPrice ? `₹${oldPrice.toLocaleString('en-IN')}` : '';
-}
-
-/** Update modal gallery to show only variant-specific images (or all if no variant) */
-function applyVariantImages(variant, baseImg, allImages) {
+/** Swap gallery images based on selected variant (falls back to product-level images) */
+function _applyVariantImages(variant, baseImgs) {
   let imgs;
   if (variant && Array.isArray(variant.images) && variant.images.length) {
-    imgs = variant.images;
+    imgs = variant.images.filter(u => u && !u.startsWith('#'));
   } else if (variant && variant.image) {
     imgs = [variant.image];
   } else {
-    imgs = allImages;
+    imgs = baseImgs;
   }
   modalImages = [...new Set(imgs.filter(Boolean))];
-  if (!modalImages.length) modalImages = allImages;  // safety fallback
-  modalImgIdx = 0;
+  if (!modalImages.length) modalImages = baseImgs;
 
   const imgEl = document.getElementById('modalImg');
   if (imgEl) {
     imgEl.style.opacity = '0';
-    setTimeout(() => { imgEl.src = modalImages[0]; imgEl.style.opacity = '1'; }, 120);
+    setTimeout(() => { imgEl.src = modalImages[0] || ''; imgEl.style.opacity = '1'; }, 120);
   }
+  modalImgIdx = 0;
   const hasMany = modalImages.length > 1;
   const prev = document.getElementById('modalImgPrev');
   const next = document.getElementById('modalImgNext');
@@ -1579,106 +1559,120 @@ function applyVariantImages(variant, baseImg, allImages) {
   updateModalDots();
 }
 
-/** Called when user clicks a variant chip */
+/** Called when a variant chip is clicked */
 function selectVariant(type, label) {
-  _qvSelectedVariants[type] = label;
+  _qvSelected[type] = label;
 
-  // Re-render chips to reflect new active state
-  const groups = groupVariantsByType(_qvProduct.variants);
-  Object.keys(groups).forEach(t => {
-    groups[t].forEach(v => {
-      const el = document.querySelector(`.variant-chip[data-type="${t}"][data-label="${v.label}"]`);
-      if (!el) return;
-      el.classList.toggle('active', t === type ? v.label === label : _qvSelectedVariants[t] === v.label);
-    });
+  // Re-style all chips for this type
+  document.querySelectorAll(`.variant-chip[data-type="${type}"]`).forEach(el => {
+    el.classList.toggle('active', el.dataset.label === label);
   });
-
-  // Update type label to show selection
-  const labelEl = document.querySelector(`.variant-type-label[data-type="${type}"] span`);
+  // Update the inline "selected" label text
+  const labelEl = document.querySelector(`.variant-type-label[data-type="${type}"] .vl-selected`);
   if (labelEl) labelEl.textContent = label;
 
-  // Find matching variant and update price + images
-  const activeVariant = getActiveVariant(_qvProduct.variants);
-  if (activeVariant) {
-    const baseImg = _qvProduct.img || _qvProduct.image;
-    const extras  = Array.isArray(_qvProduct.images) ? _qvProduct.images : [];
-    const allImgs = [baseImg, ...extras].filter(Boolean);
-    applyVariantImages(activeVariant, baseImg, allImgs);
-    updateModalPrice(activeVariant.price ?? _qvProduct.price, activeVariant.oldPrice ?? _qvProduct.oldPrice);
+  // Update price + gallery for the now-active variant
+  const av = _activeVariant(_qvProduct.variants);
+  if (av) {
+    const base = _buildBaseImgs(_qvProduct);
+    _applyVariantImages(av, base);
+    _updateModalPrice(av.price ?? _qvProduct.price, av.oldPrice ?? _qvProduct.oldPrice);
   }
 }
 
-/** Build variant selector HTML for modal body */
-function buildVariantHTML(variants) {
+/** Update the price elements in the modal body */
+function _updateModalPrice(price, oldPrice) {
+  const p = document.getElementById('modalPriceLive');
+  const o = document.getElementById('modalOldPriceLive');
+  if (p) p.textContent = `₹${Number(price).toLocaleString('en-IN')}`;
+  if (o) o.textContent = oldPrice ? `₹${Number(oldPrice).toLocaleString('en-IN')}` : '';
+}
+
+/** Collect base images from product (primary + images[] array) */
+function _buildBaseImgs(norm) {
+  const extras = Array.isArray(norm.images) ? norm.images : [];
+  return [norm.img, ...extras].filter(Boolean);
+}
+
+/** Build variant selector HTML block */
+function _buildVariantHTML(variants) {
   if (!variants || !variants.length) return '';
-  const groups = groupVariantsByType(variants);
-  const isColor = type => /color|colour/i.test(type);
+  const groups = _groupVariants(variants);
+  const isColor = t => /colou?r/i.test(t);
 
   return `<div class="modal-variants">${
-    Object.entries(groups).map(([type, options]) => {
-      const firstSelected = _qvSelectedVariants[type] || options[0].label;
-      return `
-        <div class="variant-group">
-          <div class="variant-type-label" data-type="${type}">${type}:<span>${firstSelected}</span></div>
-          <div class="variant-options">
-            ${options.map(v => {
-              const active = (firstSelected === v.label) ? ' active' : '';
-              if (isColor(type) && v.color) {
-                return `<button class="variant-chip color-chip${active}" data-type="${type}" data-label="${v.label}" onclick="selectVariant('${type}','${v.label}')">
-                  <span class="variant-color-swatch" style="background:${v.color};"></span>${v.label}
-                </button>`;
-              }
-              return `<button class="variant-chip${active}" data-type="${type}" data-label="${v.label}" onclick="selectVariant('${type}','${v.label}')">${v.label}</button>`;
-            }).join('')}
-          </div>
-        </div>`;
+    Object.entries(groups).map(([type, opts]) => {
+      // Seed default selection to first option
+      if (!_qvSelected[type]) _qvSelected[type] = opts[0].label;
+      const sel = _qvSelected[type];
+
+      const chips = opts.map(v => {
+        const active = sel === v.label ? ' active' : '';
+        if (isColor(type) && v.color) {
+          return `<button class="variant-chip color-chip${active}" data-type="${type}" data-label="${v.label}" onclick="selectVariant('${type}','${v.label}')">
+            <span class="variant-color-swatch" style="background:${v.color};"></span>${v.label}
+          </button>`;
+        }
+        return `<button class="variant-chip${active}" data-type="${type}" data-label="${v.label}" onclick="selectVariant('${type}','${v.label}')">${v.label}</button>`;
+      }).join('');
+
+      return `<div class="variant-group">
+        <div class="variant-type-label" data-type="${type}">${type}:<span class="vl-selected">${sel}</span></div>
+        <div class="variant-options">${chips}</div>
+      </div>`;
     }).join('')
   }</div>`;
 }
 
+/* ══════════════════════════════════════════
+   QUICK VIEW — open
+══════════════════════════════════════════ */
 async function openQuickView(id) {
   const modal = document.getElementById('quickViewModal');
   const imgEl = document.getElementById('modalImg');
   const body  = document.getElementById('modalBody');
 
-  // Reset variant state
-  _qvProduct = null;
-  _qvSelectedVariants = {};
+  // Reset variant state for this opening
+  _qvProduct  = null;
+  _qvSelected = {};
 
-  // Show loading state immediately
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
   imgEl.src = '';
   body.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--grey);">Loading…</div>`;
 
   const p = await fetchProductById(id);
-
   if (!p) {
     body.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--red);">⚠ Could not load product details.</div>`;
     return;
   }
 
-  const norm = { ...p, cat: p.cat || p.category, desc: p.desc || p.description, img: p.img || p.image };
+  // Normalise field names (API uses category/description/image; cache uses cat/desc/img)
+  const norm = {
+    ...p,
+    id:   p.id   || p._id  || id,
+    cat:  p.cat  || p.category    || '',
+    desc: p.desc || p.description || '',
+    img:  p.img  || p.image       || '',
+    variants: Array.isArray(p.variants) ? p.variants : [],
+  };
   _qvProduct = norm;
 
-  // Seed default variant selections (first option of each type)
-  if (norm.variants && norm.variants.length) {
-    const groups = groupVariantsByType(norm.variants);
-    Object.entries(groups).forEach(([type, opts]) => {
-      _qvSelectedVariants[type] = opts[0].label;
-    });
-  }
+  // Seed default variant selections
+  const groups = _groupVariants(norm.variants);
+  Object.entries(groups).forEach(([type, opts]) => {
+    _qvSelected[type] = opts[0].label;
+  });
 
-  // Determine active variant for initial images + price
-  const activeVariant = getActiveVariant(norm.variants);
-  const extras  = Array.isArray(norm.images) ? norm.images : [];
-  const allImgs = [norm.img, ...extras].filter(Boolean);
+  // Determine active variant and starting images
+  const av       = _activeVariant(norm.variants);
+  const baseImgs = _buildBaseImgs(norm);
 
-  // Build gallery
-  if (activeVariant && Array.isArray(activeVariant.images) && activeVariant.images.length) {
-    modalImages = [...new Set(activeVariant.images.filter(Boolean))];
+  if (av && Array.isArray(av.images) && av.images.length) {
+    modalImages = [...new Set(av.images.filter(u => u && !u.startsWith('#')))];
+    if (!modalImages.length) modalImages = baseImgs;
   } else {
-    modalImages = [...new Set(allImgs)];
+    modalImages = [...new Set(baseImgs)];
   }
   modalImgIdx = 0;
 
@@ -1686,14 +1680,14 @@ async function openQuickView(id) {
   imgEl.alt = norm.name;
   imgEl.style.opacity = '1';
 
-  // Show / hide navigation controls
   const hasMany = modalImages.length > 1;
   document.getElementById('modalImgPrev').style.display = hasMany ? 'flex' : 'none';
   document.getElementById('modalImgNext').style.display = hasMany ? 'flex' : 'none';
   updateModalDots();
 
-  const displayPrice    = activeVariant ? (activeVariant.price    ?? norm.price)    : norm.price;
-  const displayOldPrice = activeVariant ? (activeVariant.oldPrice ?? norm.oldPrice) : norm.oldPrice;
+  // Resolve display price from active variant or base product
+  const displayPrice    = av ? (av.price    ?? norm.price)    : norm.price;
+  const displayOldPrice = av ? (av.oldPrice ?? norm.oldPrice) : norm.oldPrice;
 
   const badgeCls   = norm.badge === 'sale' ? 'badge-sale' : norm.badge === 'new' ? 'badge-new' : 'badge-popular';
   const badgeColor = norm.badge === 'new' ? 'var(--blue)' : '#fff';
@@ -1704,10 +1698,12 @@ async function openQuickView(id) {
     <div class="modal-name">${norm.name}</div>
     <div class="modal-desc">${norm.desc}</div>
     <ul class="modal-features">${(norm.features || []).map(f => `<li>${f}</li>`).join('')}</ul>
-    ${buildVariantHTML(norm.variants)}
+    ${norm.variants.length ? _buildVariantHTML(norm.variants) : ''}
     <div class="modal-price-row">
-      <span class="modal-price" id="modalPriceLive">₹${displayPrice.toLocaleString('en-IN')}</span>
-      ${displayOldPrice ? `<span class="modal-price-old" id="modalOldPriceLive">₹${displayOldPrice.toLocaleString('en-IN')}</span>` : '<span id="modalOldPriceLive"></span>'}
+      <span class="modal-price" id="modalPriceLive">₹${Number(displayPrice).toLocaleString('en-IN')}</span>
+      ${displayOldPrice
+        ? `<span class="modal-price-old" id="modalOldPriceLive">₹${Number(displayOldPrice).toLocaleString('en-IN')}</span>`
+        : `<span id="modalOldPriceLive"></span>`}
     </div>
     <div style="font-size:12px;color:var(--grey);">Price per sq.ft / unit — final quote based on size &amp; quantity</div>
     <div class="modal-qty-row">
@@ -1720,7 +1716,7 @@ async function openQuickView(id) {
     </div>
     <div class="modal-actions">
       <button class="modal-btn-add" onclick="addToCart('${norm.id}');closeModal()">Add to Enquiry Cart</button>
-      <a href="https://wa.me/919717027607?text=Hi%20BluePriint%2C%20I%27m%20interested%20in%20${encodeURIComponent(norm.name)}%20(SKU:%20${norm.sku})%20—%20please%20send%20me%20pricing%20and%20details." target="_blank" class="modal-btn-wa">💬 Ask on WhatsApp</a>
+      <a href="https://wa.me/919717027607?text=Hi%20BluePriint%2C%20I%27m%20interested%20in%20${encodeURIComponent(norm.name)}%20(SKU:%20${norm.sku || ''})%20—%20please%20send%20me%20pricing%20and%20details." target="_blank" class="modal-btn-wa">💬 Ask on WhatsApp</a>
     </div>
   `;
 }
