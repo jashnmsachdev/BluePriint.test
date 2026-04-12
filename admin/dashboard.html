@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script>
-  const key = prompt("Enter Admin Password");
-
-  if (key !== "j3") {
-    alert("Wrong password");
-    window.location.href = "/";
-  }
-</script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard — BluePriint</title>
@@ -578,9 +570,149 @@
     .api-status.error { background: var(--red-pale); color: var(--red); border-color: #f5b3b3; }
     .api-status.loading { background: #fff8e1; color: var(--orange); border-color: #ffe08a; }
     .api-status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    /* ═══════════════════════════════════════
+       LOGIN SCREEN
+    ═══════════════════════════════════════ */
+    #loginScreen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--sidebar-bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 0;
+    }
+    #loginScreen.hidden { display: none; }
+    .login-box {
+      background: #0f2440; border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 20px; padding: 44px 48px; width: 100%; max-width: 440px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+    }
+    .login-logo {
+      font-size: 26px; font-weight: 800; color: #fff; letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .login-logo span { color: var(--blue-light); }
+    .login-sub { font-size: 12px; color: rgba(255,255,255,0.3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 36px; }
+    .login-label { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.45); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+    .login-input {
+      width: 100%; padding: 13px 16px;
+      background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 9px; font-size: 15px; font-family: var(--sans); color: #fff;
+      outline: none; transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 20px; letter-spacing: 0.08em;
+    }
+    .login-input:focus { border-color: var(--blue-light); background: rgba(255,255,255,0.09); }
+    .login-input::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 0; }
+    .login-btn {
+      width: 100%; padding: 14px; background: var(--blue-light); color: #fff;
+      border: none; border-radius: 9px; font-size: 14.5px; font-weight: 700;
+      font-family: var(--sans); cursor: pointer; transition: background 0.2s, transform 0.15s;
+      margin-bottom: 12px;
+    }
+    .login-btn:hover { background: var(--blue-mid); transform: translateY(-1px); }
+    .login-error {
+      font-size: 13px; color: #ff7676; text-align: center;
+      margin-top: 4px; min-height: 20px; font-weight: 500;
+    }
+    .login-roles {
+      display: flex; gap: 10px; margin-top: 24px; padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .login-role-pill {
+      flex: 1; padding: 10px 14px; border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.08);
+      text-align: center; font-size: 11.5px; cursor: pointer;
+      transition: all 0.2s; user-select: none;
+    }
+    .login-role-pill .lrp-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+    .login-role-pill .lrp-name { font-weight: 700; color: rgba(255,255,255,0.7); display: block; }
+    .login-role-pill .lrp-desc { color: rgba(255,255,255,0.3); font-size: 10.5px; display: block; margin-top: 2px; }
+    .login-role-pill.selected { border-color: var(--blue-light); background: rgba(41,128,217,0.15); }
+    .login-role-pill.selected .lrp-name { color: #fff; }
+
+    /* ═══════════════════════════════════════
+       EMPLOYEE ACCESS CONTROLS
+    ═══════════════════════════════════════ */
+    /* Elements hidden for employees */
+    body.role-employee .root-only { display: none !important; }
+    /* Money values replaced with lock icon for employees */
+    body.role-employee .money-value::after { content: '🔒 Hidden'; font-size: 13px; color: var(--grey); font-weight: 600; }
+    body.role-employee .money-value > * { display: none !important; }
+    body.role-employee .money-value { position: relative; }
+
+    /* Employee access banner */
+    .employee-banner {
+      display: none;
+      background: linear-gradient(90deg, #1a3a5c, #0d3b6e);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 10px 32px; font-size: 12.5px; color: rgba(255,255,255,0.65);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .employee-banner strong { color: var(--gold); }
+    body.role-employee .employee-banner { display: flex; }
+    body.role-root     .employee-banner { display: none; }
+
+    /* Employee-mode note panel on orders */
+    .employee-note-panel {
+      background: #fff8e1; border: 1.5px solid #ffe08a; border-radius: 9px;
+      padding: 14px 18px; margin-bottom: 16px; font-size: 13px; color: #7a5c00;
+      display: none; align-items: center; gap: 10px;
+    }
+    body.role-employee .employee-note-panel { display: flex; }
+
+    /* Variant builder CSS */
+    .variant-section { margin-top: 4px; }
+    .variant-list { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+    .variant-row {
+      display: grid; grid-template-columns: 110px 1fr 100px 100px 1fr 32px;
+      gap: 8px; align-items: center;
+      background: var(--off); border-radius: 8px; padding: 10px 12px;
+      border: 1px solid var(--border);
+    }
+    .variant-row input, .variant-row select { padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 7px; font-size: 12.5px; font-family: var(--sans); background: #fff; color: var(--ink); outline: none; width: 100%; }
+    .variant-row input:focus, .variant-row select:focus { border-color: var(--blue-light); }
+    .variant-del-btn { width: 32px; height: 32px; border: none; border-radius: 7px; background: var(--red-pale); color: var(--red); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .variant-del-btn:disabled { opacity: 0.3; cursor: default; }
+    .variant-col-head { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey); padding: 0 2px; }
+
+    /* Work notes on order rows (employee) */
+    .work-note-row { display: none; }
+    body.role-employee .work-note-row { display: table-row; }
+    .work-note-cell { background: #f0f6ff; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+    .work-note-input { width: 100%; border: 1.5px solid var(--border); border-radius: 7px; padding: 7px 12px; font-family: var(--sans); font-size: 13px; background: #fff; color: var(--ink); resize: none; min-height: 40px; outline: none; }
+    .work-note-input:focus { border-color: var(--blue-light); }
+    .work-note-save { margin-top: 6px; padding: 6px 14px; background: var(--blue); color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
   </style>
 </head>
 <body>
+
+<!-- ══════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Blue<span>Priint</span></div>
+    <div class="login-sub">Admin Panel · Secure Access</div>
+
+    <div class="login-roles">
+      <div class="login-role-pill selected" id="roleRoot" onclick="selectRole('root')">
+        <span class="lrp-icon">🔑</span>
+        <span class="lrp-name">Root Admin</span>
+        <span class="lrp-desc">Full access</span>
+      </div>
+      <div class="login-role-pill" id="roleEmployee" onclick="selectRole('employee')">
+        <span class="lrp-icon">👤</span>
+        <span class="lrp-name">Employee</span>
+        <span class="lrp-desc">Work view only</span>
+      </div>
+    </div>
+
+    <div style="height:28px;"></div>
+    <div class="login-label">Password</div>
+    <input class="login-input" id="loginPass" type="password" placeholder="Enter password…"
+      onkeydown="if(event.key==='Enter') doLogin()"/>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
 
 <!-- ── SIDEBAR ── -->
 <aside class="sidebar" id="sidebar">
@@ -638,18 +770,25 @@
 
   <div class="sidebar-footer">
     <div class="sidebar-user">
-      <div class="sidebar-avatar">A</div>
+      <div class="sidebar-avatar" id="sidebarAvatar">A</div>
       <div>
-        <div class="sidebar-user-name">Admin</div>
-        <div class="sidebar-user-role">BluePriint HQ</div>
+        <div class="sidebar-user-name" id="sidebarUserName">Admin</div>
+        <div class="sidebar-user-role" id="sidebarUserRole">BluePriint HQ</div>
       </div>
-      <button class="sidebar-logout-btn" title="Sign out" onclick="showToast('Signing out…','')">⎋</button>
+      <button class="sidebar-logout-btn" title="Sign out" onclick="logout()">⎋</button>
     </div>
   </div>
 </aside>
 
 <!-- ── MAIN ── -->
 <div class="main">
+
+  <!-- Employee access banner -->
+  <div class="employee-banner">
+    <span>👤</span>
+    <span>You are signed in as <strong>Employee</strong> — financial data and editing controls are hidden. You can view work status and add notes.</span>
+    <button onclick="logout()" style="margin-left:auto;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:6px 14px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;">Sign Out</button>
+  </div>
 
   <!-- TOPBAR -->
   <div class="topbar">
@@ -670,8 +809,8 @@
       </button>
       <button class="tb-icon-btn" title="View website" onclick="window.open('index.html')">🌐</button>
       <div class="tb-admin">
-        <div class="tb-avatar">A</div>
-        <span class="tb-admin-name">Admin</span>
+        <div class="tb-avatar" id="tbAvatar">A</div>
+        <span class="tb-admin-name" id="tbAdminName">Admin</span>
       </div>
     </div>
   </div>
@@ -691,11 +830,11 @@
           <div class="stat-value" id="stat-total-orders">—</div>
           <div class="stat-delta" id="stat-orders-delta"><span style="color:var(--grey);font-weight:400">Loading…</span></div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card root-only">
           <div class="stat-card-accent" style="background:var(--green)"></div>
           <div class="stat-icon">💰</div>
           <div class="stat-label">Monthly Revenue</div>
-          <div class="stat-value" id="stat-monthly-revenue">—</div>
+          <div class="stat-value money-value" id="stat-monthly-revenue"><span>—</span></div>
           <div class="stat-delta" id="stat-revenue-delta"><span style="color:var(--grey);font-weight:400">Loading…</span></div>
         </div>
         <div class="stat-card">
@@ -716,7 +855,7 @@
 
       <!-- Charts -->
       <div class="charts-row">
-        <div class="card">
+        <div class="card root-only">
           <div class="card-header">
             <div>
               <div class="card-title">Revenue Overview</div>
@@ -769,7 +908,7 @@
             <table class="data-table" style="margin-top:8px;">
               <thead>
                 <tr>
-                  <th>Order</th><th>Customer</th><th>Product</th><th>Value</th><th>Status</th>
+                  <th>Order</th><th>Customer</th><th>Product</th><th class="root-only">Value</th><th>Status</th>
                 </tr>
               </thead>
               <tbody id="recentOrdersBody"></tbody>
@@ -802,11 +941,14 @@
             <div class="card-sub">Manage and track customer orders</div>
           </div>
           <div style="display:flex;gap:10px;">
-            <button class="btn-secondary" onclick="showToast('Export ready — orders.csv','success')">⬇ Export CSV</button>
-            <button class="btn-primary" onclick="openOrderModal()">+ Add Order</button>
+            <button class="btn-secondary root-only" onclick="showToast('Export ready — orders.csv','success')">⬇ Export CSV</button>
+            <button class="btn-primary root-only" onclick="openOrderModal()">+ Add Order</button>
           </div>
         </div>
         <div class="card-body" style="padding-top:0;">
+          <div class="employee-note-panel">
+            📋 <strong>Employee View:</strong>&nbsp; You can see order status and add work notes. Financial values and editing tools are hidden.
+          </div>
           <div class="table-controls">
             <div class="table-search">
               <span>🔍</span>
@@ -824,7 +966,7 @@
           </div>
           <table class="data-table">
             <thead>
-              <tr><th>#Order</th><th>Customer</th><th>Product</th><th>Qty</th><th>Value</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+              <tr><th>#Order</th><th>Customer</th><th>Product</th><th>Qty</th><th class="root-only">Value</th><th>Date</th><th>Status</th><th>Actions</th></tr>
             </thead>
             <tbody id="ordersTableBody"></tbody>
           </table>
@@ -853,8 +995,8 @@
             <option>Printing</option><option>Signage</option><option>LED Screens</option>
             <option>Internal Branding</option><option>OOH</option><option>BTL</option>
           </select>
-          <button class="btn-secondary" onclick="showToast('Exported enquiries.csv','success')">⬇ Export</button>
-          <button class="btn-primary" onclick="openEnquiryModal()">+ Add Enquiry</button>
+          <button class="btn-secondary root-only" onclick="showToast('Exported enquiries.csv','success')">⬇ Export</button>
+          <button class="btn-primary root-only" onclick="openEnquiryModal()">+ Add Enquiry</button>
         </div>
       </div>
       <div class="enquiry-grid" id="enquiryGrid"></div>
@@ -869,8 +1011,8 @@
             <div class="card-sub">24 products across 7 categories</div>
           </div>
           <div style="display:flex;gap:10px;">
-            <button class="btn-secondary" onclick="showToast('Products exported','success')">⬇ Export</button>
-            <button class="btn-primary" onclick="openProductModal()">+ Add Product</button>
+            <button class="btn-secondary root-only" onclick="showToast('Products exported','success')">⬇ Export</button>
+            <button class="btn-primary root-only" onclick="openProductModal()">+ Add Product</button>
           </div>
         </div>
         <div class="card-body" style="padding-top:0;">
@@ -891,7 +1033,7 @@
           </div>
           <table class="data-table">
             <thead>
-              <tr><th>Product</th><th>SKU</th><th>Category</th><th>Price</th><th>Badge</th><th>Stock</th><th>Actions</th></tr>
+              <tr><th>Product</th><th>SKU</th><th>Category</th><th class="root-only">Price</th><th>Badge</th><th>Stock</th><th>Actions</th></tr>
             </thead>
             <tbody id="productsTableBody"></tbody>
           </table>
@@ -914,8 +1056,8 @@
         <div class="card-header" style="padding-bottom:16px;">
           <div><div class="card-title">Customer Directory</div><div class="card-sub">All registered customers & enquirers</div></div>
           <div style="display:flex;gap:10px;">
-            <button class="btn-secondary" onclick="showToast('Exported customers.csv','success')">⬇ Export</button>
-            <button class="btn-primary" onclick="openCustomerModal()">+ Add Customer</button>
+            <button class="btn-secondary root-only" onclick="showToast('Exported customers.csv','success')">⬇ Export</button>
+            <button class="btn-primary root-only" onclick="openCustomerModal()">+ Add Customer</button>
           </div>
         </div>
         <div class="card-body" style="padding-top:0;">
@@ -923,7 +1065,7 @@
             <div class="table-search"><span>🔍</span><input type="text" placeholder="Search by name, company or phone…" oninput="filterCustomers(this.value)"/></div>
           </div>
           <table class="data-table">
-            <thead><tr><th>Customer</th><th>Company</th><th>Phone</th><th>City</th><th>Orders</th><th>Total Spent</th><th>Last Contact</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Customer</th><th>Company</th><th>Phone</th><th>City</th><th>Orders</th><th class="root-only">Total Spent</th><th>Last Contact</th><th>Actions</th></tr></thead>
             <tbody id="customersTableBody">
               <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--grey);">
                 <span style="display:inline-block;animation:spin 0.8s linear infinite;font-size:20px;margin-bottom:8px;">⟳</span><br>
@@ -945,10 +1087,10 @@
         <div class="stat-card"><div class="stat-icon">🛒</div><div class="stat-label">Conversion Rate</div><div class="stat-value">4.2%</div><div class="stat-delta delta-up">▲ 0.6% vs last month</div></div>
         <div class="stat-card"><div class="stat-icon">⏱</div><div class="stat-label">Avg. Response Time</div><div class="stat-value">2.4h</div><div class="stat-delta delta-down">▼ 0.3h improved</div></div>
         <div class="stat-card"><div class="stat-icon">🔁</div><div class="stat-label">Repeat Customers</div><div class="stat-value">38%</div><div class="stat-delta delta-up">▲ 3% vs last month</div></div>
-        <div class="stat-card"><div class="stat-icon">💸</div><div class="stat-label">Avg. Order Value</div><div class="stat-value">₹4,200</div><div class="stat-delta delta-up">▲ ₹320 vs last month</div></div>
+        <div class="stat-card root-only"><div class="stat-icon">💸</div><div class="stat-label">Avg. Order Value</div><div class="stat-value money-value"><span>₹4,200</span></div><div class="stat-delta delta-up">▲ ₹320 vs last month</div></div>
       </div>
       <div class="charts-row">
-        <div class="card">
+        <div class="card root-only">
           <div class="card-header"><div><div class="card-title">Monthly Revenue Trend</div><div class="card-sub">Last 12 months</div></div></div>
           <div class="card-body"><div class="bar-chart" id="barChartFull"></div></div>
         </div>
@@ -1172,7 +1314,9 @@
         <div class="form-group"><label>Old Price (₹)</label><input class="form-control" id="pm-oldprice" type="number" placeholder="Leave blank if no discount"/></div>
       </div>
       <div class="form-group"><label>Description *</label><textarea class="form-control" id="pm-desc" placeholder="Short product description for the shop page…"></textarea></div>
-      <div class="form-group"><label>Tags (comma separated)</label><input class="form-control" id="pm-tags" placeholder="e.g. Backlit, Flex, UV Print"/></div>
+      <div class="form-group">
+        <label>Tags (comma separated)</label><input class="form-control" id="pm-tags" placeholder="e.g. Backlit, Flex, UV Print"/>
+      </div>
       <div class="form-group">
         <label>Product Images</label>
         <div class="img-gallery-list" id="pm-img-list">
@@ -1180,6 +1324,26 @@
         </div>
         <button type="button" class="btn-add-img" onclick="addImgRow()">+ Add Another Image URL</button>
         <span class="form-hint">First image is the primary/cover photo. Subsequent images appear in Quick View gallery.</span>
+      </div>
+
+      <!-- ── VARIANT BUILDER ── -->
+      <div class="form-group variant-section" style="margin-top:8px;">
+        <label style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Product Variants <span style="color:var(--grey);font-weight:400;font-size:11px;">(optional — Color, Size, Material, etc.)</span></span>
+          <button type="button" onclick="addVariantRow()" style="padding:5px 12px;background:var(--blue-pale);color:var(--blue);border:1.5px solid var(--blue-light);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">+ Add Variant</button>
+        </label>
+        <div style="display:grid;grid-template-columns:110px 1fr 100px 100px 1fr 32px;gap:8px;padding:6px 12px;" id="variantColHeads">
+          <span class="variant-col-head">Type</span>
+          <span class="variant-col-head">Label</span>
+          <span class="variant-col-head">Price (₹)</span>
+          <span class="variant-col-head">Old Price</span>
+          <span class="variant-col-head">Image URL(s) — comma sep.</span>
+          <span></span>
+        </div>
+        <div class="variant-list" id="pm-variant-list">
+          <!-- rows injected by addVariantRow() -->
+        </div>
+        <span class="form-hint" style="margin-top:6px;display:block;">For Color variants add a hex code as the last image URL prefixed with # (e.g. #1a5fa8) — the shop will render it as a swatch.</span>
       </div>
     </div>
     <div class="modal-footer">
@@ -1248,7 +1412,96 @@
 
 <script>
 /* ══════════════════════════════════════════
-   API CONFIG  ← must come first; everything below depends on these consts
+   AUTH — Dual login system
+   Passwords are defined here (client-side only — upgrade to server-side for production)
+   ROOT_PASS   : full access to everything
+   EMPLOYEE_PASS: read-only + notes, no money
+══════════════════════════════════════════ */
+const CREDENTIALS = {
+  root:     { pass: 'j3',       role: 'root',     name: 'Root Admin',  initial: 'R' },
+  employee: { pass: 'staff2025', role: 'employee', name: 'Team Member', initial: 'T' },
+};
+
+let CURRENT_ROLE = null;     // 'root' | 'employee'
+let _loginSelectedRole = 'root';
+
+function selectRole(r) {
+  _loginSelectedRole = r;
+  document.getElementById('roleRoot').classList.toggle('selected',     r === 'root');
+  document.getElementById('roleEmployee').classList.toggle('selected', r === 'employee');
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('loginPass').focus();
+}
+
+function doLogin() {
+  const pass   = document.getElementById('loginPass').value;
+  const cred   = CREDENTIALS[_loginSelectedRole];
+  const errEl  = document.getElementById('loginError');
+
+  if (!pass) { errEl.textContent = 'Please enter your password.'; return; }
+  if (pass !== cred.pass) {
+    errEl.textContent = '✖ Incorrect password. Try again.';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginPass').focus();
+    return;
+  }
+
+  // Auth success
+  CURRENT_ROLE = cred.role;
+  sessionStorage.setItem('bp_role', CURRENT_ROLE);
+  sessionStorage.setItem('bp_name', cred.name);
+  applyRole(CURRENT_ROLE, cred);
+  document.getElementById('loginScreen').classList.add('hidden');
+  init(); // boot the dashboard
+}
+
+function applyRole(role, cred) {
+  document.body.classList.remove('role-root', 'role-employee');
+  document.body.classList.add('role-' + role);
+
+  // Update sidebar user info
+  const avatar = cred?.initial || (role === 'root' ? 'R' : 'T');
+  const name   = cred?.name    || (role === 'root' ? 'Root Admin' : 'Team Member');
+  document.getElementById('sidebarAvatar').textContent  = avatar;
+  document.getElementById('sidebarUserName').textContent = name;
+  document.getElementById('sidebarUserRole').textContent = role === 'root' ? 'BluePriint HQ · Root' : 'BluePriint · Employee';
+  document.getElementById('tbAvatar').textContent   = avatar;
+  document.getElementById('tbAdminName').textContent = name;
+
+  // Hide Settings & Content pages from employees
+  if (role === 'employee') {
+    document.querySelectorAll('.nav-item').forEach(n => {
+      const txt = n.textContent.trim();
+      if (txt.includes('Settings') || txt.includes('Content') || txt.includes('Analytics')) {
+        n.classList.add('root-only');
+      }
+    });
+  }
+}
+
+function logout() {
+  sessionStorage.clear();
+  CURRENT_ROLE = null;
+  document.body.classList.remove('role-root', 'role-employee');
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('loginScreen').classList.remove('hidden');
+}
+
+// Auto-restore session on reload
+(function checkSession() {
+  const saved = sessionStorage.getItem('bp_role');
+  if (saved && CREDENTIALS[saved]) {
+    CURRENT_ROLE = CREDENTIALS[saved].role || saved;
+    applyRole(saved, CREDENTIALS[saved]);
+    document.getElementById('loginScreen').classList.add('hidden');
+    // init() will be called by the DOMContentLoaded flow below
+  }
+})();
+
+/* ══════════════════════════════════════════
+   API CONFIG
 ══════════════════════════════════════════ */
 const ADMIN_API_BASE = (() => {
   const h = window.location.hostname;
@@ -1262,9 +1515,10 @@ const ENQUIRIES_API = `${ADMIN_API_BASE}/api/enquiries`;
 const ORDERS_API    = `${ADMIN_API_BASE}/api/orders`;
 const STATS_API     = `${ADMIN_API_BASE}/api/stats`;
 
-// Admin key — stored in localStorage after first entry
+// Admin key — stored in localStorage after first entry (root only)
 let ADMIN_KEY = localStorage.getItem('bp_admin_key') || '';
 function ensureAdminKey() {
+  if (CURRENT_ROLE === 'employee') return ''; // employees never write
   if (!ADMIN_KEY) {
     const k = prompt('Enter your Admin API Key (set ADMIN_API_KEY in Vercel env):');
     if (k) { ADMIN_KEY = k; localStorage.setItem('bp_admin_key', k); }
@@ -1336,9 +1590,12 @@ async function loadStatsFromAPI() {
     // Monthly revenue — format as ₹X.XL or ₹XXK
     if (el('stat-monthly-revenue')) {
       const rev = d.monthlyRevenue;
-      el('stat-monthly-revenue').textContent = rev >= 100000
+      const formatted = rev >= 100000
         ? `₹${(rev/100000).toFixed(1)}L`
         : `₹${(rev/1000).toFixed(0)}K`;
+      // Use inner span so money-value CSS can hide it for employees
+      const inner = el('stat-monthly-revenue').querySelector('span') || el('stat-monthly-revenue');
+      inner.textContent = formatted;
     }
 
     // Revenue change delta
@@ -1602,7 +1859,7 @@ function renderRecentOrders(list) {
       <td><span style="font-weight:700;color:var(--blue);">${o.orderId || o.id}</span></td>
       <td><div class="td-name">${o.customer}</div><div class="td-sub">${o.company||''}</div></td>
       <td>${o.product}</td>
-      <td style="font-weight:700;">₹${Number(o.value).toLocaleString('en-IN')}</td>
+      <td class="root-only" style="font-weight:700;">₹${Number(o.value).toLocaleString('en-IN')}</td>
       <td>${statusBadge(o.status)}</td>
     </tr>
   `).join('');
@@ -1611,25 +1868,40 @@ function renderRecentOrders(list) {
 function renderOrders(list) {
   const tbody = document.getElementById('ordersTableBody');
   const data  = list || ORDERS_DATA;
+  const isEmp = CURRENT_ROLE === 'employee';
+
   if (!data.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--grey);">No orders yet. Click "+ Add Order" to create one.</td></tr>`; return; }
-  tbody.innerHTML = data.map(o => `
+  tbody.innerHTML = data.map(o => {
+    const savedNote = (o.workNotes || '');
+    return `
     <tr data-order-id="${o.id}">
       <td><span style="font-weight:700;color:var(--blue);">${o.orderId || o.id}</span></td>
       <td><div class="td-name">${o.customer}</div><div class="td-sub">${o.company||''}</div></td>
       <td>${o.product}</td>
       <td>${o.qty}</td>
-      <td style="font-weight:700;">₹${Number(o.value).toLocaleString('en-IN')}</td>
+      <td class="root-only" style="font-weight:700;">₹${Number(o.value).toLocaleString('en-IN')}</td>
       <td style="color:var(--grey);">${o.date||'—'}</td>
       <td>${statusBadge(o.status)}</td>
       <td>
         <div class="row-actions">
-          <button class="ra-btn ra-edit" title="Edit order" onclick="openOrderModal('${o.id}')">✏️</button>
-          <button class="ra-btn" style="background:#e7f9ef;color:#22a06b;" title="Send receipt via WhatsApp" onclick="sendReceiptWhatsApp('${o.id}')">📲</button>
-          <button class="ra-btn ra-del"  title="Delete order" onclick="deleteOrder('${o.id}', this)">🗑</button>
+          <button class="ra-btn ra-edit root-only" title="Edit order" onclick="openOrderModal('${o.id}')">✏️</button>
+          <button class="ra-btn" style="background:#e7f9ef;color:#22a06b;${isEmp?'display:none':''}" title="Send receipt via WhatsApp" onclick="sendReceiptWhatsApp('${o.id}')">📲</button>
+          <button class="ra-btn ra-del root-only"  title="Delete order" onclick="deleteOrder('${o.id}', this)">🗑</button>
+          <button class="ra-btn ra-view" style="${isEmp?'':'display:none'}" title="Add/view work note" onclick="toggleWorkNote('${o.id}')">📝</button>
         </div>
       </td>
     </tr>
-  `).join('');
+    <tr class="work-note-row" id="wn-row-${o.id}">
+      <td class="work-note-cell" colspan="8">
+        <div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:6px;">📝 Work Note for Order ${o.orderId || o.id}</div>
+        <textarea class="work-note-input" id="wn-${o.id}" placeholder="Add a note about this job — material status, production step, special requirements…">${savedNote}</textarea>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:6px;">
+          <button class="work-note-save" onclick="saveWorkNote('${o.id}')">Save Note</button>
+          <span style="font-size:11.5px;color:var(--grey);" id="wn-status-${o.id}"></span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
 function renderEnquiries(list) {
@@ -1667,7 +1939,7 @@ function renderEnquiries(list) {
           <option value="quoted"    ${e.status==='quoted'    ?'selected':''}>Quoted</option>
           <option value="closed"    ${e.status==='closed'    ?'selected':''}>Closed</option>
         </select>
-        <button class="eq-btn eq-btn-del" onclick="deleteEnquiry('${id}')">🗑 Remove</button>
+        <button class="eq-btn eq-btn-del root-only" onclick="deleteEnquiry('${id}')">🗑 Remove</button>
       </div>
     </div>`;
   }).join('');
@@ -1686,16 +1958,21 @@ function renderProducts(list) {
   document.querySelector('#page-products .card-sub').textContent =
     `${PRODUCTS_DATA.length} products across 7 categories`;
 
-  tbody.innerHTML = list.map(p => `
+  tbody.innerHTML = list.map(p => {
+    const varCount = Array.isArray(p.variants) ? p.variants.length : 0;
+    return `
     <tr data-product-id="${p.id}">
       <td style="display:flex;align-items:center;gap:12px;min-width:200px;">
         <img class="prod-thumb" src="${p.img}" alt="${p.name}"
           onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\'%3E%3Crect fill=\'%23e8f1fb\' width=\'44\' height=\'44\'/%3E%3C/svg%3E'"/>
-        <div class="td-name">${p.name}</div>
+        <div>
+          <div class="td-name">${p.name}</div>
+          ${varCount ? `<div class="td-sub">${varCount} variant${varCount>1?'s':''}</div>` : ''}
+        </div>
       </td>
       <td style="font-size:12px;color:var(--grey);font-family:monospace;">${p.sku}</td>
       <td>${p.cat}</td>
-      <td style="font-weight:700;">
+      <td class="root-only" style="font-weight:700;">
         ₹${p.price.toLocaleString('en-IN')}
         ${p.oldPrice ? `<span style="font-size:11px;color:var(--grey);text-decoration:line-through;margin-left:6px;">₹${p.oldPrice.toLocaleString('en-IN')}</span>` : ''}
       </td>
@@ -1704,12 +1981,12 @@ function renderProducts(list) {
       <td>
         <div class="row-actions">
           <button class="ra-btn ra-view" title="Preview on shop" onclick="window.open('shop.html?id=${p.id}')">👁</button>
-          <button class="ra-btn ra-edit" title="Edit product" onclick="openProductModal('${p.id}')">✏️</button>
-          <button class="ra-btn ra-del"  title="Delete product" onclick="deleteProduct('${p.id}', this)">🗑</button>
+          <button class="ra-btn ra-edit root-only" title="Edit product" onclick="openProductModal('${p.id}')">✏️</button>
+          <button class="ra-btn ra-del root-only"  title="Delete product" onclick="deleteProduct('${p.id}', this)">🗑</button>
         </div>
       </td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 }
 
 function renderCustomers(list) {
@@ -1740,12 +2017,12 @@ function renderCustomers(list) {
         <td><a href="tel:${c.phone}" style="color:var(--blue-light);font-size:13px;">${c.phone}</a></td>
         <td style="color:var(--grey);">${c.city || '—'}</td>
         <td style="font-weight:700;text-align:center;">${c.orders || 0}</td>
-        <td style="font-weight:700;color:var(--green);">${spent}</td>
+        <td class="root-only" style="font-weight:700;color:var(--green);">${spent}</td>
         <td style="font-size:12px;color:var(--grey);">${last}</td>
         <td>
           <div class="row-actions">
-            <button class="ra-btn ra-edit" title="Edit customer" onclick="openCustomerModal('${id}')">✏️</button>
-            <button class="ra-btn ra-del"  title="Delete customer" onclick="deleteCustomer('${id}', this)">🗑</button>
+            <button class="ra-btn ra-edit root-only" title="Edit customer" onclick="openCustomerModal('${id}')">✏️</button>
+            <button class="ra-btn ra-del root-only"  title="Delete customer" onclick="deleteCustomer('${id}', this)">🗑</button>
           </div>
         </td>
       </tr>`;
@@ -2280,6 +2557,9 @@ async function openProductModal(id) {
   document.getElementById('pm-img-list').innerHTML = '';
   addImgRow('', true);
 
+  // Reset variant list
+  document.getElementById('pm-variant-list').innerHTML = '';
+
   if (id) {
     document.getElementById('pm-name').value = 'Loading…';
     const result = await apiProducts('GET', id, null);
@@ -2300,11 +2580,110 @@ async function openProductModal(id) {
       document.getElementById('pm-img-list').innerHTML = '';
       addImgRow(primary, true);
       extras.forEach(url => addImgRow(url, false));
+
+      // Populate existing variants
+      const existingVariants = Array.isArray(p.variants) ? p.variants : [];
+      existingVariants.forEach(v => addVariantRow(v));
     }
   }
 }
 function closeProductModal() {
   document.getElementById('productModal').classList.remove('open');
+}
+
+/* ══════════════════════════════════════════
+   VARIANT BUILDER — add / remove rows
+══════════════════════════════════════════ */
+const VARIANT_TYPES = ['Color','Size','Material','Finish','Shape','Weight','Thickness'];
+
+function addVariantRow(v = {}) {
+  const list = document.getElementById('pm-variant-list');
+  const row  = document.createElement('div');
+  row.className = 'variant-row';
+
+  const typeOpts = VARIANT_TYPES.map(t =>
+    `<option value="${t}" ${(v.type||'Color')===t?'selected':''}>${t}</option>`
+  ).join('');
+
+  // Parse images — last entry may be a hex color code
+  const imgs   = Array.isArray(v.images) ? v.images : (v.image ? [v.image] : []);
+  const imgStr = imgs.join(', ');
+
+  row.innerHTML = `
+    <select class="pm-var-type" title="Variant type">${typeOpts}</select>
+    <input class="pm-var-label" placeholder="e.g. Blue" value="${v.label||''}" title="Option label"/>
+    <input class="pm-var-price" type="number" placeholder="Price ₹" value="${v.price||''}" title="Price for this variant"/>
+    <input class="pm-var-oldprice" type="number" placeholder="Old ₹" value="${v.oldPrice||''}" title="Old/crossed price"/>
+    <input class="pm-var-images" placeholder="img-url1, img-url2 or #hexcolor" value="${imgStr}" title="Image URLs (comma-separated). For Color type, append hex e.g. #1a5fa8"/>
+    <button type="button" class="variant-del-btn" onclick="this.closest('.variant-row').remove()" title="Remove variant">✕</button>
+  `;
+  list.appendChild(row);
+}
+
+function collectVariants() {
+  const rows = document.querySelectorAll('#pm-variant-list .variant-row');
+  const variants = [];
+  rows.forEach(row => {
+    const type     = row.querySelector('.pm-var-type').value;
+    const label    = row.querySelector('.pm-var-label').value.trim();
+    const price    = parseFloat(row.querySelector('.pm-var-price').value) || null;
+    const oldPrice = parseFloat(row.querySelector('.pm-var-oldprice').value) || null;
+    const rawImgs  = row.querySelector('.pm-var-images').value.split(',').map(s => s.trim()).filter(Boolean);
+
+    if (!label) return; // skip blank rows
+
+    // Separate hex colors from image URLs
+    const images = rawImgs.filter(s => !s.startsWith('#'));
+    const colorHex = rawImgs.find(s => s.startsWith('#')) || null;
+
+    const entry = { type, label, images };
+    if (price)    entry.price    = price;
+    if (oldPrice) entry.oldPrice = oldPrice;
+    if (colorHex) entry.color    = colorHex;
+    variants.push(entry);
+  });
+  return variants;
+}
+
+/* ══════════════════════════════════════════
+   WORK NOTES (Employee feature)
+══════════════════════════════════════════ */
+// Notes stored in sessionStorage keyed by order id (ephemeral per session)
+// For persistence, integrate with your API via PATCH /api/orders/:id { workNotes }
+function toggleWorkNote(orderId) {
+  const row = document.getElementById('wn-row-' + orderId);
+  if (!row) return;
+  const isVisible = row.style.display === 'table-row';
+  row.style.display = isVisible ? '' : 'table-row';
+}
+
+async function saveWorkNote(orderId) {
+  const ta     = document.getElementById('wn-' + orderId);
+  const status = document.getElementById('wn-status-' + orderId);
+  if (!ta) return;
+  const note = ta.value.trim();
+
+  // Optimistically update local cache
+  const order = ORDERS_DATA.find(o => o.id === orderId);
+  if (order) order.workNotes = note;
+
+  // Try to persist to API (PATCH endpoint — add this to your Express server)
+  try {
+    const res = await fetch(`${ORDERS_API}/${orderId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': ensureAdminKey() },
+      body: JSON.stringify({ workNotes: note }),
+    });
+    const json = await res.json();
+    if (json.success) {
+      if (status) { status.textContent = '✓ Saved'; setTimeout(() => { if(status) status.textContent=''; }, 2500); }
+      return;
+    }
+  } catch (_) {}
+
+  // Fallback: sessionStorage
+  sessionStorage.setItem('wn_' + orderId, note);
+  if (status) { status.textContent = '✓ Saved locally'; setTimeout(() => { if(status) status.textContent=''; }, 2500); }
 }
 async function saveProduct() {
   const name     = document.getElementById('pm-name').value.trim();
@@ -2328,8 +2707,9 @@ async function saveProduct() {
   if (isNaN(price)) { showToast('Valid price is required', 'error'); return; }
 
   const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+  const variants = collectVariants();
 
-  const payload = { name, sku, category, badge, price, oldPrice, description: desc, tags, image, images };
+  const payload = { name, sku, category, badge, price, oldPrice, description: desc, tags, image, images, variants };
 
   // Disable save button while in flight
   const saveBtn = document.querySelector('#productModal .btn-save');
@@ -2540,7 +2920,7 @@ document.getElementById('enquiryModal').addEventListener('click', e => {
 /* ══════════════════════════════════════════
    INIT — boot sequence
 ══════════════════════════════════════════ */
-(async function init() {
+async function init() {
   renderActivity();
   renderDonut();
   // Render placeholder bar chart with static data until API responds
@@ -2576,7 +2956,12 @@ document.getElementById('enquiryModal').addEventListener('click', e => {
 
   const statusDot = document.querySelector('.tb-notif-dot');
   if (statusDot) { statusDot.style.background = '#22a06b'; statusDot.title = 'API connected'; }
-})();
+}
+
+// Auto-boot if session was restored at page load
+if (sessionStorage.getItem('bp_role')) {
+  document.addEventListener('DOMContentLoaded', () => init());
+}
 </script>
 </body>
 </html>
