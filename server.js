@@ -25,7 +25,7 @@ mongoose.connect(
    Set ADMIN_API_KEY in your .env or Vercel env vars.
    Dashboard sends it as the x-admin-key request header.
 ════════════════════════════════════════════ */
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY || "bluepriint-admin-2025";
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY || "jash";
 
 function requireAdminKey(req, res, next) {
   const key = req.headers["x-admin-key"];
