@@ -31,6 +31,9 @@
  * Deploy: push this file to /api/products.js in your Vercel repo.
  * Auth:   pass x-admin-key: <your secret> header for write operations.
  *         Set ADMIN_API_KEY in Vercel environment variables.
+ *
+ * Catalogue seed: the `let PRODUCTS = [ ... ]` array below is parsed from disk by
+ * ../productCatalog.cjs (used by server.js for Mongo seed + /api/catalog-config).
  */
 
 // ─────────────────────────────────────────────────────────────
@@ -596,17 +599,8 @@ let PRODUCTS = [
 ];
 
 // ─────────────────────────────────────────────────────────────
-// CONSTANTS
+// CONSTANTS (VALID_CATEGORIES from ../productCatalog.cjs)
 // ─────────────────────────────────────────────────────────────
-
-const VALID_CATEGORIES = [
-  'Printing',
-  'Signage',
-  'Internal Branding',
-  'LED Screens',
-  'OOH',
-  'BTL',
-];
 
 const VALID_BADGES    = ['popular', 'sale', 'new', null];
 const VALID_STOCK     = ['in_stock', 'low_stock', 'out_of_stock'];
