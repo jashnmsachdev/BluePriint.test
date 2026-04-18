@@ -522,7 +522,7 @@
     .modal-badge { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 12px; border-radius: 4px; margin-bottom: 4px; }
     .modal-cat { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--blue-light); }
     .modal-name { font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--blue); line-height: 1.2; }
-    .modal-desc { font-size: 14px; color: var(--grey); line-height: 1.75; }
+    .modal-desc { font-size: 14px; color: var(--grey); line-height: 1.75; transition: opacity 0.15s ease; }
     .modal-features { list-style: none; display: flex; flex-direction: column; gap: 7px; }
     .modal-features li { font-size: 13.5px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
     .modal-features li::before { content: '✓'; width: 18px; height: 18px; background: var(--blue-light); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
@@ -968,6 +968,13 @@ const API_BASE = (() => {
 })();
 
 const API_URL = `${API_BASE}/api/products`;
+
+/* ══════════════════════════════════════════
+   ADMIN KEY — must match ADMIN_API_KEY in server.js
+   Default: "bluepriint-admin-2025"
+   Override by setting localStorage('bp_admin_key') manually.
+══════════════════════════════════════════ */
+const SHOP_ADMIN_KEY = localStorage.getItem('bp_admin_key') || 'bluepriint-admin-2025';
 
 /* ══════════════════════════════════════════
    STATE
@@ -1586,12 +1593,13 @@ function selectVariant(type, label) {
   const labelEl = document.querySelector(`.variant-type-label[data-type="${type}"] .vl-selected`);
   if (labelEl) labelEl.textContent = label;
 
-  // Update price + gallery for the now-active variant
+  // Update price, description and gallery for the now-active variant
   const av = _activeVariant(_qvProduct.variants);
   if (av) {
     const base = _buildBaseImgs(_qvProduct);
     _applyVariantImages(av, base);
     _updateModalPrice(av.price ?? _qvProduct.price, av.oldPrice ?? _qvProduct.oldPrice);
+    _updateModalDesc(av.description || '');
   }
 }
 
@@ -1601,6 +1609,17 @@ function _updateModalPrice(price, oldPrice) {
   const o = document.getElementById('modalOldPriceLive');
   if (p) p.textContent = `₹${Number(price).toLocaleString('en-IN')}`;
   if (o) o.textContent = oldPrice ? `₹${Number(oldPrice).toLocaleString('en-IN')}` : '';
+}
+
+/** Update the description element when a variant is selected.
+ *  Falls back to the product's base description if the variant has none. */
+function _updateModalDesc(variantDesc) {
+  const el = document.getElementById('modalDescLive');
+  if (!el) return;
+  const text = (variantDesc && variantDesc.trim()) ? variantDesc : (_qvProduct.desc || '');
+  // Animate the swap so it feels responsive
+  el.style.opacity = '0';
+  setTimeout(() => { el.textContent = text; el.style.opacity = '1'; }, 120);
 }
 
 /** Collect base images from product (primary + images[] array) */
@@ -1707,11 +1726,14 @@ async function openQuickView(id) {
   const badgeCls   = norm.badge === 'sale' ? 'badge-sale' : norm.badge === 'new' ? 'badge-new' : 'badge-popular';
   const badgeColor = norm.badge === 'new' ? 'var(--blue)' : '#fff';
 
+  // Initial description: use active variant's if present, else product base desc
+  const displayDesc = (av && av.description && av.description.trim()) ? av.description : norm.desc;
+
   body.innerHTML = `
     ${norm.badge ? `<span class="modal-badge ${badgeCls}" style="color:${badgeColor}">${norm.badge.toUpperCase()}</span>` : ''}
     <div class="modal-cat">${norm.cat}</div>
     <div class="modal-name">${norm.name}</div>
-    <div class="modal-desc">${norm.desc}</div>
+    <div class="modal-desc" id="modalDescLive">${displayDesc}</div>
     <ul class="modal-features">${(norm.features || []).map(f => `<li>${f}</li>`).join('')}</ul>
     ${norm.variants.length ? _buildVariantHTML(norm.variants) : ''}
     <div class="modal-price-row">
