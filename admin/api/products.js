@@ -31,9 +31,6 @@
  * Deploy: push this file to /api/products.js in your Vercel repo.
  * Auth:   pass x-admin-key: <your secret> header for write operations.
  *         Set ADMIN_API_KEY in Vercel environment variables.
- *
- * Catalogue seed: the `let PRODUCTS = [ ... ]` array below is parsed from disk by
- * ../productCatalog.cjs (used by server.js for Mongo seed + /api/catalog-config).
  */
 
 // ─────────────────────────────────────────────────────────────
@@ -62,6 +59,16 @@ let PRODUCTS = [
       '48-hour express turnaround',
     ],
     image: IMG + 'Printing/Backlit-Flex/3.jpg',
+    images: [
+      IMG + 'Printing/Backlit-Flex/3.jpg',
+    ],
+    variants: [
+      { type: 'Material', label: 'Standard Flex', price: 850,  oldPrice: 1100, description: 'Our standard backlit flex — great value, bright output, ideal for most signage applications.', images: [IMG + 'Printing/Backlit-Flex/3.jpg'] },
+      { type: 'Material', label: 'Premium Flex',  price: 1100, oldPrice: null, description: 'Ultra-bright premium grade flex with enhanced UV resistance and sharper colour reproduction for high-visibility locations.', images: [IMG + 'Printing/Backlit-Flex/3.jpg'] },
+      { type: 'Size', label: '3×2 ft',  price: 850,  description: 'Compact 3×2 ft — ideal for countertop displays, small shop windows and interior branding.', images: [] },
+      { type: 'Size', label: '6×4 ft',  price: 1400, description: 'Mid-size 6×4 ft — the most popular size for shopfront fascia panels and indoor promotions.', images: [] },
+      { type: 'Size', label: '10×5 ft', price: 2200, description: 'Large format 10×5 ft — maximum visual impact for malls, showrooms and outdoor hoarding applications.', images: [] },
+    ],
     stock: 'in_stock',
     active: true,
     createdAt: '2024-01-10T08:00:00Z',
@@ -85,6 +92,15 @@ let PRODUCTS = [
       'LED backlit options available',
     ],
     image: IMG + 'Signage%20Solutions/ACPSignage.JPG',
+    images: [IMG + 'Signage%20Solutions/ACPSignage.JPG'],
+    variants: [
+      { type: 'Finish', label: 'Matte White',   color: '#f0f0f0', price: 3200, oldPrice: 4000, description: 'Clean matte white finish — timeless and professional, works with any brand colour palette.', images: [IMG + 'Signage%20Solutions/ACPSignage.JPG'] },
+      { type: 'Finish', label: 'Gloss Black',   color: '#1a1a1a', price: 3500, oldPrice: 4200, description: 'Premium gloss black — bold, high-contrast finish that makes brand names and logos pop.', images: [IMG + 'Signage%20Solutions/ACPSignage.JPG'] },
+      { type: 'Finish', label: 'Brushed Gold',  color: '#c9a84c', price: 4200, oldPrice: 5000, description: 'Luxury brushed gold finish — ideal for premium brands, jewellery stores and upscale retail spaces.', images: [IMG + 'Signage%20Solutions/ACPSignage.JPG'] },
+      { type: 'Size', label: '3×1 ft',  price: 3200, description: 'Small 3×1 ft — perfect for door nameplates, room identifiers and compact brand plaques.', images: [] },
+      { type: 'Size', label: '6×2 ft',  price: 5800, description: 'Standard 6×2 ft fascia — covers most shop frontages and gives strong street-level brand visibility.', images: [] },
+      { type: 'Size', label: '10×3 ft', price: 9500, description: 'Large 10×3 ft — maximum fascia coverage for wide storefronts, showrooms and commercial buildings.', images: [] },
+    ],
     stock: 'in_stock',
     active: true,
     createdAt: '2024-01-10T08:00:00Z',
@@ -177,6 +193,15 @@ let PRODUCTS = [
       'Standoff or flush mounting',
     ],
     image: IMG + 'Printing/Acrylic/3.jpg',
+    images: [IMG + 'Printing/Acrylic/3.jpg'],
+    variants: [
+      { type: 'Material', label: 'Clear Acrylic',  color: '#d6eeff', price: 1800, oldPrice: 2200, description: 'Crystal-clear base lets the print appear to float — stunning for logos and product showcases.', images: [IMG + 'Printing/Acrylic/3.jpg'] },
+      { type: 'Material', label: 'White Acrylic',  color: '#ffffff', price: 1800, oldPrice: 2200, description: 'Solid white substrate gives maximum colour vibrancy — ideal for retail signage and menu boards.', images: [IMG + 'Printing/Acrylic/3.jpg'] },
+      { type: 'Material', label: 'Black Acrylic',  color: '#1a1a1a', price: 2000, oldPrice: 2400, description: 'Dramatic black base makes light-coloured prints and logos stand out — premium dark aesthetic for modern brands.', images: [IMG + 'Printing/Acrylic/3.jpg'] },
+      { type: 'Thickness', label: '3mm', price: 1800, description: '3mm — lightweight and slim, ideal for wall-mounted displays and indoor signage.', images: [] },
+      { type: 'Thickness', label: '5mm', price: 2100, description: '5mm — the most popular thickness; sturdy, versatile and suitable for most commercial applications.', images: [] },
+      { type: 'Thickness', label: '8mm', price: 2600, description: '8mm — heavy-duty thickness for floor-standing displays, kiosks and high-traffic environments.', images: [] },
+    ],
     stock: 'in_stock',
     active: true,
     createdAt: '2024-01-18T08:00:00Z',
@@ -200,6 +225,14 @@ let PRODUCTS = [
       'Includes installation & wiring',
     ],
     image: IMG + 'Signage%20Solutions/Facade%20Signage/3%20night.jpg',
+    images: [IMG + 'Signage%20Solutions/Facade%20Signage/3%20night.jpg'],
+    variants: [
+      { type: 'LED Color', label: 'Warm White', color: '#ffe4b5', price: 8500,  description: 'Warm white glow — inviting, classic tone that suits restaurants, cafes and hospitality brands.', images: [IMG + 'Signage%20Solutions/Facade%20Signage/3%20night.jpg'] },
+      { type: 'LED Color', label: 'Cool White', color: '#e8f4ff', price: 8500,  description: 'Cool white light — crisp and modern, perfect for tech brands, clinics and professional offices.', images: [IMG + 'Signage%20Solutions/Facade%20Signage/3%20night.jpg'] },
+      { type: 'LED Color', label: 'RGB Color',  color: '#9b59b6', price: 10500, description: 'Full RGB with controller — cycle through any colour or set a fixed brand colour. Eye-catching for entertainment venues and retail.', images: [IMG + 'Signage%20Solutions/Facade%20Signage/3%20night.jpg'] },
+      { type: 'Material', label: 'Acrylic Face',  price: 8500,  description: 'Acrylic letter faces — smooth, vibrant finish with even light diffusion. Lightweight and cost-effective.', images: [] },
+      { type: 'Material', label: 'SS Metal Face', price: 12000, description: 'Stainless steel letter faces — ultra-premium brushed metal finish with exceptional durability and a luxury brand impression.', images: [] },
+    ],
     stock: 'in_stock',
     active: true,
     createdAt: '2024-01-20T08:00:00Z',
@@ -361,6 +394,16 @@ let PRODUCTS = [
       'Indoor & outdoor versions',
     ],
     image: IMG + 'Signage%20Solutions/Facade%20Signage/3%20night.jpg',
+    images: [IMG + 'Signage%20Solutions/Facade%20Signage/3%20night.jpg'],
+    variants: [
+      { type: 'Color', label: 'Warm White', color: '#ffe4b5', price: 4500, oldPrice: 5500, description: 'Soft warm white — creates a cosy, nostalgic atmosphere. Popular for cafes, restaurants and boutique retail.', images: [] },
+      { type: 'Color', label: 'Neon Red',   color: '#ff3b3b', price: 4500, oldPrice: 5500, description: 'Bold neon red — high-energy and attention-grabbing. Great for bars, food stalls and promotional signage.', images: [] },
+      { type: 'Color', label: 'Neon Blue',  color: '#2980d9', price: 4500, oldPrice: 5500, description: 'Electric blue — modern and techy. Ideal for studios, gyms, gaming zones and digital-forward brands.', images: [] },
+      { type: 'Color', label: 'Neon Green', color: '#22a06b', price: 4500, oldPrice: 5500, description: 'Vivid green — fresh and vibrant. Perfect for eco-brands, juice bars and wellness spaces.', images: [] },
+      { type: 'Color', label: 'RGB',        color: '#9b59b6', price: 5800, oldPrice: 7000, description: 'Full RGB with remote — choose any colour and change it anytime. The ultimate flexible option for dynamic spaces.', images: [] },
+      { type: 'Mount', label: 'Indoor',  price: 4500, description: 'Indoor mount — acrylic backboard with wall fixings. Clean installation for interior spaces.', images: [] },
+      { type: 'Mount', label: 'Outdoor', price: 5500, description: 'Outdoor mount — weatherproof casing and IP65-rated LED strip. Built to last through rain, heat and dust.', images: [] },
+    ],
     stock: 'in_stock',
     active: true,
     createdAt: '2024-02-10T08:00:00Z',
@@ -384,6 +427,15 @@ let PRODUCTS = [
       'Matte or gloss finish',
     ],
     image: IMG + 'Printing/one%20way%20vison/3.jpg',
+    images: [IMG + 'Printing/one%20way%20vison/3.jpg'],
+    variants: [
+      { type: 'Finish', label: 'Matte',    color: '#e0e0e0', price: 560, description: 'Matte finish — no glare, professional look. Best for offices and corporate environments with strong lighting.', images: [] },
+      { type: 'Finish', label: 'Gloss',    color: '#b0d0ff', price: 560, description: 'Gloss finish — vivid colours and high contrast. Ideal for retail spaces and areas where visual impact matters.', images: [] },
+      { type: 'Finish', label: 'Textured', color: '#c8b89a', price: 680, description: 'Textured finish — adds a tactile, premium feel. Great for luxury brands, boutiques and feature walls.', images: [] },
+      { type: 'Size', label: 'Per sq.ft', price: 560,  description: 'Order by the square foot — full flexibility for any custom dimension or irregular wall shape.', images: [] },
+      { type: 'Size', label: '10×8 ft',   price: 4200, description: 'Standard 10×8 ft wall panel — covers a full feature wall in most commercial and office spaces.', images: [] },
+      { type: 'Size', label: 'Full wall',  price: 8500, description: 'Full wall coverage — end-to-end vinyl wrap for maximum brand immersion. Final quote confirmed after site measurement.', images: [] },
+    ],
     stock: 'in_stock',
     active: true,
     createdAt: '2024-02-12T08:00:00Z',
@@ -599,8 +651,17 @@ let PRODUCTS = [
 ];
 
 // ─────────────────────────────────────────────────────────────
-// CONSTANTS (VALID_CATEGORIES from ../productCatalog.cjs)
+// CONSTANTS
 // ─────────────────────────────────────────────────────────────
+
+const VALID_CATEGORIES = [
+  'Printing',
+  'Signage',
+  'Internal Branding',
+  'LED Screens',
+  'OOH',
+  'BTL',
+];
 
 const VALID_BADGES    = ['popular', 'sale', 'new', null];
 const VALID_STOCK     = ['in_stock', 'low_stock', 'out_of_stock'];
@@ -639,7 +700,7 @@ function setCORS(req, res) {
     : allowedOrigins[0];
 
   res.setHeader('Access-Control-Allow-Origin',  allow);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key, Authorization');
   res.setHeader('Access-Control-Max-Age',       '86400');
   res.setHeader('Vary',                         'Origin');
@@ -768,6 +829,17 @@ function validateUpdate(body) {
 
   if (body.active !== undefined && typeof body.active !== 'boolean')
     errors.push('active must be a boolean');
+
+  // variants — array of { type, label, price?, oldPrice?, color?, images? }
+  if (body.variants !== undefined && !Array.isArray(body.variants))
+    errors.push('variants must be an array');
+
+  // images — array of additional image URLs (gallery)
+  if (body.images !== undefined && !Array.isArray(body.images))
+    errors.push('images must be an array of URL strings');
+
+  // workNotes — free-text field set by employees; no format restriction
+  // (no validation needed — any string is valid)
 
   return errors;
 }
@@ -915,6 +987,8 @@ export default function handler(req, res) {
       tags:        Array.isArray(body.tags)     ? body.tags     : [],
       features:    Array.isArray(body.features) ? body.features : [],
       image:       (body.image || '').trim(),
+      images:      Array.isArray(body.images)   ? body.images   : [],
+      variants:    Array.isArray(body.variants) ? body.variants : [],
       stock:       body.stock || 'in_stock',
       active:      body.active !== false,
       createdAt:   now(),
@@ -965,6 +1039,35 @@ export default function handler(req, res) {
     });
   }
 
+  // ── PATCH (partial update — workNotes, status, etc.) ─────
+  if (method === 'PATCH') {
+    if (!isAuthorised(req))
+      return send(res, 401, { success: false, error: 'Unauthorised — valid x-admin-key required' });
+
+    const targetId = query.id;
+    if (!targetId)
+      return send(res, 400, { success: false, error: 'Query param "id" is required for PATCH' });
+
+    const index = PRODUCTS.findIndex((p) => p.id === targetId);
+    if (index === -1)
+      return send(res, 404, { success: false, error: `Product "${targetId}" not found` });
+
+    // Only allow safe partial fields — strip immutable ones
+    const { id: _id, createdAt: _ca, ...patch } = body || {};
+
+    PRODUCTS[index] = {
+      ...PRODUCTS[index],
+      ...patch,
+      updatedAt: now(),
+    };
+
+    return send(res, 200, {
+      success: true,
+      message: 'Product patched',
+      data:    PRODUCTS[index],
+    });
+  }
+
   // ── DELETE ───────────────────────────────────────────────
   if (method === 'DELETE') {
     if (!isAuthorised(req))
@@ -991,7 +1094,7 @@ export default function handler(req, res) {
   return send(res, 405, {
     success: false,
     error:   `Method "${method}" is not supported on this endpoint`,
-    allowed: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowed: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 }
 
