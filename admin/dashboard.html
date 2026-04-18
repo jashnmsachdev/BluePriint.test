@@ -784,8 +784,8 @@
                 <option value="">All Status</option>
                 <option>New</option><option>Pending</option><option>In Progress</option><option value="Delivered">Delivered</option><option>Cancelled</option>
               </select>
-              <select class="tf-select" onchange="filterOrdersByCategory(this.value)">
-                <option value="">All Categories</option><option>Printing</option><option>Signage</option><option>LED Screens</option><option>Other</option>
+              <select class="tf-select" id="ordersCategoryFilter" onchange="filterOrdersByCategory(this.value)">
+                <option value="">All Categories</option><option>Printing</option><option>Signage</option><option>Internal Branding</option><option>LED Screens</option><option>OOH</option><option>BTL</option><option>Other</option>
               </select>
             </div>
           </div>
@@ -1067,15 +1067,21 @@
         <div class="form-group"><label>Company</label><input class="form-control" id="om-company" placeholder="Company name"/></div>
       </div>
       <div class="form-group"><label>Customer WhatsApp / phone *</label><input class="form-control" id="om-phone" placeholder="+91 …" type="tel"/></div>
+      <div class="form-group"><label>Catalog product</label>
+        <select class="form-control" id="om-product-id" onchange="onOrderCatalogProductChange()">
+          <option value="">Custom line item…</option>
+        </select>
+        <span class="form-hint">Populated from GET /api/products — same ids, skus and categories as api/products.js.</span>
+      </div>
       <div class="form-row">
-        <div class="form-group"><label>Product *</label><input class="form-control" id="om-product" placeholder="Product or service line"/></div>
-        <div class="form-group"><label>Qty *</label><input class="form-control" id="om-qty" type="number" min="1" value="1"/></div>
+        <div class="form-group"><label>Product *</label><input class="form-control" id="om-product" placeholder="Name (filled from catalogue or type custom)"/></div>
+        <div class="form-group"><label>Qty *</label><input class="form-control" id="om-qty" type="number" min="1" value="1" oninput="onOrderQtyChangeForCatalog()"/></div>
       </div>
       <div class="form-group"><label>Delivery address *</label><textarea class="form-control" id="om-address" placeholder="Full delivery address" style="min-height:72px;"></textarea></div>
       <div class="form-row">
         <div class="form-group"><label>Category *</label>
           <select class="form-control" id="om-category" onchange="toggleOrderCategoryOther()">
-            <option>Printing</option><option>Signage</option><option>LED Screens</option><option value="Other">Other</option>
+            <option>Printing</option><option>Signage</option><option>Internal Branding</option><option>LED Screens</option><option>OOH</option><option>BTL</option><option value="Other">Other</option>
           </select>
         </div>
         <div class="form-group"><label>Deadline *</label><input class="form-control" id="om-deadline" type="date" required/></div>
@@ -1110,17 +1116,20 @@
    DATA
 ══════════════════════════════════════════ */
 const ORDERS_DEFAULT = [
-  { id:'#BP-1042', customer:'Ravi Sharma', company:'Sharma Traders', phone:'+91 98100 11201', product:'ACP Fascia Sign Board', qty:2, value:6400, date:'14 Mar 2026', status:'new', deliveryAddress:'Shop 12, Block A, Connaught Place, New Delhi', category:'Signage', customCategory:'', deadline:'2026-04-25', advances:[{amount:2000,method:'UPI',account:'merchant@upi'}], orderDetails:'Matte ACP, 4×8 ft' },
-  { id:'#BP-1041', customer:'Neha Gupta', company:'Gupta Salon', phone:'+91 98100 11202', product:'Backlit Flex Banner', qty:5, value:4250, date:'13 Mar 2026', status:'progress', deliveryAddress:'Salon, DLF Phase 4, Gurgaon', category:'Printing', customCategory:'', deadline:'2026-04-30', advances:[{amount:1500,method:'Cash',account:'—'}], orderDetails:'UV print' },
-  { id:'#BP-1040', customer:'Ajay Patel', company:'Patel Electronics', phone:'+91 98100 11203', product:'3D LED Facade Sign', qty:1, value:8500, date:'12 Mar 2026', status:'complete', deliveryAddress:'Showroom, Noida Sec 18', category:'LED Screens', customCategory:'', deadline:'2026-04-01', advances:[{amount:4000,method:'NEFT',account:'A/c ****4401'}], orderDetails:'Warm white LED' },
-  { id:'#BP-1039', customer:'Sunita Mehta', company:'Mehta Boutique', phone:'+91 98100 11204', product:'Floor Vinyl Graphics', qty:10, value:6500, date:'11 Mar 2026', status:'complete', deliveryAddress:'Boutique, Khan Market', category:'Printing', customCategory:'', deadline:'2026-04-28', advances:[{amount:6500,method:'UPI',account:'paid in full'}], orderDetails:'Anti-slip laminate' },
-  { id:'#BP-1038', customer:'Vikram Joshi', company:'JK Enterprises', phone:'+91 98100 11205', product:'Canvas Print', qty:3, value:3600, date:'10 Mar 2026', status:'pending', deliveryAddress:'Office, Okhla Industrial Estate', category:'Other', customCategory:'Fine art repro', deadline:'2026-03-15', advances:[], orderDetails:'Gallery wrap' },
-  { id:'#BP-1037', customer:'Priya Singh', company:'Singh Pharma', phone:'+91 98100 11206', product:'One Way Vision Film', qty:8, value:7600, date:'9 Mar 2026', status:'complete', deliveryAddress:'Pharma store, Rohini', category:'Signage', customCategory:'', deadline:'2026-05-10', advances:[{amount:3000,method:'NEFT',account:'Ref NEFT001'}], orderDetails:'Perforated film' },
-  { id:'#BP-1036', customer:'Arjun Kumar', company:'Bajaj Dealership', phone:'+91 98100 11207', product:'Glow Sign Board', qty:4, value:8800, date:'8 Mar 2026', status:'complete', deliveryAddress:'Dealership yard, Faridabad', category:'Signage', customCategory:'', deadline:'2026-04-20', advances:[{amount:2000,method:'Cash',account:'—'}], orderDetails:'ACP box-up' },
-  { id:'#BP-1035', customer:'Meera Nair', company:'Nair Interiors', phone:'+91 98100 11208', product:'Vinyl Wall Wrap', qty:20, value:11200, date:'7 Mar 2026', status:'cancelled', deliveryAddress:'Project site, Saket', category:'Printing', customCategory:'', deadline:'2026-06-01', advances:[], orderDetails:'Cancelled by client' },
-  { id:'#BP-1034', customer:'Rahul Verma', company:'Verma & Sons', phone:'+91 98100 11209', product:'Acrylic UV Print', qty:6, value:10800, date:'6 Mar 2026', status:'complete', deliveryAddress:'Retail, Karol Bagh', category:'Printing', customCategory:'', deadline:'2026-04-22', advances:[{amount:10800,method:'UPI',account:'Full'}], orderDetails:'Clear acrylic 5mm' },
-  { id:'#BP-1033', customer:'Deepak Rao', company:'Rao Foods', phone:'+91 98100 11210', product:'Roll-up Standee', qty:10, value:14000, date:'5 Mar 2026', status:'complete', deliveryAddress:'Warehouse, Azadpur', category:'Printing', customCategory:'', deadline:'2026-05-05', advances:[{amount:5000,method:'NEFT',account:'Pending balance'}], orderDetails:'Roll-up 85×200' },
+  { id:'#BP-1042', customer:'Ravi Sharma', company:'Sharma Traders', phone:'+91 98100 11201', product:'ACP Fascia Sign Board', productId:'BP-002', sku:'acp-signboard', qty:2, value:6400, date:'14 Mar 2026', status:'new', deliveryAddress:'Shop 12, Block A, Connaught Place, New Delhi', category:'Signage', customCategory:'', deadline:'2026-04-25', advances:[{amount:2000,method:'UPI',account:'merchant@upi'}], orderDetails:'Matte ACP, 4×8 ft' },
+  { id:'#BP-1041', customer:'Neha Gupta', company:'Gupta Salon', phone:'+91 98100 11202', product:'Backlit Flex Banner', productId:'BP-001', sku:'flex-banner', qty:5, value:4250, date:'13 Mar 2026', status:'progress', deliveryAddress:'Salon, DLF Phase 4, Gurgaon', category:'Printing', customCategory:'', deadline:'2026-04-30', advances:[{amount:1500,method:'Cash',account:'—'}], orderDetails:'UV print' },
+  { id:'#BP-1040', customer:'Ajay Patel', company:'Patel Electronics', phone:'+91 98100 11203', product:'3D LED Facade Sign', productId:'BP-007', sku:'facade-3d-led', qty:1, value:8500, date:'12 Mar 2026', status:'complete', deliveryAddress:'Showroom, Noida Sec 18', category:'Signage', customCategory:'', deadline:'2026-04-01', advances:[{amount:4000,method:'NEFT',account:'A/c ****4401'}], orderDetails:'Warm white LED' },
+  { id:'#BP-1039', customer:'Sunita Mehta', company:'Mehta Boutique', phone:'+91 98100 11204', product:'Floor Vinyl Graphics', productId:'BP-008', sku:'floor-vinyl', qty:10, value:6500, date:'11 Mar 2026', status:'complete', deliveryAddress:'Boutique, Khan Market', category:'Internal Branding', customCategory:'', deadline:'2026-04-28', advances:[{amount:6500,method:'UPI',account:'paid in full'}], orderDetails:'Anti-slip laminate' },
+  { id:'#BP-1038', customer:'Vikram Joshi', company:'JK Enterprises', phone:'+91 98100 11205', product:'Canvas Print', productId:'BP-003', sku:'canvas-print', qty:3, value:3600, date:'10 Mar 2026', status:'pending', deliveryAddress:'Office, Okhla Industrial Estate', category:'Printing', customCategory:'', deadline:'2026-03-15', advances:[], orderDetails:'Gallery wrap' },
+  { id:'#BP-1037', customer:'Priya Singh', company:'Singh Pharma', phone:'+91 98100 11206', product:'One Way Vision Film', productId:'BP-004', sku:'one-way-vision', qty:8, value:7600, date:'9 Mar 2026', status:'complete', deliveryAddress:'Pharma store, Rohini', category:'Printing', customCategory:'', deadline:'2026-05-10', advances:[{amount:3000,method:'NEFT',account:'Ref NEFT001'}], orderDetails:'Perforated film' },
+  { id:'#BP-1036', customer:'Arjun Kumar', company:'Bajaj Dealership', phone:'+91 98100 11207', product:'Glow Sign Board', productId:'BP-010', sku:'glow-sign-board', qty:4, value:8800, date:'8 Mar 2026', status:'complete', deliveryAddress:'Dealership yard, Faridabad', category:'Signage', customCategory:'', deadline:'2026-04-20', advances:[{amount:2000,method:'Cash',account:'—'}], orderDetails:'ACP box-up' },
+  { id:'#BP-1035', customer:'Meera Nair', company:'Nair Interiors', phone:'+91 98100 11208', product:'Vinyl Wall Wrap', productId:'BP-015', sku:'vinyl-wall-wrap', qty:20, value:11200, date:'7 Mar 2026', status:'cancelled', deliveryAddress:'Project site, Saket', category:'Printing', customCategory:'', deadline:'2026-06-01', advances:[], orderDetails:'Cancelled by client' },
+  { id:'#BP-1034', customer:'Rahul Verma', company:'Verma & Sons', phone:'+91 98100 11209', product:'Acrylic UV Print', productId:'BP-006', sku:'acrylic-uv-print', qty:6, value:10800, date:'6 Mar 2026', status:'complete', deliveryAddress:'Retail, Karol Bagh', category:'Printing', customCategory:'', deadline:'2026-04-22', advances:[{amount:10800,method:'UPI',account:'Full'}], orderDetails:'Clear acrylic 5mm' },
+  { id:'#BP-1033', customer:'Deepak Rao', company:'Rao Foods', phone:'+91 98100 11210', product:'Roll-up Standee', productId:'BP-009', sku:'roll-up-standee', qty:10, value:14000, date:'5 Mar 2026', status:'complete', deliveryAddress:'Warehouse, Azadpur', category:'BTL', customCategory:'', deadline:'2026-05-05', advances:[{amount:5000,method:'NEFT',account:'Pending balance'}], orderDetails:'Roll-up 85×200' },
 ];
+
+/** Overwritten from GET /api/catalog-config when server + productCatalog.cjs are available. */
+let PRODUCT_VALID_CATEGORIES = ['Printing', 'Signage', 'Internal Branding', 'LED Screens', 'OOH', 'BTL'];
 
 function normalizeOrder(o) {
   return {
@@ -1132,6 +1141,8 @@ function normalizeOrder(o) {
     deadline: o.deadline || '',
     advances: Array.isArray(o.advances) ? o.advances : [],
     orderDetails: o.orderDetails || '',
+    productId: o.productId != null ? String(o.productId) : '',
+    sku: o.sku || '',
   };
 }
 
@@ -1171,7 +1182,10 @@ const ENQUIRIES = [
 ══════════════════════════════════════════ */
 const ADMIN_API_BASE = (() => {
   const h = window.location.hostname;
-  return (h === 'localhost' || h === '127.0.0.1') ? 'http://localhost:3000' : '';
+  if (h === 'localhost' || h === '127.0.0.1') {
+    return `${window.location.protocol}//${window.location.host}`;
+  }
+  return '';
 })();
 const PRODUCTS_API = `${ADMIN_API_BASE}/api/products`;
 
@@ -1209,6 +1223,46 @@ async function apiProducts(method, id, body) {
   }
 }
 
+async function syncCatalogFromServer() {
+  try {
+    const r = await fetch(`${ADMIN_API_BASE}/api/catalog-config`);
+    const j = await r.json();
+    if (j.success && Array.isArray(j.validCategories) && j.validCategories.length) {
+      PRODUCT_VALID_CATEGORIES = j.validCategories;
+      rebuildCategorySelects();
+    }
+  } catch (e) {
+    console.warn('[BP Admin] /api/catalog-config:', e);
+  }
+}
+
+function rebuildCategorySelects() {
+  const std = PRODUCT_VALID_CATEGORIES;
+  const optStd = std.map(c => `<option>${escapeHtml(c)}</option>`).join('');
+
+  const om = document.getElementById('om-category');
+  if (om) {
+    const cur = om.value;
+    om.innerHTML = optStd + '<option value="Other">Other</option>';
+    om.value = [...std, 'Other'].includes(cur) ? cur : 'Printing';
+    toggleOrderCategoryOther();
+  }
+
+  const filt = document.getElementById('ordersCategoryFilter');
+  if (filt) {
+    const curf = filt.value;
+    filt.innerHTML = '<option value="">All Categories</option>' + optStd + '<option>Other</option>';
+    filt.value = [...std, 'Other', ''].includes(curf) ? curf : '';
+  }
+
+  const pm = document.getElementById('pm-cat');
+  if (pm) {
+    const curp = pm.value;
+    pm.innerHTML = optStd;
+    pm.value = std.includes(curp) ? curp : 'Printing';
+  }
+}
+
 async function loadProductsFromAPI() {
   const pill = document.getElementById('apiStatusPill');
   if (pill) { pill.className = 'api-status loading'; pill.innerHTML = '<span class="api-status-dot"></span> Fetching…'; }
@@ -1228,6 +1282,7 @@ async function loadProductsFromAPI() {
     }));
     renderProducts(PRODUCTS_DATA);
     updateDashboardProductCount(PRODUCTS_DATA.length);
+    populateOrderProductSelect();
 
     if (pill) {
       pill.className = 'api-status';
@@ -1237,6 +1292,7 @@ async function loadProductsFromAPI() {
     if (pill) { pill.className = 'api-status error'; pill.innerHTML = '<span class="api-status-dot"></span> API error'; }
     showToast('Could not load products from API', 'error');
     renderProducts([]);
+    populateOrderProductSelect();
   }
 }
 
@@ -1360,7 +1416,7 @@ function renderRecentOrders() {
     <tr>
       <td><span style="font-weight:700;color:var(--blue);">${o.id}</span></td>
       <td><div class="td-name">${o.customer}</div><div class="td-sub">${o.company}</div></td>
-      <td>${o.product}</td>
+      <td><div class="td-name">${escapeHtml(o.product)}</div>${(o.sku || o.productId) ? `<div class="td-sub">${escapeHtml([o.sku, o.productId].filter(Boolean).join(' · '))}</div>` : ''}</td>
       <td style="font-weight:700;">₹${o.value.toLocaleString('en-IN')}</td>
       <td>${orderStatusBadge(o)}</td>
     </tr>
@@ -1378,7 +1434,7 @@ function renderOrders(list) {
     <tr class="${rowCls}" data-order-id="${o.id}">
       <td><span style="font-weight:700;color:var(--blue);">${o.id}</span></td>
       <td><div class="td-name">${o.customer}</div><div class="td-sub">${o.company}</div></td>
-      <td>${o.product}</td>
+      <td><div class="td-name">${escapeHtml(o.product)}</div>${(o.sku || o.productId) ? `<div class="td-sub">${escapeHtml([o.sku, o.productId].filter(Boolean).join(' · '))}</div>` : ''}</td>
       <td>${categoryLabel(o)}</td>
       <td>${o.qty}</td>
       <td style="font-weight:700;">₹${o.value.toLocaleString('en-IN')}</td>
@@ -1585,7 +1641,9 @@ function getFilteredOrders() {
       o.id.toLowerCase().includes(lq) ||
       o.customer.toLowerCase().includes(lq) ||
       o.product.toLowerCase().includes(lq) ||
-      (o.deliveryAddress || '').toLowerCase().includes(lq)
+      (o.deliveryAddress || '').toLowerCase().includes(lq) ||
+      String(o.productId || '').toLowerCase().includes(lq) ||
+      String(o.sku || '').toLowerCase().includes(lq)
     );
   }
   return sortOrdersForDisplay(list);
@@ -1718,8 +1776,59 @@ function deleteEnquiry(id) {
 }
 
 /* ══════════════════════════════════════════
-   ORDER MODAL
+   ORDER MODAL  (categories + catalogue ↔ api/products.js)
 ══════════════════════════════════════════ */
+function populateOrderProductSelect() {
+  const sel = document.getElementById('om-product-id');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '';
+  const opt0 = document.createElement('option');
+  opt0.value = '';
+  opt0.textContent = 'Custom line item…';
+  sel.appendChild(opt0);
+  [...PRODUCTS_DATA].sort((a, b) => (a.name || '').localeCompare(b.name || '')).forEach(p => {
+    const id = String(p.id || '');
+    if (!id) return;
+    const o = document.createElement('option');
+    o.value = id;
+    o.textContent = `${p.name || 'Product'} (${p.sku || id}) — ${p.cat || ''}`;
+    sel.appendChild(o);
+  });
+  if (cur && [...sel.options].some(x => x.value === cur)) sel.value = cur;
+}
+
+function onOrderCatalogProductChange() {
+  const sel = document.getElementById('om-product-id');
+  const id = sel && sel.value;
+  if (!id) return;
+  const p = PRODUCTS_DATA.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const nameEl = document.getElementById('om-product');
+  if (nameEl) nameEl.value = p.name || '';
+  const catRaw = p.cat || p.category || 'Printing';
+  const catEl = document.getElementById('om-category');
+  const customEl = document.getElementById('om-customcat');
+  if (PRODUCT_VALID_CATEGORIES.includes(catRaw)) {
+    if (catEl) catEl.value = catRaw;
+    if (customEl) customEl.value = '';
+  } else {
+    if (catEl) catEl.value = 'Other';
+    if (customEl) customEl.value = catRaw;
+  }
+  toggleOrderCategoryOther();
+  const qty = parseInt(document.getElementById('om-qty')?.value, 10) || 1;
+  const price = Number(p.price) || 0;
+  const valEl = document.getElementById('om-value');
+  if (valEl) valEl.value = String(Math.round(price * qty * 100) / 100);
+  recalcOrderModalTotals();
+}
+
+function onOrderQtyChangeForCatalog() {
+  const sel = document.getElementById('om-product-id');
+  if (sel && sel.value) onOrderCatalogProductChange();
+}
+
 function toggleOrderCategoryOther() {
   const sel = document.getElementById('om-category');
   const wrap = document.getElementById('om-customcat-wrap');
@@ -1782,6 +1891,8 @@ function clearOrderForm() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  const opid = document.getElementById('om-product-id');
+  if (opid) opid.value = '';
   const qty = document.getElementById('om-qty');
   if (qty) qty.value = '1';
   const cat = document.getElementById('om-category');
@@ -1794,6 +1905,7 @@ function clearOrderForm() {
   }
   document.getElementById('om-advances').innerHTML = '';
   toggleOrderCategoryOther();
+  populateOrderProductSelect();
   recalcOrderModalTotals();
 }
 
@@ -1822,7 +1934,7 @@ function formatDateShort(iso) {
 function buildOrderWhatsAppText(o) {
   const adv = totalAdvance(o);
   const pend = pendingAmount(o);
-  return [
+  const lines = [
     `Hello ${o.customer}, your order with BluePriint is confirmed.`,
     '',
     `Order: ${o.id}`,
@@ -1836,7 +1948,11 @@ function buildOrderWhatsAppText(o) {
     '',
     'Order details:',
     (o.orderDetails || o.product || '—').trim(),
-  ].join('\n');
+  ];
+  if (o.productId || o.sku) {
+    lines.push('', 'Catalogue ref:', [o.productId, o.sku].filter(Boolean).join(' · '));
+  }
+  return lines.join('\n');
 }
 
 function waMeUrl(phone, text) {
@@ -1862,7 +1978,13 @@ function openOrderModal(orderId) {
     document.getElementById('om-product').value = o.product || '';
     document.getElementById('om-qty').value = o.qty || 1;
     document.getElementById('om-address').value = o.deliveryAddress || '';
-    const stdCat = ['Printing', 'Signage', 'LED Screens', 'Other'];
+    populateOrderProductSelect();
+    let matchCatId = '';
+    if (o.productId) matchCatId = PRODUCTS_DATA.find(p => String(p.id) === String(o.productId))?.id;
+    if (!matchCatId && o.sku) matchCatId = PRODUCTS_DATA.find(p => (p.sku || '') === String(o.sku))?.id;
+    const opid = document.getElementById('om-product-id');
+    if (opid) opid.value = matchCatId ? String(matchCatId) : '';
+    const stdCat = [...PRODUCT_VALID_CATEGORIES, 'Other'];
     document.getElementById('om-category').value = stdCat.includes(o.category) ? o.category : 'Other';
     document.getElementById('om-customcat').value = stdCat.includes(o.category) ? (o.customCategory || '') : (o.customCategory || o.category || '');
     document.getElementById('om-deadline').value = o.deadline || '';
@@ -1931,12 +2053,25 @@ function saveNewOrder() {
   const today = new Date();
   const dateStr = today.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
+  const pickPid = document.getElementById('om-product-id')?.value?.trim() || '';
+  let productId = '';
+  let sku = '';
+  if (pickPid) {
+    const p = PRODUCTS_DATA.find(x => String(x.id) === String(pickPid));
+    if (p) {
+      productId = String(p.id);
+      sku = p.sku || '';
+    }
+  }
+
   const newOrder = normalizeOrder({
     id: nextOrderId(),
     customer,
     company: document.getElementById('om-company').value.trim(),
     phone,
     product,
+    productId,
+    sku,
     qty,
     value,
     date: dateStr,
@@ -2105,6 +2240,8 @@ document.getElementById('orderModal').addEventListener('click', e => {
    INIT — boot sequence
 ══════════════════════════════════════════ */
 (async function init() {
+  await syncCatalogFromServer();
+
   // Render non-API sections immediately (static data)
   renderRecentOrders();
   renderOrdersFiltered();
