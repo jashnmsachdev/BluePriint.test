@@ -25,7 +25,7 @@ mongoose.connect(
    Set ADMIN_API_KEY in your .env or Vercel env vars.
    Dashboard sends it as the x-admin-key request header.
 ════════════════════════════════════════════ */
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY || "jash";
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY || "bluepriint-admin-2025";
 
 function requireAdminKey(req, res, next) {
   const key = req.headers["x-admin-key"];
@@ -53,25 +53,26 @@ cloudinary.config({
 ════════════════════════════════════════════════════════════ */
 
 /* ── PRODUCT ──────────────────────────────────────────────
-   `image`    → primary/cover photo (used by shop card + cart)
-   `images`   → additional gallery photos (Quick View carousel)
-   `variants` → array of selectable options shown in Quick View
-                each variant: { type, label, price?, oldPrice?,
-                                color?, images? }
-   `active`   → soft-delete flag (false = hidden from shop)
+   `image`       → primary/cover photo (shop card + cart)
+   `images`      → extra gallery photos (Quick View carousel)
+   `variants`    → selectable options in Quick View
+                   { type, label, price?, oldPrice?,
+                     description?, color?, images? }
+   `active`      → false = hidden from shop (soft delete)
 ─────────────────────────────────────────────────────────── */
 
-/* Variant sub-schema — kept flexible so any type string works */
+/* Embedded variant sub-schema — _id:false = no extra IDs */
 const VariantSchema = new mongoose.Schema(
   {
-    type:     { type: String, required: true, trim: true }, // "Color" | "Size" | "Material" | etc.
-    label:    { type: String, required: true, trim: true }, // "Blue" | "3×2 ft" | "Acrylic"
-    price:    { type: Number, default: null },              // overrides base price when selected
-    oldPrice: { type: Number, default: null },              // crossed-out price for this variant
-    color:    { type: String, default: null },              // hex string for color-swatch chip
-    images:   { type: [String], default: [] },             // variant-specific gallery images
+    type:        { type: String, required: true, trim: true }, // "Color" | "Size" | "Material" | etc.
+    label:       { type: String, required: true, trim: true }, // "Blue" | "3×2 ft"
+    price:       { type: Number, default: null },              // overrides base price when selected
+    oldPrice:    { type: Number, default: null },              // crossed-out price for this variant
+    description: { type: String, default: "" },               // variant-specific description shown in Quick View
+    color:       { type: String, default: null },              // hex for color-swatch chip e.g. "#1a5fa8"
+    images:      { type: [String], default: [] },             // variant-specific gallery images
   },
-  { _id: false } // embedded — no separate _id needed
+  { _id: false }
 );
 
 const ProductSchema = new mongoose.Schema(
@@ -81,15 +82,15 @@ const ProductSchema = new mongoose.Schema(
     oldPrice:    { type: Number, default: null },
     category:    { type: String, required: true, trim: true },
     description: { type: String, default: "" },
-    image:       { type: String, default: "" },        // primary photo
-    images:      { type: [String], default: [] },      // extra gallery photos
-    variants:    { type: [VariantSchema], default: [] }, // Quick View variant chips
+    image:       { type: String, default: "" },
+    images:      { type: [String], default: [] },
+    variants:    { type: [VariantSchema], default: [] },
     badge:       { type: String, enum: ["popular", "sale", "new", "custom", null], default: null },
     tags:        { type: [String], default: [] },
     features:    { type: [String], default: [] },
     sku:         { type: String, default: "", trim: true },
     stock:       { type: String, default: "In Stock" },
-    active:      { type: Boolean, default: true },     // false = hidden from shop listing
+    active:      { type: Boolean, default: true },
   },
   {
     timestamps: true,
@@ -127,7 +128,7 @@ const OrderSchema = new mongoose.Schema(
       default: "offline",
     },
     notes:     { type: String, default: "" },
-    workNotes: { type: String, default: "" }, // employee-facing production notes (not shown in revenue views)
+    workNotes: { type: String, default: "" }, // employee production notes (hidden from revenue views)
     orderDate: { type: Date, default: Date.now },
   },
   {
@@ -239,10 +240,22 @@ app.get("/api/products", async (req, res) => {
     if (cat)      filter.category = { $regex: new RegExp(`^${cat}$`, "i") };
     if (badge)    filter.badge    = badge;
     if (maxPrice) filter.price    = { $lte: Number(maxPrice) };
-    if (q)        filter.$text    = { $search: q };
 
-    // Hide inactive products from the shop by default.
-    // Admin can pass ?active=all to see everything (used by dashboard).
+    // Full-text search: use $or + $regex instead of $text so it works
+    // without requiring a MongoDB Atlas text index, and supports partial matches.
+    if (q) {
+      const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      filter.$or = [
+        { name:        re },
+        { description: re },
+        { category:    re },
+        { tags:        re },
+        { sku:         re },
+      ];
+    }
+
+    // Hide inactive products from shop by default.
+    // Admin dashboard passes ?active=all to see everything.
     if (req.query.active !== "all") {
       filter.active = { $ne: false };
     }
@@ -314,11 +327,23 @@ app.put("/api/products/:id", requireAdminKey, async (req, res) => {
   }
 });
 
-// PATCH /api/products/:id  — partial update (variants, active flag, workNotes, etc.)
-//   Safer than PUT for single-field changes — only touches fields sent in body.
+// DELETE /api/products/:id
+app.delete("/api/products/:id", requireAdminKey, async (req, res) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) return res.status(404).json({ success: false, error: "Product not found" });
+    res.json({ success: true, message: "Product deleted" });
+  } catch (err) {
+    console.error("DELETE /api/products/:id error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+// PATCH /api/products/:id  — partial update (variants, active, etc.)
+//   Uses $set so only the fields sent in the body are changed.
 app.patch("/api/products/:id", requireAdminKey, async (req, res) => {
   try {
-    // Strip immutable fields so callers can't accidentally overwrite _id / createdAt
     const { _id, createdAt, ...patch } = req.body;
     const product = await Product.findByIdAndUpdate(
       req.params.id,
@@ -330,18 +355,6 @@ app.patch("/api/products/:id", requireAdminKey, async (req, res) => {
   } catch (err) {
     console.error("PATCH /api/products/:id error:", err);
     res.status(400).json({ success: false, error: err.message });
-  }
-});
-
-// DELETE /api/products/:id
-app.delete("/api/products/:id", requireAdminKey, async (req, res) => {
-  try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-    if (!product) return res.status(404).json({ success: false, error: "Product not found" });
-    res.json({ success: true, message: "Product deleted" });
-  } catch (err) {
-    console.error("DELETE /api/products/:id error:", err);
-    res.status(500).json({ success: false, error: err.message });
   }
 });
 
@@ -416,8 +429,7 @@ app.put("/api/orders/:id", requireAdminKey, async (req, res) => {
 });
 
 // PATCH /api/orders/:id  — partial update (workNotes, status, etc.)
-//   Used by the employee dashboard to save work notes without
-//   resending the full order object.
+//   Used by employee dashboard to save work notes without resending full object.
 app.patch("/api/orders/:id", requireAdminKey, async (req, res) => {
   try {
     const { _id, createdAt, orderId, ...patch } = req.body; // orderId is immutable
@@ -709,19 +721,20 @@ app.get("/api/stats", async (req, res) => {
 
 /* ════════════════════════════════════════════════════════════
    🧪  SEED ROUTE  —  GET /api/seed
-   Inserts the full 6-product starter catalogue with variants.
-   Visit once, then protect or remove this route in production.
-   Skips automatically if products already exist in the DB.
+   Inserts the full starter catalogue with variants & descriptions.
+   Skips if products already exist. Add ?force=1 to re-seed.
 ════════════════════════════════════════════════════════════ */
 app.get("/api/seed", async (req, res) => {
   try {
     const existing = await Product.countDocuments();
-    if (existing > 0) {
+    if (existing > 0 && req.query.force !== "1") {
       return res.json({
         success: false,
-        message: `DB already has ${existing} products — seeding skipped. Pass ?force=1 to re-seed.`,
+        message: `DB already has ${existing} products — skipped. Add ?force=1 to re-seed.`,
       });
     }
+
+    if (req.query.force === "1") await Product.deleteMany({});
 
     const IMG = "https://blue-priint.github.io/assets/images/Bluepriint%20Images/";
 
@@ -731,123 +744,124 @@ app.get("/api/seed", async (req, res) => {
         price: 850, oldPrice: 1100,
         category: "Printing", badge: "popular",
         description: "High-brightness backlit flex for shop fronts, malls and outdoor displays. UV-resistant ink that glows brilliantly at night.",
-        image:  IMG + "Printing/Backlit-Flex/3.jpg",
+        image: IMG + "Printing/Backlit-Flex/3.jpg",
         images: [IMG + "Printing/Backlit-Flex/3.jpg"],
         tags: ["Flex", "Backlit", "UV Print"],
         features: ["Available in all custom sizes", "UV-resistant weatherproof ink", "48-hour express turnaround"],
+        active: true,
         variants: [
-          { type: "Material", label: "Standard Flex", price: 850,  oldPrice: 1100, images: [IMG + "Printing/Backlit-Flex/3.jpg"] },
-          { type: "Material", label: "Premium Flex",  price: 1100, oldPrice: null, images: [IMG + "Printing/Backlit-Flex/3.jpg"] },
-          { type: "Size", label: "3×2 ft",  price: 850,  images: [] },
-          { type: "Size", label: "6×4 ft",  price: 1400, images: [] },
-          { type: "Size", label: "10×5 ft", price: 2200, images: [] },
+          { type: "Material", label: "Standard Flex", price: 850,  oldPrice: 1100, description: "Our standard backlit flex — great value, bright output, ideal for most signage applications.", images: [IMG + "Printing/Backlit-Flex/3.jpg"] },
+          { type: "Material", label: "Premium Flex",  price: 1100, oldPrice: null, description: "Ultra-bright premium grade flex with enhanced UV resistance and sharper colour reproduction for high-visibility locations.", images: [IMG + "Printing/Backlit-Flex/3.jpg"] },
+          { type: "Size", label: "3×2 ft",  price: 850,  description: "Compact 3×2 ft — ideal for countertop displays, small shop windows and interior branding.", images: [] },
+          { type: "Size", label: "6×4 ft",  price: 1400, description: "Mid-size 6×4 ft — the most popular size for shopfront fascia panels and indoor promotions.", images: [] },
+          { type: "Size", label: "10×5 ft", price: 2200, description: "Large format 10×5 ft — maximum visual impact for malls, showrooms and outdoor hoarding applications.", images: [] },
         ],
-        stock: "in_stock", active: true,
       },
       {
         name: "ACP Fascia Sign Board", sku: "acp-signboard",
         price: 3200, oldPrice: 4000,
         category: "Signage", badge: "sale",
         description: "Durable aluminium composite panel signage for shops, offices and commercial spaces. Professional finish that lasts years.",
-        image:  IMG + "Signage%20Solutions/ACPSignage.JPG",
+        image: IMG + "Signage%20Solutions/ACPSignage.JPG",
         images: [IMG + "Signage%20Solutions/ACPSignage.JPG"],
         tags: ["ACP", "Aluminium", "Fascia"],
         features: ["Weather-resistant ACP panel", "Custom shape & size fabrication", "LED backlit options available"],
+        active: true,
         variants: [
-          { type: "Finish", label: "Matte White",  color: "#f0f0f0", price: 3200, oldPrice: 4000, images: [IMG + "Signage%20Solutions/ACPSignage.JPG"] },
-          { type: "Finish", label: "Gloss Black",  color: "#1a1a1a", price: 3500, oldPrice: 4200, images: [IMG + "Signage%20Solutions/ACPSignage.JPG"] },
-          { type: "Finish", label: "Brushed Gold", color: "#c9a84c", price: 4200, oldPrice: 5000, images: [IMG + "Signage%20Solutions/ACPSignage.JPG"] },
-          { type: "Size", label: "3×1 ft",  price: 3200, images: [] },
-          { type: "Size", label: "6×2 ft",  price: 5800, images: [] },
-          { type: "Size", label: "10×3 ft", price: 9500, images: [] },
+          { type: "Finish", label: "Matte White",  color: "#f0f0f0", price: 3200, oldPrice: 4000, description: "Clean matte white finish — timeless and professional, works with any brand colour palette.", images: [IMG + "Signage%20Solutions/ACPSignage.JPG"] },
+          { type: "Finish", label: "Gloss Black",  color: "#1a1a1a", price: 3500, oldPrice: 4200, description: "Premium gloss black — bold, high-contrast finish that makes brand names and logos pop.", images: [IMG + "Signage%20Solutions/ACPSignage.JPG"] },
+          { type: "Finish", label: "Brushed Gold", color: "#c9a84c", price: 4200, oldPrice: 5000, description: "Luxury brushed gold finish — ideal for premium brands, jewellery stores and upscale retail spaces.", images: [IMG + "Signage%20Solutions/ACPSignage.JPG"] },
+          { type: "Size", label: "3×1 ft",  price: 3200, description: "Small 3×1 ft — perfect for door nameplates, room identifiers and compact brand plaques.", images: [] },
+          { type: "Size", label: "6×2 ft",  price: 5800, description: "Standard 6×2 ft fascia — covers most shop frontages and gives strong street-level brand visibility.", images: [] },
+          { type: "Size", label: "10×3 ft", price: 9500, description: "Large 10×3 ft — maximum fascia coverage for wide storefronts, showrooms and commercial buildings.", images: [] },
         ],
-        stock: "in_stock", active: true,
       },
       {
         name: "Acrylic UV Print", sku: "acrylic-uv-print",
         price: 1800, oldPrice: 2200,
         category: "Printing", badge: "sale",
         description: "Vibrant, scratch-resistant UV prints on clear or white acrylic. The premium choice for brand displays.",
-        image:  IMG + "Printing/Acrylic/3.jpg",
+        image: IMG + "Printing/Acrylic/3.jpg",
         images: [IMG + "Printing/Acrylic/3.jpg"],
         tags: ["Acrylic", "UV Print", "Scratch-Resistant"],
         features: ["Crystal-clear acrylic substrate", "Scratch & fade resistant", "Standoff or flush mounting"],
+        active: true,
         variants: [
-          { type: "Material", label: "Clear Acrylic",  color: "#d6eeff", price: 1800, oldPrice: 2200, images: [IMG + "Printing/Acrylic/3.jpg"] },
-          { type: "Material", label: "White Acrylic",  color: "#ffffff", price: 1800, oldPrice: 2200, images: [IMG + "Printing/Acrylic/3.jpg"] },
-          { type: "Material", label: "Black Acrylic",  color: "#1a1a1a", price: 2000, oldPrice: 2400, images: [IMG + "Printing/Acrylic/3.jpg"] },
-          { type: "Thickness", label: "3mm", price: 1800, images: [] },
-          { type: "Thickness", label: "5mm", price: 2100, images: [] },
-          { type: "Thickness", label: "8mm", price: 2600, images: [] },
+          { type: "Material", label: "Clear Acrylic", color: "#d6eeff", price: 1800, oldPrice: 2200, description: "Crystal-clear base lets the print appear to float — stunning for logos and product showcases.", images: [IMG + "Printing/Acrylic/3.jpg"] },
+          { type: "Material", label: "White Acrylic", color: "#ffffff", price: 1800, oldPrice: 2200, description: "Solid white substrate gives maximum colour vibrancy — ideal for retail signage and menu boards.", images: [IMG + "Printing/Acrylic/3.jpg"] },
+          { type: "Material", label: "Black Acrylic", color: "#1a1a1a", price: 2000, oldPrice: 2400, description: "Dramatic black base makes light-coloured prints and logos stand out — premium dark aesthetic for modern brands.", images: [IMG + "Printing/Acrylic/3.jpg"] },
+          { type: "Thickness", label: "3mm", price: 1800, description: "3mm — lightweight and slim, ideal for wall-mounted displays and indoor signage.", images: [] },
+          { type: "Thickness", label: "5mm", price: 2100, description: "5mm — the most popular thickness; sturdy, versatile and suitable for most commercial applications.", images: [] },
+          { type: "Thickness", label: "8mm", price: 2600, description: "8mm — heavy-duty thickness for floor-standing displays, kiosks and high-traffic environments.", images: [] },
         ],
-        stock: "in_stock", active: true,
       },
       {
         name: "3D LED Facade Sign", sku: "facade-3d-led",
         price: 8500, oldPrice: null,
         category: "Signage", badge: "popular",
         description: "Dramatic illuminated facade signs with 3D LED letters that transform storefronts into landmark destinations after dark.",
-        image:  IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg",
+        image: IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg",
         images: [IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg"],
         tags: ["3D LED", "Facade", "Channel Letters"],
         features: ["Custom 3D letter fabrication", "RGB or single-colour LED", "Includes installation & wiring"],
+        active: true,
         variants: [
-          { type: "LED Color", label: "Warm White", color: "#ffe4b5", price: 8500,  images: [IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg"] },
-          { type: "LED Color", label: "Cool White", color: "#e8f4ff", price: 8500,  images: [IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg"] },
-          { type: "LED Color", label: "RGB Color",  color: "#9b59b6", price: 10500, images: [IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg"] },
-          { type: "Material", label: "Acrylic Face",  price: 8500,  images: [] },
-          { type: "Material", label: "SS Metal Face", price: 12000, images: [] },
+          { type: "LED Color", label: "Warm White", color: "#ffe4b5", price: 8500,  description: "Warm white glow — inviting, classic tone that suits restaurants, cafes and hospitality brands.", images: [IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg"] },
+          { type: "LED Color", label: "Cool White", color: "#e8f4ff", price: 8500,  description: "Cool white light — crisp and modern, perfect for tech brands, clinics and professional offices.", images: [IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg"] },
+          { type: "LED Color", label: "RGB Color",  color: "#9b59b6", price: 10500, description: "Full RGB with controller — cycle through any colour or set a fixed brand colour. Eye-catching for entertainment venues and retail.", images: [IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg"] },
+          { type: "Material", label: "Acrylic Face",  price: 8500,  description: "Acrylic letter faces — smooth, vibrant finish with even light diffusion. Lightweight and cost-effective.", images: [] },
+          { type: "Material", label: "SS Metal Face", price: 12000, description: "Stainless steel letter faces — ultra-premium brushed metal finish with exceptional durability and a luxury brand impression.", images: [] },
         ],
-        stock: "in_stock", active: true,
       },
       {
         name: "Neon Flex LED Sign", sku: "neon-flex-sign",
         price: 4500, oldPrice: 5500,
         category: "Signage", badge: "new",
         description: "Custom neon flex LED signs for restaurants, retail and office interiors. Warm glow, low power consumption.",
-        image:  IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg",
+        image: IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg",
         images: [IMG + "Signage%20Solutions/Facade%20Signage/3%20night.jpg"],
         tags: ["Neon", "LED", "Custom Shape"],
         features: ["Custom shape bending", "Energy-efficient LED neon", "Indoor & outdoor versions"],
+        active: true,
         variants: [
-          { type: "Color", label: "Warm White", color: "#ffe4b5", price: 4500, oldPrice: 5500, images: [] },
-          { type: "Color", label: "Neon Red",   color: "#ff3b3b", price: 4500, oldPrice: 5500, images: [] },
-          { type: "Color", label: "Neon Blue",  color: "#2980d9", price: 4500, oldPrice: 5500, images: [] },
-          { type: "Color", label: "Neon Green", color: "#22a06b", price: 4500, oldPrice: 5500, images: [] },
-          { type: "Color", label: "RGB",        color: "#9b59b6", price: 5800, oldPrice: 7000, images: [] },
-          { type: "Mount", label: "Indoor",  price: 4500, images: [] },
-          { type: "Mount", label: "Outdoor", price: 5500, images: [] },
+          { type: "Color", label: "Warm White", color: "#ffe4b5", price: 4500, oldPrice: 5500, description: "Soft warm white — creates a cosy, nostalgic atmosphere. Popular for cafes, restaurants and boutique retail.", images: [] },
+          { type: "Color", label: "Neon Red",   color: "#ff3b3b", price: 4500, oldPrice: 5500, description: "Bold neon red — high-energy and attention-grabbing. Great for bars, food stalls and promotional signage.", images: [] },
+          { type: "Color", label: "Neon Blue",  color: "#2980d9", price: 4500, oldPrice: 5500, description: "Electric blue — modern and techy. Ideal for studios, gyms, gaming zones and digital-forward brands.", images: [] },
+          { type: "Color", label: "Neon Green", color: "#22a06b", price: 4500, oldPrice: 5500, description: "Vivid green — fresh and vibrant. Perfect for eco-brands, juice bars and wellness spaces.", images: [] },
+          { type: "Color", label: "RGB",        color: "#9b59b6", price: 5800, oldPrice: 7000, description: "Full RGB with remote — choose any colour and change it anytime. The ultimate flexible option for dynamic spaces.", images: [] },
+          { type: "Mount",  label: "Indoor",  price: 4500, description: "Indoor mount — acrylic backboard with wall fixings. Clean installation for interior spaces.", images: [] },
+          { type: "Mount",  label: "Outdoor", price: 5500, description: "Outdoor mount — weatherproof casing and IP65-rated LED strip. Built to last through rain, heat and dust.", images: [] },
         ],
-        stock: "in_stock", active: true,
       },
       {
         name: "Vinyl Wall Wrap", sku: "vinyl-wall-wrap",
         price: 560, oldPrice: null,
         category: "Printing", badge: null,
         description: "Full-colour adhesive vinyl wall graphics for offices, retail showrooms and hospitality spaces. Easy to apply and remove.",
-        image:  IMG + "Printing/one%20way%20vison/3.jpg",
+        image: IMG + "Printing/one%20way%20vison/3.jpg",
         images: [IMG + "Printing/one%20way%20vison/3.jpg"],
         tags: ["Vinyl", "Wall Graphics", "Office"],
         features: ["Air-release adhesive vinyl", "Repositionable up to 24 hrs", "Matte or gloss finish"],
+        active: true,
         variants: [
-          { type: "Finish", label: "Matte",    color: "#e0e0e0", price: 560, images: [] },
-          { type: "Finish", label: "Gloss",    color: "#b0d0ff", price: 560, images: [] },
-          { type: "Finish", label: "Textured", color: "#c8b89a", price: 680, images: [] },
-          { type: "Size", label: "Per sq.ft", price: 560,  images: [] },
-          { type: "Size", label: "10×8 ft",   price: 4200, images: [] },
-          { type: "Size", label: "Full wall",  price: 8500, images: [] },
+          { type: "Finish", label: "Matte",    color: "#e0e0e0", price: 560, description: "Matte finish — no glare, professional look. Best for offices and corporate environments with strong lighting.", images: [] },
+          { type: "Finish", label: "Gloss",    color: "#b0d0ff", price: 560, description: "Gloss finish — vivid colours and high contrast. Ideal for retail spaces and areas where visual impact matters.", images: [] },
+          { type: "Finish", label: "Textured", color: "#c8b89a", price: 680, description: "Textured finish — adds a tactile, premium feel. Great for luxury brands, boutiques and feature walls.", images: [] },
+          { type: "Size", label: "Per sq.ft", price: 560,  description: "Order by the square foot — full flexibility for any custom dimension or irregular wall shape.", images: [] },
+          { type: "Size", label: "10×8 ft",   price: 4200, description: "Standard 10×8 ft wall panel — covers a full feature wall in most commercial and office spaces.", images: [] },
+          { type: "Size", label: "Full wall",  price: 8500, description: "Full wall coverage — end-to-end vinyl wrap for maximum brand immersion. Price varies by wall dimensions; final quote confirmed after site measurement.", images: [] },
         ],
-        stock: "in_stock", active: true,
       },
     ];
 
     await Product.insertMany(sampleProducts);
     res.json({
       success: true,
-      message: `${sampleProducts.length} products seeded with variants.`,
-      ids: sampleProducts.map(p => p.sku),
+      message: `${sampleProducts.length} products seeded with variants and descriptions.`,
+      products: sampleProducts.map(p => ({ sku: p.sku, name: p.name, variants: p.variants.length })),
     });
   } catch (err) {
+    console.error("GET /api/seed error:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
