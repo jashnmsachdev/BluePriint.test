@@ -1332,12 +1332,13 @@
           <span>Product Variants <span style="color:var(--grey);font-weight:400;font-size:11px;">(optional — Color, Size, Material, etc.)</span></span>
           <button type="button" onclick="addVariantRow()" style="padding:5px 12px;background:var(--blue-pale);color:var(--blue);border:1.5px solid var(--blue-light);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">+ Add Variant</button>
         </label>
-        <div style="display:grid;grid-template-columns:110px 1fr 100px 100px 1fr 32px;gap:8px;padding:6px 12px;" id="variantColHeads">
+        <div style="display:grid;grid-template-columns:100px 1fr 90px 90px 1fr 1fr 32px;gap:8px;padding:6px 12px;" id="variantColHeads">
           <span class="variant-col-head">Type</span>
           <span class="variant-col-head">Label</span>
           <span class="variant-col-head">Price (₹)</span>
           <span class="variant-col-head">Old Price</span>
-          <span class="variant-col-head">Image URL(s) — comma sep.</span>
+          <span class="variant-col-head">Description</span>
+          <span class="variant-col-head">Image URLs / #hex</span>
           <span></span>
         </div>
         <div class="variant-list" id="pm-variant-list">
@@ -1515,14 +1516,12 @@ const ENQUIRIES_API = `${ADMIN_API_BASE}/api/enquiries`;
 const ORDERS_API    = `${ADMIN_API_BASE}/api/orders`;
 const STATS_API     = `${ADMIN_API_BASE}/api/stats`;
 
-// Admin key — stored in localStorage after first entry (root only)
-let ADMIN_KEY = localStorage.getItem('bp_admin_key') || '';
+// Admin key — must match ADMIN_API_KEY in server.js
+// Default "bluepriint-admin-2025" works out of the box.
+// To use a custom key: localStorage.setItem('bp_admin_key', 'your-key')
+let ADMIN_KEY = localStorage.getItem('bp_admin_key') || 'bluepriint-admin-2025';
 function ensureAdminKey() {
   if (CURRENT_ROLE === 'employee') return ''; // employees never write
-  if (!ADMIN_KEY) {
-    const k = prompt('Enter your Admin API Key (set ADMIN_API_KEY in Vercel env):');
-    if (k) { ADMIN_KEY = k; localStorage.setItem('bp_admin_key', k); }
-  }
   return ADMIN_KEY;
 }
 
@@ -2614,7 +2613,8 @@ function addVariantRow(v = {}) {
     <input class="pm-var-label" placeholder="e.g. Blue" value="${v.label||''}" title="Option label"/>
     <input class="pm-var-price" type="number" placeholder="Price ₹" value="${v.price||''}" title="Price for this variant"/>
     <input class="pm-var-oldprice" type="number" placeholder="Old ₹" value="${v.oldPrice||''}" title="Old/crossed price"/>
-    <input class="pm-var-images" placeholder="img-url1, img-url2 or #hexcolor" value="${imgStr}" title="Image URLs (comma-separated). For Color type, append hex e.g. #1a5fa8"/>
+    <input class="pm-var-desc" placeholder="Variant-specific description (optional)" value="${(v.description||'').replace(/"/g,'&quot;')}" title="Description shown in Quick View when this option is selected"/>
+    <input class="pm-var-images" placeholder="img-url1, img-url2 or #hexcolor" value="${imgStr}" title="Image URLs (comma-separated). Append hex e.g. #1a5fa8 for color swatches"/>
     <button type="button" class="variant-del-btn" onclick="this.closest('.variant-row').remove()" title="Remove variant">✕</button>
   `;
   list.appendChild(row);
@@ -2624,22 +2624,24 @@ function collectVariants() {
   const rows = document.querySelectorAll('#pm-variant-list .variant-row');
   const variants = [];
   rows.forEach(row => {
-    const type     = row.querySelector('.pm-var-type').value;
-    const label    = row.querySelector('.pm-var-label').value.trim();
-    const price    = parseFloat(row.querySelector('.pm-var-price').value) || null;
-    const oldPrice = parseFloat(row.querySelector('.pm-var-oldprice').value) || null;
-    const rawImgs  = row.querySelector('.pm-var-images').value.split(',').map(s => s.trim()).filter(Boolean);
+    const type        = row.querySelector('.pm-var-type').value;
+    const label       = row.querySelector('.pm-var-label').value.trim();
+    const price       = parseFloat(row.querySelector('.pm-var-price').value) || null;
+    const oldPrice    = parseFloat(row.querySelector('.pm-var-oldprice').value) || null;
+    const description = row.querySelector('.pm-var-desc').value.trim();
+    const rawImgs     = row.querySelector('.pm-var-images').value.split(',').map(s => s.trim()).filter(Boolean);
 
     if (!label) return; // skip blank rows
 
     // Separate hex colors from image URLs
-    const images = rawImgs.filter(s => !s.startsWith('#'));
+    const images   = rawImgs.filter(s => !s.startsWith('#'));
     const colorHex = rawImgs.find(s => s.startsWith('#')) || null;
 
     const entry = { type, label, images };
-    if (price)    entry.price    = price;
-    if (oldPrice) entry.oldPrice = oldPrice;
-    if (colorHex) entry.color    = colorHex;
+    if (price)       entry.price       = price;
+    if (oldPrice)    entry.oldPrice    = oldPrice;
+    if (description) entry.description = description;
+    if (colorHex)    entry.color       = colorHex;
     variants.push(entry);
   });
   return variants;
