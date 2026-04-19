@@ -31,11 +31,13 @@ mongoose.connect(
    Set ADMIN_API_KEY in your .env or Vercel env vars.
    Dashboard sends it as the x-admin-key request header.
 ════════════════════════════════════════════ */
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY || "bluepriint-admin-2025";
+const ADMIN_API_KEY = (process.env.ADMIN_API_KEY || "bluepriint-admin-2025").trim();
+console.log(`🔐 Admin key active: "${ADMIN_API_KEY}"`);
 
 function requireAdminKey(req, res, next) {
-  const key = req.headers["x-admin-key"];
+  const key = (req.headers["x-admin-key"] || "").trim();
   if (!key || key !== ADMIN_API_KEY) {
+    console.warn(`[Auth] Rejected — received: "${key}", expected: "${ADMIN_API_KEY}"`);
     return res.status(401).json({ success: false, error: "Unauthorized — invalid or missing admin key." });
   }
   next();
@@ -164,16 +166,16 @@ const OrderSchema = new mongoose.Schema(
 );
 
 // Auto-generate human-readable orderId (BP-0001, BP-0002, …)
-// Also auto-compute totalAdvance and pendingPayment
-OrderSchema.pre("save", async function (next) {
+// Also auto-compute totalAdvance and pendingPayment.
+// NOTE: async pre-save must NOT receive `next` as a parameter in Mongoose 7+.
+// Return a resolved promise (or just be async) — Mongoose handles it automatically.
+OrderSchema.pre("save", async function () {
   if (!this.orderId) {
     const count = await Order.countDocuments();
     this.orderId = `BP-${String(count + 1).padStart(4, "0")}`;
   }
-  // Recalculate payment totals
   this.totalAdvance   = (this.advances || []).reduce((s, a) => s + (Number(a.amount) || 0), 0);
   this.pendingPayment = Math.max(0, (Number(this.value) || 0) - this.totalAdvance);
-  next();
 });
 OrderSchema.index({ customer: "text", product: "text", orderId: "text" });
 const Order = mongoose.model("Order", OrderSchema);
