@@ -85,6 +85,483 @@ const VariantSchema = new mongoose.Schema(
 
 const ProductSchema = new mongoose.Schema(
   {
+    name:             { type: String, required: true, trim: true },
+    price:            { type: Number, required: true },
+    oldPrice:         { type: Number, default: null },
+    category:         { type: String, required: true, trim: true }, // custom categories allowed
+    description:      { type: String, default: "" },
+    shortDescription: { type: String, default: "", maxlength: 160 }, // ≤160 chars for card
+    image:            { type: String, default: "" },
+    images:           { type: [String], default: [] },
+    variants:         { type: [VariantSchema], default: [] },
+    badge:            { type: String, enum: ["popular", "sale", "new", "custom", null], default: null },
+    tags:             { type: [String], default: [] },
+    features:         { type: [String], default: [] },
+    sku:              { type: String, default: "", trim: true },
+    stock:            { type: String, enum: ["in_stock", "low_stock", "out_of_stock", "In Stock", "Low Stock", "Out of Stock"], default: "in_stock" },
+    active:           { type: Boolean, default: true },
+  },
+  {
+    timestamps: true,
+    toJSON:     { virtuals: true },
+  }
+);
+ProductSchema.index({ name: "text", description: "text", category: "text", tags: "text" });
+const Product = mongoose.model("Product", ProductSchema);
+
+
+/* ── ORDER ────────────────────────────────────────────────
+   orderId        → human-readable auto-generated ID (BP-XXXX)
+   phone          → required by WhatsApp receipt feature
+   address        → required delivery address
+   deadline       → target delivery date (overdue = highlight red)
+   advances       → array of advance payments { amount, method, account }
+   totalAdvance   → sum of advances (auto-calculated on save)
+   pendingPayment → value - totalAdvance (auto-calculated on save)
+   status         → new | pending | progress | complete | delivered | cancelled
+   source         → offline | whatsapp | online | referral
+─────────────────────────────────────────────────────────── */
+
+const AdvancePaymentSchema = new mongoose.Schema(
+  {
+    amount:  { type: Number, required: true, min: 0 },
+    method:  { type: String, enum: ["Cash", "NEFT", "UPI"], default: "Cash" },
+    account: { type: String, default: "", trim: true }, // UPI ID / bank ref / account no
+  },
+  { _id: false }
+);
+
+const OrderSchema = new mongoose.Schema(
+  {
+    orderId:        { type: String, unique: true },          // auto-set in pre-save
+    customer:       { type: String, required: true, trim: true },
+    company:        { type: String, default: "", trim: true },
+    phone:          { type: String, default: "", trim: true },
+    product:        { type: String, required: true, trim: true },
+    category:       { type: String, default: "Other", trim: true },
+    qty:            { type: Number, default: 1, min: 1 },
+    value:          { type: Number, required: true, min: 0 },
+    address:        { type: String, default: "", trim: true }, // delivery address
+    deadline:       { type: Date,   default: null },           // expected delivery date
+    advances:       { type: [AdvancePaymentSchema], default: [] },
+    totalAdvance:   { type: Number, default: 0 },              // computed on save
+    pendingPayment: { type: Number, default: 0 },              // computed on save
+    status: {
+      type:    String,
+      enum:    ["new", "pending", "progress", "complete", "delivered", "cancelled"],
+      default: "new",
+    },
+    source: {
+      type:    String,
+      enum:    ["offline", "whatsapp", "online", "referral"],
+      default: "offline",
+    },
+    notes:     { type: String, default: "" },
+    workNotes: { type: String, default: "" }, // employee production notes
+    orderDate: { type: Date, default: Date.now },
+  },
+  {
+    timestamps: true,
+    toJSON:     { virtuals: true },
+  }
+);
+
+// Auto-generate human-readable orderId (BP-0001, BP-0002, …)
+// Also auto-compute totalAdvance and pendingPayment.
+// NOTE: async pre-save must NOT receive `next` as a parameter in Mongoose 7+.
+// Return a resolved promise (or just be async) — Mongoose handles it automatically.
+OrderSchema.pre("save", async function () {
+  if (!this.orderId) {
+    const count = await Order.countDocuments();
+    this.orderId = `BP-${String(count + 1).padStart(4, "0")}`;
+  }
+  this.totalAdvance   = (this.advances || []).reduce((s, a) => s + (Number(a.amount) || 0), 0);
+  this.pendingPayment = Math.max(0, (Number(this.value) || 0) - this.totalAdvance);
+});
+OrderSchema.index({ customer: "text", product: "text", orderId: "text" });
+const Order = mongoose.model("Order", OrderSchema);
+
+
+/* ── CUSTOMER ─────────────────────────────────────────────
+   Mirrors the customer directory in the dashboard.
+─────────────────────────────────────────────────────────── */
+const CustomerSchema = new mongoose.Schema(
+  {
+    name:         { type: String, required: true, trim: true },
+    company:      { type: String, default: "", trim: true },
+    phone:        { type: String, required: true, trim: true },
+    email:        { type: String, default: "", trim: true, lowercase: true },
+    city:         { type: String, default: "", trim: true },
+    source:       {
+      type:    String,
+      enum:    ["other", "walk-in", "enquiry", "referral", "online"],
+      default: "other",
+    },
+    orders:       { type: Number, default: 0, min: 0 },
+    totalSpent:   { type: Number, default: 0, min: 0 },
+    notes:        { type: String, default: "" },
+    lastContact:  { type: Date, default: Date.now },
+  },
+  {
+    timestamps: true,
+    toJSON:     { virtuals: true },
+  }
+);
+CustomerSchema.index({ name: "text", company: "text", phone: "text", city: "text" });
+const Customer = mongoose.model("Customer", CustomerSchema);
+
+
+/* ── ENQUIRY ──────────────────────────────────────────────
+   Mirrors the enquiry cards on the dashboard.
+   services → array of strings (Printing, Signage, …)
+   priority → high | med | low
+   status   → new | contacted | quoted | closed
+─────────────────────────────────────────────────────────── */
+const EnquirySchema = new mongoose.Schema(
+  {
+    name:     { type: String, required: true, trim: true },
+    company:  { type: String, default: "", trim: true },
+    phone:    { type: String, required: true, trim: true },
+    email:    { type: String, default: "", trim: true, lowercase: true },
+    city:     { type: String, default: "", trim: true },
+    message:  { type: String, default: "" },
+    services: { type: [String], default: [] },
+    priority: {
+      type:    String,
+      enum:    ["high", "med", "low"],
+      default: "med",
+    },
+    status:   {
+      type:    String,
+      enum:    ["new", "contacted", "quoted", "closed"],
+      default: "new",
+    },
+  },
+  {
+    timestamps: true,   // createdAt shown as the enquiry date card
+    toJSON:     { virtuals: true },
+  }
+);
+EnquirySchema.index({ name: "text", company: "text", phone: "text", message: "text" });
+const Enquiry = mongoose.model("Enquiry", EnquirySchema);
+
+
+/* ════════════════════════════════════════════
+   📌 GET /api/catalog-config
+   Exposes VALID_CATEGORIES and seed count to the dashboard.
+════════════════════════════════════════════ */
+app.get("/api/catalog-config", (req, res) => {
+  try {
+    res.json({
+      success: true,
+      validCategories: productCatalog.VALID_CATEGORIES,
+      customCategoriesAllowed: true,
+      productSeedCount: productCatalog.getCatalogProductCount(),
+    });
+  } catch (err) {
+    console.error("GET /api/catalog-config error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+/* ════════════════════════════════════════════════════════════
+   📋  PRODUCT ROUTES
+════════════════════════════════════════════════════════════ */
+
+/* GET /api/products
+   Supports all query params from shop.html:
+     ?cat=       category filter (case-insensitive exact match)
+     ?badge=     badge filter  (popular | sale | new)
+     ?q=         full-text search
+     ?maxPrice=  price ceiling
+     ?sort=      newest | price_asc | price_desc | name_asc
+     ?page=      page number  (default 1)
+     ?limit=     page size    (default 12, max 100 for admin)
+*/
+app.get("/api/products", async (req, res) => {
+  try {
+    const {
+      cat, badge, q, maxPrice,
+      sort  = "newest",
+      page  = 1,
+      limit = 12,
+    } = req.query;
+
+    const filter = {};
+    if (cat)      filter.category = { $regex: new RegExp(`^${cat}$`, "i") };
+    if (badge)    filter.badge    = badge;
+    if (maxPrice) filter.price    = { $lte: Number(maxPrice) };
+
+    // Full-text search: use $or + $regex instead of $text so it works
+    // without requiring a MongoDB Atlas text index, and supports partial matches.
+    if (q) {
+      const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      filter.$or = [
+        { name:        re },
+        { description: re },
+        { category:    re },
+        { tags:        re },
+        { sku:         re },
+      ];
+    }
+
+    // Hide inactive products from shop by default.
+    // Admin dashboard passes ?active=all to see everything.
+    if (req.query.active !== "all") {
+      filter.active = { $ne: false };
+    }
+
+    const sortMap = {
+      newest:     { createdAt: -1 },
+      price_asc:  { price:     1  },
+      price_desc: { price:    -1  },
+      name_asc:   { name:      1  },
+    };
+    const sortObj  = sortMap[sort] || { createdAt: -1 };
+    const pageNum  = Math.max(1, parseInt(page));
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit)));
+    const skip     = (pageNum - 1) * limitNum;
+
+    const [products, total] = await Promise.all([
+      Product.find(filter).sort(sortObj).skip(skip).limit(limitNum).lean(),
+      Product.countDocuments(filter),
+    ]);
+
+    res.json({
+      success: true,
+      data: products,
+      meta: { total, page: pageNum, totalPages: Math.ceil(total / limitNum), limit: limitNum },
+    });
+  } catch (err) {
+    console.error("GET /api/products error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/products/:id  — Quick View + admin edit
+app.get("/api/products/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id).lean();
+    if (!product) return res.status(404).json({ success: false, error: "Product not found" });
+    res.json({ success: true, data: product });
+  } catch (err) {
+    console.error("GET /api/products/:id error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/products  — Add product (sends image + images[] + variants[] from dashboard modal)
+app.post("/api/products", requireAdminKey, async (req, res) => {
+  try {
+    const product = new Product(req.body);
+    await product.save();
+    res.status(201).json({ success: true, data: product });
+  } catch (err) {
+    console.error("POST /api/products error:", err);
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// PUT /api/products/:id  — Update product (saves images[], variants[], shortDescription too)
+app.put("/api/products/:id", requireAdminKey, async (req, res) => {
+  try {
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    ).lean();
+    if (!product) return res.status(404).json({ success: false, error: "Product not found" });
+    res.json({ success: true, data: product });
+  } catch (err) {
+    console.error("PUT /api/products/:id error:", err);
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// DELETE /api/products/:id
+app.delete("/api/products/:id", requireAdminKey, async (req, res) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) return res.status(404).json({ success: false, error: "Product not found" });
+    res.json({ success: true, message: "Product deleted" });
+  } catch (err) {
+    console.error("DELETE /api/products/:id error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+// PATCH /api/products/:id  — partial update (variants, active, etc.)
+//   Uses $set so only the fields sent in the body are changed.
+app.patch("/api/products/:id", requireAdminKey, async (req, res) => {
+  try {
+    const { _id, createdAt, ...patch } = req.body;
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { $set: patch },
+      { new: true, runValidators: true }
+    ).lean();
+    if (!product) return res.status(404).json({ success: false, error: "Product not found" });
+    res.json({ success: true, data: product });
+  } catch (err) {
+    console.error("PATCH /api/products/:id error:", err);
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+
+/* ════════════════════════════════════════════════════════════
+   🧾  ORDER ROUTES
+════════════════════════════════════════════════════════════ */
+
+// GET /api/orders  — list all orders (admin dashboard)
+//   ?limit=  number of results (default 200)
+//   ?status= filter by status
+//   ?q=      search customer / product / orderId
+app.get("/api/orders", async (req, res) => {
+  try {
+    const { limit = 200, status, q } = req.query;
+    const filter = {};
+    if (status) filter.status = status;
+    if (q) {
+      const re = new RegExp(q, "i");
+      filter.$or = [{ customer: re }, { product: re }, { orderId: re }, { company: re }];
+    }
+    const orders = await Order.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(Math.min(500, parseInt(limit)))
+      .lean();
+    res.json({ success: true, data: orders, meta: { total: orders.length } });
+  } catch (err) {
+    console.error("GET /api/orders error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// GET /api/orders/:id  — single order (for edit modal pre-fill)
+app.get("/api/orders/:id", async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id).lean();
+    if (!order) return res.status(404).json({ success: false, error: "Order not found" });
+    res.json({ success: true, data: order });
+  } catch (err) {
+    console.error("GET /api/orders/:id error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// POST /api/orders  — create new order
+//   orderId is auto-generated (BP-XXXX) in the pre-save hook
+app.post("/api/orders", requireAdminKey, async (req, res) => {
+  try {
+    const order = new Order(req.body);
+    await order.save();
+    res.status(201).json({ success: true, data: order });
+  } catch (err) {
+    console.error("POST /api/orders error:", err);
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// PUT /api/orders/:id  — update order (status change, edit fields)
+app.put("/api/orders/:id", requireAdminKey, async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    ).lean();
+    if (!order) return res.status(404).json({ success: false, error: "Order not found" });
+    res.json({ success: true, data: order });
+  } catch (err) {
+    console.error("PUT /api/orders/:id error:", err);
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// PATCH /api/orders/:id  — partial update (workNotes, status, etc.)
+//   Used by employee dashboard to save work notes without resending full object.
+app.patch("/api/orders/:id", requireAdminKey, async (req, res) => {
+  try {
+    const { _id, createdAt, orderId, ...patch } = req.body; // orderId is immutable
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { $set: patch },
+      { new: true, runValidators: true }
+    ).lean();
+    if (!order) return res.status(404).json({ success: false, error: "Order not found" });
+    res.json({ success: true, data: order });
+  } catch (err) {
+    console.error("PATCH /api/orders/:id error:", err);
+    res.status(400).json({ success: false, error: err.message });
+  }
+});
+
+// DELETE /api/orders/:id
+app.delete("/api/orders/:id", requireAdminKey, async (req, res) => {
+  try {
+    const order = await Order.findByIdAndDelete(req.params.id);
+    if (!order) return res.status(404).json({ success: false, error: "Order not found" });
+    res.json({ success: true, message: "Order deleted" });
+  } catch (err) {
+    console.error("DELETE /api/orders/:id error:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+/* ══════════════════════════════════════════════════════function requireAdminKey(req, res, next) {
+  const key = (req.headers["x-admin-key"] || "").trim();
+  if (!key || key !== ADMIN_API_KEY) {
+    console.warn(`[Auth] Rejected — received: "${key}", expected: "${ADMIN_API_KEY}"`);
+    return res.status(401).json({ success: false, error: "Unauthorized — invalid or missing admin key." });
+  }
+  next();
+}
+
+
+/* ════════════════════════════════════════════
+   🛠️  CLOUDINARY CONFIG (image hosting)
+════════════════════════════════════════════ */
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: "dschflths",
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+
+/* ════════════════════════════════════════════════════════════
+   📦  SCHEMAS
+════════════════════════════════════════════════════════════ */
+
+/* ── PRODUCT ──────────────────────────────────────────────
+   `image`       → primary/cover photo (shop card + cart)
+   `images`      → extra gallery photos (Quick View carousel)
+   `variants`    → selectable options in Quick View
+                   { type, label, price?, oldPrice?,
+                     description?, color?, images? }
+   `active`      → false = hidden from shop (soft delete)
+─────────────────────────────────────────────────────────── */
+
+/* Embedded variant sub-schema — _id:false = no extra IDs */
+const VariantSchema = new mongoose.Schema(
+  {
+    type:        { type: String, required: true, trim: true }, // "Color" | "Size" | "Material" | etc.
+    label:       { type: String, required: true, trim: true }, // "Blue" | "3×2 ft"
+    price:       { type: Number, default: null },              // overrides base price when selected
+    oldPrice:    { type: Number, default: null },              // crossed-out price for this variant
+    description: { type: String, default: "" },               // variant-specific description shown in Quick View
+    color:       { type: String, default: null },              // hex for color-swatch chip e.g. "#1a5fa8"
+    images:      { type: [String], default: [] },             // variant-specific gallery images
+  },
+  { _id: false }
+);
+
+const ProductSchema = new mongoose.Schema(
+  {
     name:        { type: String, required: true, trim: true },
     price:       { type: Number, required: true },
     oldPrice:    { type: Number, default: null },
