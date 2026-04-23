@@ -767,8 +767,9 @@ function validateCreate(body) {
   else if (PRODUCTS.some((p) => p.sku === body.sku.trim()))
     errors.push(`sku "${body.sku.trim()}" is already in use`);
 
-  if (!body.category || !VALID_CATEGORIES.includes(body.category))
-    errors.push(`category must be one of: ${VALID_CATEGORIES.join(', ')}`);
+  if (!body.category || typeof body.category !== 'string' || !body.category.trim())
+    errors.push('category is required and must be a non-empty string');
+  // Note: custom categories (not in VALID_CATEGORIES) are accepted for flexibility
 
   if (body.price === undefined || body.price === null)
     errors.push('price is required');
@@ -815,8 +816,9 @@ function validateUpdate(body) {
       errors.push(`sku "${trimmed}" is already used by ${conflict.id}`);
   }
 
-  if (body.category !== undefined && !VALID_CATEGORIES.includes(body.category))
-    errors.push(`category must be one of: ${VALID_CATEGORIES.join(', ')}`);
+  if (body.category !== undefined && (!body.category || !body.category.trim()))
+    errors.push('category cannot be empty');
+  // Custom categories beyond VALID_CATEGORIES are accepted
 
   if (body.price !== undefined && (typeof body.price !== 'number' || body.price < 0))
     errors.push('price must be a non-negative number');
@@ -830,18 +832,8 @@ function validateUpdate(body) {
   if (body.active !== undefined && typeof body.active !== 'boolean')
     errors.push('active must be a boolean');
 
-  // variants — array of { type, label, price?, oldPrice?, color?, images? }
-  if (body.variants !== undefined && !Array.isArray(body.variants))
-    errors.push('variants must be an array');
-
-  // images — array of additional image URLs (gallery)
-  if (body.images !== undefined && !Array.isArray(body.images))
-    errors.push('images must be an array of URL strings');
-
-  // workNotes — free-text field set by employees; no format restriction
-  // (no validation needed — any string is valid)
-
-  return errors;
+  // shortDescription — optional, max 160 chars (enforced on save, not validation)
+  // variants, images, workNotes — arrays/strings, no format restriction
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -975,24 +967,25 @@ export default function handler(req, res) {
       return send(res, 400, { success: false, errors });
 
     const newProduct = {
-      id:          nextId(),
-      sku:         body.sku.trim(),
-      name:        body.name.trim(),
-      category:    body.category,
-      description: (body.description || '').trim(),
-      price:       body.price,
-      oldPrice:    body.oldPrice ?? null,
-      currency:    body.currency || 'INR',
-      badge:       body.badge ?? null,
-      tags:        Array.isArray(body.tags)     ? body.tags     : [],
-      features:    Array.isArray(body.features) ? body.features : [],
-      image:       (body.image || '').trim(),
-      images:      Array.isArray(body.images)   ? body.images   : [],
-      variants:    Array.isArray(body.variants) ? body.variants : [],
-      stock:       body.stock || 'in_stock',
-      active:      body.active !== false,
-      createdAt:   now(),
-      updatedAt:   now(),
+      id:                nextId(),
+      sku:               body.sku.trim(),
+      name:              body.name.trim(),
+      category:          body.category,
+      description:       (body.description || '').trim(),
+      shortDescription:  (body.shortDescription || '').trim().slice(0, 160),
+      price:             body.price,
+      oldPrice:          body.oldPrice ?? null,
+      currency:          body.currency || 'INR',
+      badge:             body.badge ?? null,
+      tags:              Array.isArray(body.tags)     ? body.tags     : [],
+      features:          Array.isArray(body.features) ? body.features : [],
+      image:             (body.image || '').trim(),
+      images:            Array.isArray(body.images)   ? body.images   : [],
+      variants:          Array.isArray(body.variants) ? body.variants : [],
+      stock:             body.stock || 'in_stock',
+      active:            body.active !== false,
+      createdAt:         now(),
+      updatedAt:         now(),
     };
 
     PRODUCTS.push(newProduct);
