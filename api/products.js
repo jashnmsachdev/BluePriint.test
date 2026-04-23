@@ -434,353 +434,8 @@ let PRODUCTS = [
       { type: 'Finish', label: 'Textured', color: '#c8b89a', price: 680, description: 'Textured finish — adds a tactile, premium feel. Great for luxury brands, boutiques and feature walls.', images: [] },
       { type: 'Size', label: 'Per sq.ft', price: 560,  description: 'Order by the square foot — full flexibility for any custom dimension or irregular wall shape.', images: [] },
       { type: 'Size', label: '10×8 ft',   price: 4200, description: 'Standard 10×8 ft wall panel — covers a full feature wall in most commercial and office spaces.', images: [] },
-      { type: 'Size', label: 'Full wall',  price: 8500, description: 'Full wall coverage — end-to-end vinyl wrap for maximum brand immersion. F// PRODUCT CATALOGUE — seed data (24 products)
-// ─────────────────────────────────────────────────────────────
-
-const IMG = 'https://blue-priint.github.io/assets/images/Bluepriint%20Images/';
-
-/** @type {Product[]} */
-let PRODUCTS = [
-  {
-    id: 'BP-001',
-    sku: 'flex-banner',
-    name: 'Backlit Flex Banner',
-    category: 'Printing',
-    description:
-      'High-brightness backlit flex for shop fronts, malls and outdoor displays. UV-resistant ink that glows brilliantly at night.',
-    price: 850,
-    oldPrice: 1100,
-    currency: 'INR',
-    badge: 'popular',
-    tags: ['Flex', 'Backlit', 'UV Print'],
-    features: [
-      'Available in all custom sizes',
-      'UV-resistant weatherproof ink',
-      '48-hour express turnaround',
+      { type: 'Size', label: 'Full wall',  price: 8500, description: 'Full wall coverage — end-to-end vinyl wrap for maximum brand immersion. Final quote confirmed after site measurement.', images: [] },
     ],
-    image: IMG + 'Printing/Backlit-Flex/3.jpg',
-    stock: 'in_stock',
-    active: true,
-    createdAt: '2024-01-10T08:00:00Z',
-    updatedAt: '2024-03-01T10:00:00Z',
-  },
-  {
-    id: 'BP-002',
-    sku: 'acp-signboard',
-    name: 'ACP Fascia Sign Board',
-    category: 'Signage',
-    description:
-      'Durable aluminium composite panel signage for shops, offices and commercial spaces. Professional finish that lasts years.',
-    price: 3200,
-    oldPrice: 4000,
-    currency: 'INR',
-    badge: 'sale',
-    tags: ['ACP', 'Aluminium', 'Fascia'],
-    features: [
-      'Weather-resistant ACP panel',
-      'Custom shape & size fabrication',
-      'LED backlit options available',
-    ],
-    image: IMG + 'Signage%20Solutions/ACPSignage.JPG',
-    stock: 'in_stock',
-    active: true,
-    createdAt: '2024-01-10T08:00:00Z',
-    updatedAt: '2024-03-05T09:00:00Z',
-  },
-  {
-    id: 'BP-003',
-    sku: 'canvas-print',
-    name: 'Premium Canvas Print',
-    category: 'Printing',
-    description:
-      'Gallery-quality canvas prints for offices, showrooms and retail walls. Archival inks, vivid and lasting.',
-    price: 1200,
-    oldPrice: null,
-    currency: 'INR',
-    badge: null,
-    tags: ['Canvas', 'A0/A1', 'Framed'],
-    features: [
-      'Archival-grade canvas material',
-      'Sizes from A3 to 10-foot wide',
-      'Framing & stretching available',
-    ],
-    image: IMG + 'Printing/canvas/3.jpg',
-    stock: 'in_stock',
-    active: true,
-    createdAt: '2024-01-12T08:00:00Z',
-    updatedAt: '2024-02-20T08:00:00Z',
-  },
-  {
-    id: 'BP-004',
-    sku: 'one-way-vision',
-    name: 'One Way Vision Film',
-    category: 'Printing',
-    description:
-      'See-through perforated vinyl for glass facades — brand visibility outside, clear view inside.',
-    price: 950,
-    oldPrice: 1200,
-    currency: 'INR',
-    badge: 'new',
-    tags: ['Perforated', 'Glass Film', 'Privacy'],
-    features: [
-      '50% perforated vinyl film',
-      'Maintains interior visibility',
-      'UV & weather resistant',
-    ],
-    image: IMG + 'Printing/one%20way%20vison/3.jpg',
-    stock: 'in_stock',
-    active: true,
-    createdAt: '2024-02-01T08:00:00Z',
-    updatedAt: '2024-03-10T08:00:00Z',
-  },
-  {
-    id: 'BP-005',
-    sku: 'clip-on-translite',
-    name: 'Clip-on Translite',
-    category: 'Internal Branding',
-    description:
-      'Backlit translites for in-store branding, aisle displays and product promotions. Bright and attention-grabbing.',
-    price: 2400,
-    oldPrice: null,
-    currency: 'INR',
-    badge: null,
-    tags: ['Backlit', 'In-Store', 'LED'],
-    features: [
-      'Slim-frame backlit design',
-      'Quick-change graphics system',
-      'Energy-efficient LED backlight',
-    ],
-    image: IMG + 'Internal%20Branding/Clip%20on%20translites/Picture30.jpg',
-    stock: 'low_stock',
-    active: true,
-    createdAt: '2024-01-15T08:00:00Z',
-    updatedAt: '2024-02-28T08:00:00Z',
-  },
-  {
-    id: 'BP-006',
-    sku: 'acrylic-uv-print',
-    name: 'Acrylic UV Print',
-    category: 'Printing',
-    description:
-      'Vibrant, scratch-resistant UV prints on clear or white acrylic. The premium choice for brand displays.',
-    price: 1800,
-    oldPrice: 2200,
-    currency: 'INR',
-    badge: 'sale',
-    tags: ['Acrylic', 'UV Print', 'Scratch-Resistant'],
-    features: [
-      'Crystal-clear acrylic substrate',
-      'Scratch & fade resistant',
-      'Standoff or flush mounting',
-    ],
-    image: IMG + 'Printing/Acrylic/3.jpg',
-    stock: 'in_stock',
-    active: true,
-    createdAt: '2024-01-18T08:00:00Z',
-    updatedAt: '2024-03-01T08:00:00Z',
-  },
-  {
-    id: 'BP-007',
-    sku: 'facade-3d-led',
-    name: '3D LED Facade Sign',
-    category: 'Signage',
-    description:
-      'Dramatic illuminated facade signs with 3D LED letters that transform storefronts into landmark destinations after dark.',
-    price: 8500,
-    oldPrice: null,
-    currency: 'INR',
-    badge: 'popular',
-    tags: ['3D LED', 'Facade', 'Channel Letters'],
-    features: [
-      'Custom 3D letter fabrication',
-      'RGB or single-colour LED',
-      'Includes installation & wiring',
-    ],
-    image: IMG + 'Signage%20Solutions/Facade%20Signage/3%20night.jpg',
-    stock: 'in_stock',
-    active: true,
-    createdAt: '2024-01-20T08:00:00Z',
-    updatedAt: '2024-02-15T08:00:00Z',
-  },
-  {
-    id: 'BP-008',
-    sku: 'floor-vinyl',
-    name: 'Floor Vinyl Graphics',
-    category: 'Internal Branding',
-    description:
-      'Heavy-duty anti-slip floor vinyl for retail stores, showrooms and events. Turn your floor into a brand surface.',
-    price: 650,
-    oldPrice: 800,
-    currency: 'INR',
-    badge: 'sale',
-    tags: ['Floor Vinyl', 'Anti-Slip', 'Retail'],
-    features: [
-      'Anti-slip laminate finish',
-      'Withstands heavy foot traffic',
-      'Easy to clean & maintain',
-    ],
-    image: IMG + 'Printing/image11.jpg',
-    stock: 'in_stock',
-    active: true,
-    createdAt: '2024-01-22T08:00:00Z',
-    updatedAt: '2024-03-02T08:00:00Z',
-  },
-  {
-    id: 'BP-009',
-    sku: 'roll-up-standee',
-    name: 'Roll-up Standee',
-    category: 'BTL',
-    description:
-      'Portable and professional roll-up standees for events, exhibitions, retail launches and office lobbies.',
-    price: 1400,
-    oldPrice: 1800,
-    currency: 'INR',
-    badge: 'sale',
-    tags: ['Standee', 'Events', 'Retractable'],
-    features: [
-      'Aluminium base with carry bag',
-      'Retractable mechanism',
-      'Print replacement available',
-    ],
-    image: IMG + 'Printing/Backlit-Flex/3.jpg',
-    stock: 'in_stock',
-    active: true,
-    createdAt: '2024-01-25T08:00:00Z',
-    updatedAt: '2024-02-25T08:00:00Z',
-  },
-  {
-    id: 'BP-010',
-    sku: 'glow-sign-board',
-    name: 'Glow Sign Board',
-    category: 'Signage',
-    description:
-      'Classic backlit glow sign boards for shops and businesses. Highly visible day and night with a clean, professional look.',
-    price: 2200,
-    oldPrice: null,
-    currency: 'INR',
-    badge: null,
-    tags: ['Glow Sign', 'Backlit', 'Aluminium Frame'],
-    features: [
-      'Aluminium frame construction',
-      'Internal LED / CFL lighting',
-      'Waterproof & outdoor-safe',
-    ],
-    image: IMG + 'Signage%20Solutions/ACPSignage.JPG',
-    stock: 'in_stock',
-    active: true,
-    createdAt: '2024-01-28T08:00:00Z',
-    updatedAt: '2024-02-10T08:00:00Z',
-  },
-  {
-    id: 'BP-011',
-    sku: 'dangler-print',
-    name: 'Dangler Print',
-    category: 'Internal Branding',
-    description:
-      'Eye-catching hanging danglers for aisle branding, product promotions and seasonal campaigns in retail environments.',
-    price: 320,
-    oldPrice: null,
-    currency: 'INR',
-    badge: null,
-    tags: ['Dangler', 'Sunboard', 'Die-Cut'],
-    features: [
-      'Sunboard or PVC material',
-      'Single or double-sided print',
-      'Custom die-cut shapes available',
-    ],
-    image: IMG + 'Internal%20Branding/Clip%20on%20translites/Picture30.jpg',
-    stock: 'in_stock',
-    active: true,
-    createdAt: '2024-02-01T08:00:00Z',
-    updatedAt: '2024-02-20T08:00:00Z',
-  },
-  {
-    id: 'BP-012',
-    sku: 'outdoor-hoarding',
-    name: 'Outdoor Hoarding',
-    category: 'OOH',
-    description:
-      'Large-format outdoor hoardings for maximum brand reach along highways, markets and commercial corridors.',
-    price: 12000,
-    oldPrice: null,
-    currency: 'INR',
-    badge: null,
-    tags: ['Hoarding', 'Large Format', 'OOH'],
-    features: [
-      'Sizes up to 40×20 feet',
-      'Steel structure & printing included',
-      'PAN India installation network',
-    ],
-    image: IMG + 'Printing/canvas/3.jpg',
-    stock: 'in_stock',
-    active: true,
-    createdAt: '2024-02-03T08:00:00Z',
-    updatedAt: '2024-03-01T08:00:00Z',
-  },
-  {
-    id: 'BP-013',
-    sku: 'sunboard-cutout',
-    name: 'Sunboard Cut-out Display',
-    category: 'BTL',
-    description:
-      'Custom-shaped sunboard cut-outs for point-of-sale displays, in-store promotions and event activations.',
-    price: 480,
-    oldPrice: 600,
-    currency: 'INR',
-    badge: 'sale',
-    tags: ['Sunboard', 'Cut-out', 'POS'],
-    features: [
-      '5mm sunboard substrate',
-      'Any shape or size',
-      'Single or double-sided',
-    ],
-    image: IMG + 'Printing/Backlit-Flex/3.jpg',
-    stock: 'in_stock',
-    active: true,
-    createdAt: '2024-02-05T08:00:00Z',
-    updatedAt: '2024-02-28T08:00:00Z',
-  },
-  {
-    id: 'BP-014',
-    sku: 'neon-flex-sign',
-    name: 'Neon Flex LED Sign',
-    category: 'Signage',
-    description:
-      'Custom neon flex LED signs for restaurants, retail and office interiors. Warm glow, low power consumption.',
-    price: 4500,
-    oldPrice: 5500,
-    currency: 'INR',
-    badge: 'new',
-    tags: ['Neon', 'LED', 'Custom Shape'],
-    features: [
-      'Custom shape bending',
-      'Energy-efficient LED neon',
-      'Indoor & outdoor versions',
-    ],
-    image: IMG + 'Signage%20Solutions/Facade%20Signage/3%20night.jpg',
-    stock: 'in_stock',
-    active: true,
-    createdAt: '2024-02-10T08:00:00Z',
-    updatedAt: '2024-03-08T08:00:00Z',
-  },
-  {
-    id: 'BP-015',
-    sku: 'vinyl-wall-wrap',
-    name: 'Vinyl Wall Wrap',
-    category: 'Printing',
-    description:
-      'Full-colour adhesive vinyl wall graphics for offices, retail showrooms and hospitality spaces. Easy to apply and remove.',
-    price: 560,
-    oldPrice: null,
-    currency: 'INR',
-    badge: null,
-    tags: ['Vinyl', 'Wall Graphics', 'Office'],
-    features: [
-      'Air-release adhesive vinyl',
-      'Repositionable up to 24 hrs',
-      'Matte or gloss finish',
-    ],
-    image: IMG + 'Printing/one%20way%20vison/3.jpg',
     stock: 'in_stock',
     active: true,
     createdAt: '2024-02-12T08:00:00Z',
@@ -1045,7 +700,7 @@ function setCORS(req, res) {
     : allowedOrigins[0];
 
   res.setHeader('Access-Control-Allow-Origin',  allow);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-admin-key, Authorization');
   res.setHeader('Access-Control-Max-Age',       '86400');
   res.setHeader('Vary',                         'Origin');
@@ -1112,8 +767,9 @@ function validateCreate(body) {
   else if (PRODUCTS.some((p) => p.sku === body.sku.trim()))
     errors.push(`sku "${body.sku.trim()}" is already in use`);
 
-  if (!body.category || !VALID_CATEGORIES.includes(body.category))
-    errors.push(`category must be one of: ${VALID_CATEGORIES.join(', ')}`);
+  if (!body.category || typeof body.category !== 'string' || !body.category.trim())
+    errors.push('category is required and must be a non-empty string');
+  // Note: custom categories (not in VALID_CATEGORIES) are accepted for flexibility
 
   if (body.price === undefined || body.price === null)
     errors.push('price is required');
@@ -1160,8 +816,9 @@ function validateUpdate(body) {
       errors.push(`sku "${trimmed}" is already used by ${conflict.id}`);
   }
 
-  if (body.category !== undefined && !VALID_CATEGORIES.includes(body.category))
-    errors.push(`category must be one of: ${VALID_CATEGORIES.join(', ')}`);
+  if (body.category !== undefined && (!body.category || !body.category.trim()))
+    errors.push('category cannot be empty');
+  // Custom categories beyond VALID_CATEGORIES are accepted
 
   if (body.price !== undefined && (typeof body.price !== 'number' || body.price < 0))
     errors.push('price must be a non-negative number');
@@ -1175,7 +832,8 @@ function validateUpdate(body) {
   if (body.active !== undefined && typeof body.active !== 'boolean')
     errors.push('active must be a boolean');
 
-  return errors;
+  // shortDescription — optional, max 160 chars (enforced on save, not validation)
+  // variants, images, workNotes — arrays/strings, no format restriction
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1309,22 +967,25 @@ export default function handler(req, res) {
       return send(res, 400, { success: false, errors });
 
     const newProduct = {
-      id:          nextId(),
-      sku:         body.sku.trim(),
-      name:        body.name.trim(),
-      category:    body.category,
-      description: (body.description || '').trim(),
-      price:       body.price,
-      oldPrice:    body.oldPrice ?? null,
-      currency:    body.currency || 'INR',
-      badge:       body.badge ?? null,
-      tags:        Array.isArray(body.tags)     ? body.tags     : [],
-      features:    Array.isArray(body.features) ? body.features : [],
-      image:       (body.image || '').trim(),
-      stock:       body.stock || 'in_stock',
-      active:      body.active !== false,
-      createdAt:   now(),
-      updatedAt:   now(),
+      id:                nextId(),
+      sku:               body.sku.trim(),
+      name:              body.name.trim(),
+      category:          body.category,
+      description:       (body.description || '').trim(),
+      shortDescription:  (body.shortDescription || '').trim().slice(0, 160),
+      price:             body.price,
+      oldPrice:          body.oldPrice ?? null,
+      currency:          body.currency || 'INR',
+      badge:             body.badge ?? null,
+      tags:              Array.isArray(body.tags)     ? body.tags     : [],
+      features:          Array.isArray(body.features) ? body.features : [],
+      image:             (body.image || '').trim(),
+      images:            Array.isArray(body.images)   ? body.images   : [],
+      variants:          Array.isArray(body.variants) ? body.variants : [],
+      stock:             body.stock || 'in_stock',
+      active:            body.active !== false,
+      createdAt:         now(),
+      updatedAt:         now(),
     };
 
     PRODUCTS.push(newProduct);
@@ -1371,6 +1032,35 @@ export default function handler(req, res) {
     });
   }
 
+  // ── PATCH (partial update — workNotes, status, etc.) ─────
+  if (method === 'PATCH') {
+    if (!isAuthorised(req))
+      return send(res, 401, { success: false, error: 'Unauthorised — valid x-admin-key required' });
+
+    const targetId = query.id;
+    if (!targetId)
+      return send(res, 400, { success: false, error: 'Query param "id" is required for PATCH' });
+
+    const index = PRODUCTS.findIndex((p) => p.id === targetId);
+    if (index === -1)
+      return send(res, 404, { success: false, error: `Product "${targetId}" not found` });
+
+    // Only allow safe partial fields — strip immutable ones
+    const { id: _id, createdAt: _ca, ...patch } = body || {};
+
+    PRODUCTS[index] = {
+      ...PRODUCTS[index],
+      ...patch,
+      updatedAt: now(),
+    };
+
+    return send(res, 200, {
+      success: true,
+      message: 'Product patched',
+      data:    PRODUCTS[index],
+    });
+  }
+
   // ── DELETE ───────────────────────────────────────────────
   if (method === 'DELETE') {
     if (!isAuthorised(req))
@@ -1397,7 +1087,7 @@ export default function handler(req, res) {
   return send(res, 405, {
     success: false,
     error:   `Method "${method}" is not supported on this endpoint`,
-    allowed: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowed: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 }
 
