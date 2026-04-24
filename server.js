@@ -100,6 +100,7 @@ const ProductSchema = new mongoose.Schema(
     sku:              { type: String, default: "", trim: true },
     stock:            { type: String, enum: ["in_stock", "low_stock", "out_of_stock", "In Stock", "Low Stock", "Out of Stock"], default: "in_stock" },
     active:           { type: Boolean, default: true },
+    sortOrder:        { type: Number, default: 0 },
   },
   {
     timestamps: true,
@@ -313,7 +314,7 @@ app.get("/api/products", async (req, res) => {
     }
 
     const sortMap = {
-      newest:     { createdAt: -1 },
+      newest:     { sortOrder: 1, createdAt: -1 },  // respect manual order first, then newest
       price_asc:  { price:     1  },
       price_desc: { price:    -1  },
       name_asc:   { name:      1  },
