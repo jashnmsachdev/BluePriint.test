@@ -696,6 +696,32 @@
     .work-note-input { width: 100%; border: 1.5px solid var(--border); border-radius: 7px; padding: 7px 12px; font-family: var(--sans); font-size: 13px; background: #fff; color: var(--ink); resize: none; min-height: 40px; outline: none; }
     .work-note-input:focus { border-color: var(--blue-light); }
     .work-note-save { margin-top: 6px; padding: 6px 14px; background: var(--blue); color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+    /* ─── PRODUCT REORDER ─── */
+    .drag-handle {
+      cursor: grab; font-size: 16px; color: var(--grey-light);
+      padding: 0 6px; user-select: none; line-height: 1;
+      transition: color 0.2s;
+    }
+    .drag-handle:hover { color: var(--grey); }
+    .drag-handle:active { cursor: grabbing; }
+    tr.dragging { opacity: 0.4; background: var(--blue-pale) !important; }
+    tr.drag-over-top { border-top: 2.5px solid var(--blue-light); }
+    tr.drag-over-bottom { border-bottom: 2.5px solid var(--blue-light); }
+    .pos-input {
+      width: 52px; padding: 5px 7px; border: 1.5px solid var(--border);
+      border-radius: 6px; font-size: 12px; font-family: var(--sans);
+      text-align: center; background: #fff; color: var(--ink); outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .pos-input:focus { border-color: var(--blue-light); box-shadow: 0 0 0 2px rgba(41,128,217,0.15); }
+    .pos-input.conflict { border-color: var(--red); background: var(--red-pale); animation: shake 0.3s ease; }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 60%{transform:translateX(4px)}
+    }
+    .pos-input.ok { border-color: var(--green); }
+    tr.reorder-mode td { background: var(--off); }
+    #btnReorder.active { background: var(--blue); color: #fff; border-color: var(--blue); }
   </style>
 </head>
 <body>
@@ -1026,7 +1052,8 @@
             <div class="card-title">Product Catalogue</div>
             <div class="card-sub">24 products across 7 categories</div>
           </div>
-          <div style="display:flex;gap:10px;">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <button class="btn-secondary root-only" id="btnReorder" onclick="toggleReorderMode()" title="Drag rows to reorder, or type a position number">⇅ Reorder</button>
             <button class="btn-secondary root-only" onclick="showToast('Products exported','success')">⬇ Export</button>
             <button class="btn-primary root-only" onclick="openProductModal()">+ Add Product</button>
           </div>
@@ -1047,9 +1074,20 @@
               </select>
             </div>
           </div>
-          <table class="data-table">
+          <!-- Reorder info banner -->
+          <div id="reorderBanner" style="display:none;background:var(--blue-pale);border:1.5px solid rgba(41,128,217,0.25);border-radius:8px;padding:10px 16px;margin-bottom:12px;font-size:13px;color:var(--blue);display:none;align-items:center;gap:12px;">
+            <span>🔢</span>
+            <span>Drag rows to reorder, <strong>or</strong> type a position number in the # field and press Enter. Conflicts are flagged before saving.</span>
+            <button onclick="saveProductOrder()" style="margin-left:auto;padding:6px 16px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:12.5px;font-weight:700;cursor:pointer;">💾 Save Order</button>
+            <button onclick="toggleReorderMode()" style="padding:6px 12px;background:transparent;color:var(--grey);border:1.5px solid var(--grey-light);border-radius:6px;font-size:12px;cursor:pointer;">Cancel</button>
+          </div>
+          <table class="data-table" id="productsTable">
             <thead>
-              <tr><th>Product</th><th>SKU</th><th>Category</th><th class="root-only">Price</th><th>Badge</th><th>Stock</th><th>Actions</th></tr>
+              <tr>
+                <th id="th-order" style="display:none;width:44px;"></th>
+                <th id="th-pos" style="display:none;width:68px;">#</th>
+                <th>Product</th><th>SKU</th><th>Category</th><th class="root-only">Price</th><th>Badge</th><th>Stock</th><th>Actions</th>
+              </tr>
             </thead>
             <tbody id="productsTableBody"></tbody>
           </table>
@@ -1777,12 +1815,20 @@ async function loadProductsFromAPI() {
     PRODUCTS_DATA = (result.data || []).map(p => ({
       ...p,
       // Normalise MongoDB _id → id so Edit / Delete buttons use the right key
-      id:   p.id   || p._id  || '',
-      cat:  p.cat  || p.category    || '',
-      img:  p.img  || p.image       || '',
-      desc: p.desc || p.description || '',
+      id:        p.id   || p._id  || '',
+      cat:       p.cat  || p.category    || '',
+      img:       p.img  || p.image       || '',
+      desc:      p.desc || p.description || '',
+      sortOrder: p.sortOrder != null ? p.sortOrder : 9999,
       stock: (() => { const s = p.stock || 'in_stock'; if (s === 'in_stock' || s === 'In Stock') return 'In Stock'; if (s === 'low_stock' || s === 'Low Stock') return 'Low Stock'; if (s === 'out_of_stock' || s === 'Out of Stock') return 'Out of Stock'; return s; })(),
     }));
+    // Sort by manual sortOrder, then by createdAt for products without one set
+    PRODUCTS_DATA.sort((a, b) => {
+      const ao = a.sortOrder != null ? a.sortOrder : 9999;
+      const bo = b.sortOrder != null ? b.sortOrder : 9999;
+      if (ao !== bo) return ao - bo;
+      return 0;
+    });
     renderProducts(PRODUCTS_DATA);
     updateDashboardProductCount(PRODUCTS_DATA.length);
 
@@ -2060,7 +2106,7 @@ function renderProducts(list) {
   const tbody = document.getElementById('productsTableBody');
 
   if (!list || !list.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--grey);">No products found</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--grey);">No products found</td></tr>`;
     document.querySelector('#page-products .card-sub').textContent = '0 products';
     return;
   }
@@ -2068,10 +2114,21 @@ function renderProducts(list) {
   document.querySelector('#page-products .card-sub').textContent =
     `${PRODUCTS_DATA.length} products across 7 categories`;
 
-  tbody.innerHTML = list.map(p => {
+  tbody.innerHTML = list.map((p, idx) => {
     const varCount = Array.isArray(p.variants) ? p.variants.length : 0;
+    const pos = p.sortOrder != null ? p.sortOrder : (idx + 1);
     return `
-    <tr data-product-id="${p.id}">
+    <tr data-product-id="${p.id}" data-sort-order="${pos}" draggable="false">
+      <td class="td-drag-handle" style="display:none;padding:0 4px;text-align:center;">
+        <span class="drag-handle" title="Drag to reorder">⠿</span>
+      </td>
+      <td class="td-pos-input" style="display:none;padding:4px 6px;">
+        <input class="pos-input" type="number" min="1" value="${pos}"
+          data-id="${p.id}"
+          onchange="onPosInputChange(this)"
+          onkeydown="if(event.key==='Enter'){this.blur();}"
+          title="Type a position number (conflicts are flagged)"/>
+      </td>
       <td style="display:flex;align-items:center;gap:12px;min-width:200px;">
         <img class="prod-thumb" src="${p.img}" alt="${p.name}"
           onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\'%3E%3Crect fill=\'%23e8f1fb\' width=\'44\' height=\'44\'/%3E%3C/svg%3E'"/>
@@ -2097,6 +2154,9 @@ function renderProducts(list) {
       </td>
     </tr>`;
   }).join('');
+
+  // Re-init drag if reorder mode is active
+  if (_reorderMode) _initDragRows();
 }
 
 function renderCustomers(list) {
@@ -2310,6 +2370,198 @@ function renderTopProductsFromOrders() {
       </div>
     </div>
   `).join('');
+}
+
+/* ══════════════════════════════════════════
+   PRODUCT REORDER — drag-and-drop + number input
+══════════════════════════════════════════ */
+let _reorderMode = false;
+let _dragSrc     = null;  // dragged <tr>
+
+function toggleReorderMode() {
+  _reorderMode = !_reorderMode;
+  const btn    = document.getElementById('btnReorder');
+  const banner = document.getElementById('reorderBanner');
+  const thDrag = document.getElementById('th-order');
+  const thPos  = document.getElementById('th-pos');
+
+  btn.classList.toggle('active', _reorderMode);
+  btn.textContent = _reorderMode ? '✓ Done' : '⇅ Reorder';
+
+  // Show/hide banner
+  if (banner) banner.style.display = _reorderMode ? 'flex' : 'none';
+
+  // Show/hide extra columns
+  [thDrag, thPos].forEach(el => { if (el) el.style.display = _reorderMode ? '' : 'none'; });
+  document.querySelectorAll('.td-drag-handle, .td-pos-input').forEach(td => {
+    td.style.display = _reorderMode ? '' : 'none';
+  });
+  document.querySelectorAll('#productsTableBody tr').forEach(tr => {
+    tr.draggable = _reorderMode;
+    tr.classList.toggle('reorder-mode', _reorderMode);
+  });
+
+  if (_reorderMode) _initDragRows();
+}
+
+function _initDragRows() {
+  const tbody = document.getElementById('productsTableBody');
+  if (!tbody) return;
+
+  tbody.querySelectorAll('tr[data-product-id]').forEach(tr => {
+    tr.draggable = true;
+
+    tr.ondragstart = e => {
+      _dragSrc = tr;
+      tr.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    };
+    tr.ondragend = () => {
+      tr.classList.remove('dragging');
+      tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over-top','drag-over-bottom'));
+      _syncPosInputsFromDOM();
+    };
+    tr.ondragover = e => {
+      e.preventDefault();
+      if (!_dragSrc || _dragSrc === tr) return;
+      const rect = tr.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over-top','drag-over-bottom'));
+      tr.classList.add(e.clientY < midY ? 'drag-over-top' : 'drag-over-bottom');
+    };
+    tr.ondrop = e => {
+      e.preventDefault();
+      if (!_dragSrc || _dragSrc === tr) return;
+      const rect = tr.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      if (e.clientY < midY) {
+        tbody.insertBefore(_dragSrc, tr);
+      } else {
+        tbody.insertBefore(_dragSrc, tr.nextSibling);
+      }
+      tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over-top','drag-over-bottom'));
+      _syncPosInputsFromDOM();
+    };
+  });
+}
+
+/** After a drag, renumber all pos-inputs to reflect the new row order */
+function _syncPosInputsFromDOM() {
+  const rows = [...document.querySelectorAll('#productsTableBody tr[data-product-id]')];
+  rows.forEach((tr, idx) => {
+    const input = tr.querySelector('.pos-input');
+    if (input) {
+      input.value = idx + 1;
+      input.classList.remove('conflict', 'ok');
+      tr.dataset.sortOrder = idx + 1;
+    }
+  });
+}
+
+/** Called when user types a number in the position input */
+function onPosInputChange(input) {
+  const newPos = parseInt(input.value);
+  if (isNaN(newPos) || newPos < 1) {
+    input.classList.add('conflict');
+    showToast('Position must be a positive number', 'error');
+    return;
+  }
+
+  // Check for conflicts among other inputs
+  const allInputs = [...document.querySelectorAll('.pos-input')];
+  const conflict  = allInputs.find(el => el !== input && parseInt(el.value) === newPos);
+
+  if (conflict) {
+    input.classList.add('conflict');
+    input.classList.remove('ok');
+    showToast(`Position ${newPos} is already taken — choose another number`, 'error');
+    return;
+  }
+
+  input.classList.remove('conflict');
+  input.classList.add('ok');
+
+  // Move the row to the correct position visually
+  const tbody = document.getElementById('productsTableBody');
+  const thisRow = input.closest('tr');
+  const rows    = [...tbody.querySelectorAll('tr[data-product-id]')];
+
+  // Sort rows by their current pos-input value
+  rows.sort((a, b) => {
+    const av = parseInt(a.querySelector('.pos-input')?.value) || 9999;
+    const bv = parseInt(b.querySelector('.pos-input')?.value) || 9999;
+    return av - bv;
+  });
+
+  // Re-insert in sorted order
+  rows.forEach(r => tbody.appendChild(r));
+
+  // After resorting, renumber to be clean (no gaps)
+  setTimeout(() => {
+    const sorted = [...tbody.querySelectorAll('tr[data-product-id]')];
+    sorted.forEach((tr, i) => {
+      const inp = tr.querySelector('.pos-input');
+      if (inp && inp !== input) {
+        inp.value = i + 1;
+        inp.classList.remove('conflict', 'ok');
+      }
+    });
+    // Revalidate the changed input
+    const finalPos = sorted.findIndex(r => r === thisRow) + 1;
+    input.value = finalPos;
+    input.classList.remove('conflict');
+    input.classList.add('ok');
+    setTimeout(() => input.classList.remove('ok'), 1200);
+  }, 50);
+}
+
+/** Save the final order to the server via PATCH */
+async function saveProductOrder() {
+  // Validate no conflicts
+  const inputs = [...document.querySelectorAll('.pos-input')];
+  const positions = inputs.map(i => parseInt(i.value));
+  const hasDupes = positions.some((p, i) => positions.indexOf(p) !== i);
+  if (hasDupes) {
+    showToast('Fix duplicate position numbers before saving', 'error');
+    return;
+  }
+
+  const rows = [...document.querySelectorAll('#productsTableBody tr[data-product-id]')];
+  const updates = rows.map((tr, idx) => ({
+    id: tr.dataset.productId,
+    sortOrder: idx + 1,
+  }));
+
+  // Use PATCH /api/products/:id to save sortOrder for each
+  const adminKey = ensureAdminKey();
+  let success = 0;
+  let failed  = 0;
+
+  for (const u of updates) {
+    try {
+      const res = await fetch(`${ADMIN_API_BASE}/api/products/${u.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+        body: JSON.stringify({ sortOrder: u.sortOrder }),
+      });
+      const json = await res.json();
+      if (json.success) success++;
+      else failed++;
+    } catch { failed++; }
+  }
+
+  // Update local cache to reflect new order
+  const idOrder = updates.map(u => u.id);
+  PRODUCTS_DATA.sort((a, b) => idOrder.indexOf(a.id) - idOrder.indexOf(b.id));
+  PRODUCTS_DATA.forEach((p, i) => { p.sortOrder = i + 1; });
+
+  if (failed === 0) {
+    showToast(`Product order saved ✓ (${success} items)`, 'success');
+    toggleReorderMode(); // exit reorder mode
+    renderProducts(PRODUCTS_DATA);
+  } else {
+    showToast(`Saved ${success} items, ${failed} failed — try again`, 'error');
+  }
 }
 
 /* ══════════════════════════════════════════
