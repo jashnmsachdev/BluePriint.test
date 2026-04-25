@@ -697,6 +697,67 @@
     .work-note-input:focus { border-color: var(--blue-light); }
     .work-note-save { margin-top: 6px; padding: 6px 14px; background: var(--blue); color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
 
+    /* ─── ANALYTICS PAGE ─── */
+    .analytics-filter-bar {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      background: #fff; border: 1px solid var(--border); border-radius: 12px;
+      padding: 12px 20px; margin-bottom: 20px;
+    }
+    .analytics-filter-label { font-size: 12.5px; font-weight: 600; color: var(--grey); }
+    .analytics-range-btns { display: flex; gap: 4px; }
+    .ar-btn {
+      padding: 6px 14px; border-radius: 6px; border: 1.5px solid var(--border);
+      background: #fff; font-size: 12px; font-weight: 600; color: var(--grey);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .ar-btn.active, .ar-btn:hover { background: var(--blue-pale); border-color: var(--blue-light); color: var(--blue); }
+
+    /* Line chart */
+    .line-chart-wrap {
+      width: 100%; height: 180px; position: relative; overflow: visible;
+    }
+    .line-chart-wrap svg { width: 100%; height: 100%; overflow: visible; }
+    .lc-grid-line { stroke: var(--border); stroke-width: 1; stroke-dasharray: 4 4; }
+    .lc-axis-label { font-size: 10px; fill: var(--grey); font-family: var(--sans); }
+    .lc-value-label { font-size: 9.5px; fill: var(--blue); font-family: var(--sans); font-weight: 700; }
+    .lc-line { fill: none; stroke: var(--blue-light); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+    .lc-area { fill: url(#lc-gradient); }
+    .lc-dot { fill: var(--blue-light); stroke: #fff; stroke-width: 2; cursor: pointer; }
+    .lc-dot:hover { r: 5; }
+    .lc-tooltip {
+      position: absolute; background: var(--ink); color: #fff; border-radius: 6px;
+      padding: 5px 10px; font-size: 11.5px; font-weight: 700; pointer-events: none;
+      white-space: nowrap; transform: translateX(-50%); z-index: 20; display: none;
+    }
+
+    /* Pending payment alert on stat card */
+    #stat-card-pending-payments .stat-value { color: var(--red) !important; }
+    #stat-card-pending-payments .stat-value span { color: var(--red) !important; }
+    #an-pending-payments span { color: var(--red) !important; }
+
+    /* Analytics pending table */
+    #an-pending-table tr td:last-child { color: var(--red); font-weight: 700; }
+
+    /* Top customers bar */
+    .top-cust-row { display: flex; flex-direction: column; gap: 4px; }
+    .top-cust-info { display: flex; justify-content: space-between; align-items: center; }
+    .top-cust-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+    .top-cust-rev { font-size: 12.5px; font-weight: 700; color: var(--green); }
+    .top-cust-bar-bg { height: 5px; background: var(--border); border-radius: 3px; }
+    .top-cust-bar-fill { height: 5px; background: var(--green); border-radius: 3px; transition: width 0.6s ease; }
+
+    /* Cleared payment row */
+    .cleared-row {
+      display: flex; align-items: center; gap: 12px; padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .cleared-row:last-child { border-bottom: none; }
+    .cleared-icon { width: 34px; height: 34px; background: var(--green-pale); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .cleared-info { flex: 1; }
+    .cleared-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+    .cleared-meta { font-size: 11.5px; color: var(--grey); margin-top: 1px; }
+    .cleared-amt { font-size: 14px; font-weight: 700; color: var(--green); }
+
     /* ─── PRODUCT REORDER ─── */
     .drag-handle {
       cursor: grab; font-size: 16px; color: var(--grey-light);
@@ -886,12 +947,12 @@
           <div class="stat-value" id="stat-open-enquiries">—</div>
           <div class="stat-delta delta-down">New leads awaiting response</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card root-only" id="stat-card-pending-payments" style="cursor:pointer;" onclick="showPage('analytics')" title="View payment details">
           <div class="stat-card-accent" style="background:var(--red)"></div>
-          <div class="stat-icon">👥</div>
-          <div class="stat-label">Total Customers</div>
-          <div class="stat-value" id="stat-new-customers">—</div>
-          <div class="stat-delta delta-up">Registered in directory</div>
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-label">Total Pending Payments</div>
+          <div class="stat-value money-value" id="stat-pending-payments"><span>—</span></div>
+          <div class="stat-delta" id="stat-pending-delta"><span style="color:var(--grey);font-weight:400">Loading…</span></div>
         </div>
       </div>
 
@@ -1137,24 +1198,198 @@
 
     <!-- ─────────────── ANALYTICS ─────────────── -->
     <div class="page" id="page-analytics">
-      <div class="stats-row">
-        <div class="stat-card"><div class="stat-icon">🛒</div><div class="stat-label">Conversion Rate</div><div class="stat-value">4.2%</div><div class="stat-delta delta-up">▲ 0.6% vs last month</div></div>
-        <div class="stat-card"><div class="stat-icon">⏱</div><div class="stat-label">Avg. Response Time</div><div class="stat-value">2.4h</div><div class="stat-delta delta-down">▼ 0.3h improved</div></div>
-        <div class="stat-card"><div class="stat-icon">🔁</div><div class="stat-label">Repeat Customers</div><div class="stat-value">38%</div><div class="stat-delta delta-up">▲ 3% vs last month</div></div>
-        <div class="stat-card root-only"><div class="stat-icon">💸</div><div class="stat-label">Avg. Order Value</div><div class="stat-value money-value"><span>₹4,200</span></div><div class="stat-delta delta-up">▲ ₹320 vs last month</div></div>
-      </div>
-      <div class="charts-row">
-        <div class="card root-only">
-          <div class="card-header"><div><div class="card-title">Monthly Revenue Trend</div><div class="card-sub">Last 12 months</div></div></div>
-          <div class="card-body"><div class="bar-chart" id="barChartFull"></div></div>
+
+      <!-- Date range filter -->
+      <div class="analytics-filter-bar">
+        <div class="analytics-filter-label">📅 Date Range</div>
+        <div class="analytics-range-btns">
+          <button class="ar-btn active" onclick="setAnalyticsRange('7d', this)">7 Days</button>
+          <button class="ar-btn" onclick="setAnalyticsRange('30d', this)">30 Days</button>
+          <button class="ar-btn" onclick="setAnalyticsRange('90d', this)">3 Months</button>
+          <button class="ar-btn" onclick="setAnalyticsRange('all', this)">All Time</button>
         </div>
-        <div class="card">
-          <div class="card-header"><div><div class="card-title">Top Products</div><div class="card-sub">By revenue this month</div></div></div>
+        <div class="analytics-filter-label" style="margin-left:auto;font-size:12px;" id="analytics-range-label">Showing: last 7 days</div>
+      </div>
+
+      <!-- KPI Cards Row 1: Revenue & Sales -->
+      <div class="stats-row" style="margin-bottom:16px;">
+        <div class="stat-card root-only">
+          <div class="stat-card-accent" style="background:var(--green)"></div>
+          <div class="stat-icon">💰</div>
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value money-value" id="an-total-revenue"><span>—</span></div>
+          <div class="stat-delta" id="an-revenue-sub" style="color:var(--grey);font-weight:400;font-size:11px;">Lifetime all orders</div>
+        </div>
+        <div class="stat-card root-only">
+          <div class="stat-card-accent" style="background:var(--blue-light)"></div>
+          <div class="stat-icon">📈</div>
+          <div class="stat-label">Avg. Order Value</div>
+          <div class="stat-value money-value" id="an-avg-order"><span>—</span></div>
+          <div class="stat-delta" id="an-avg-sub" style="color:var(--grey);font-weight:400;font-size:11px;">Per completed order</div>
+        </div>
+        <div class="stat-card root-only" style="position:relative;">
+          <div class="stat-card-accent" style="background:var(--red)"></div>
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-label">Pending Payments</div>
+          <div class="stat-value money-value" id="an-pending-payments"><span>—</span></div>
+          <div class="stat-delta delta-down" id="an-pending-count" style="font-size:11px;">From — orders</div>
+        </div>
+        <div class="stat-card root-only">
+          <div class="stat-card-accent" style="background:var(--gold)"></div>
+          <div class="stat-icon">✅</div>
+          <div class="stat-label">Total Collected</div>
+          <div class="stat-value money-value" id="an-total-collected"><span>—</span></div>
+          <div class="stat-delta delta-up" style="font-size:11px;" id="an-paid-ratio">Loading…</div>
+        </div>
+      </div>
+
+      <!-- KPI Cards Row 2: Orders -->
+      <div class="stats-row" style="margin-bottom:20px;">
+        <div class="stat-card">
+          <div class="stat-card-accent" style="background:var(--blue-mid)"></div>
+          <div class="stat-icon">🧾</div>
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value" id="an-total-orders">—</div>
+          <div class="stat-delta" id="an-orders-sub" style="color:var(--grey);font-weight:400;font-size:11px;">Loading…</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-accent" style="background:var(--orange)"></div>
+          <div class="stat-icon">⏳</div>
+          <div class="stat-label">Pending Orders</div>
+          <div class="stat-value" id="an-orders-pending">—</div>
+          <div class="stat-delta" style="font-size:11px;color:var(--orange);">Awaiting completion</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-accent" style="background:var(--green)"></div>
+          <div class="stat-icon">📦</div>
+          <div class="stat-label">Completed Orders</div>
+          <div class="stat-value" id="an-orders-complete">—</div>
+          <div class="stat-delta delta-up" style="font-size:11px;" id="an-complete-rate">Loading…</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-accent" style="background:var(--red)"></div>
+          <div class="stat-icon">❌</div>
+          <div class="stat-label">Cancelled Orders</div>
+          <div class="stat-value" id="an-orders-cancelled">—</div>
+          <div class="stat-delta delta-down" style="font-size:11px;" id="an-cancel-rate">Loading…</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-accent" style="background:var(--blue-light)"></div>
+          <div class="stat-icon">👥</div>
+          <div class="stat-label">Active Customers</div>
+          <div class="stat-value" id="an-active-customers">—</div>
+          <div class="stat-delta" style="font-size:11px;color:var(--grey);">With at least 1 order</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row" style="margin-bottom:20px;">
+        <!-- Revenue Trend Line Chart -->
+        <div class="card root-only" style="flex:2;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Revenue Trend</div>
+              <div class="card-sub" id="an-trend-sub">Monthly revenue — last 12 months</div>
+            </div>
+            <div class="card-actions">
+              <button class="card-action-btn active" id="trendBtnRevenue" onclick="switchTrendChart('revenue', this)">Revenue</button>
+              <button class="card-action-btn" id="trendBtnOrders" onclick="switchTrendChart('orders', this)">Orders</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding-bottom:8px;">
+            <div class="line-chart-wrap" id="revenueTrendChart"></div>
+          </div>
+        </div>
+        <!-- Order Distribution Bar Chart -->
+        <div class="card" style="flex:1;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Order Distribution</div>
+              <div class="card-sub">By status breakdown</div>
+            </div>
+          </div>
           <div class="card-body">
-            <div id="topProductsList" style="display:flex;flex-direction:column;gap:12px;margin-top:8px;"></div>
+            <div class="donut-wrap">
+              <svg class="donut" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#e4eaf2" stroke-width="16"/>
+                <g id="donutSegments2"></g>
+                <text x="50" y="47" text-anchor="middle" font-size="9" font-weight="700" fill="#0d3b6e" font-family="Outfit,sans-serif" id="donutCenterVal2">—</text>
+                <text x="50" y="57" text-anchor="middle" font-size="6" fill="#6b7c93" font-family="Outfit,sans-serif">Orders</text>
+              </svg>
+              <div class="donut-legend" id="donutLegend2"></div>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Bottom Row: Payments + Top Customers + Products -->
+      <div class="charts-row" style="align-items:flex-start;margin-bottom:20px;">
+
+        <!-- Pending Payments Table -->
+        <div class="card root-only" style="flex:1.2;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">⚠️ Pending Payments</div>
+              <div class="card-sub">Orders with outstanding balances</div>
+            </div>
+            <button class="btn-secondary" style="font-size:12px;padding:6px 12px;" onclick="showPage('orders')">View All →</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="data-table" style="margin-top:4px;">
+              <thead>
+                <tr><th>Order</th><th>Customer</th><th>Order Value</th><th>Paid</th><th style="color:var(--red)">Pending</th></tr>
+              </thead>
+              <tbody id="an-pending-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Top Customers by Revenue -->
+        <div class="card root-only" style="flex:1;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Top Customers</div>
+              <div class="card-sub">By revenue generated</div>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top:8px;">
+            <div id="an-top-customers" style="display:flex;flex-direction:column;gap:12px;"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Product Performance Row -->
+      <div class="charts-row" style="align-items:flex-start;">
+
+        <!-- Top Selling Products -->
+        <div class="card" style="flex:1;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🏆 Top Products</div>
+              <div class="card-sub">By revenue (non-cancelled orders)</div>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top:8px;">
+            <div id="an-top-products" style="display:flex;flex-direction:column;gap:14px;"></div>
+          </div>
+        </div>
+
+        <!-- Low Performing / Recently Cleared Payments -->
+        <div class="card root-only" style="flex:1;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">✅ Recently Cleared Payments</div>
+              <div class="card-sub">Fully paid delivered orders</div>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top:8px;">
+            <div id="an-cleared-payments" style="display:flex;flex-direction:column;gap:10px;"></div>
+          </div>
+        </div>
+
+      </div>
+
     </div>
 
     <!-- ─────────────── CONTENT ─────────────── -->
@@ -1208,7 +1443,7 @@
               <div class="form-group"><label>SMTP Host</label><input class="form-control" value="smtp.gmail.com"/></div>
               <div class="form-row">
                 <div class="form-group"><label>Username</label><input class="form-control" value="bluepriint2005@gmail.com"/></div>
-                <div class="form-group"><label>App Password</label><input class="form-control" type="password" value="fkipwnqoqpbywsfq"/></div>
+                <div class="form-group"><label>App Password</label><input class="form-control" type="password" placeholder="Set via SMTP_PASS env var"/></div>
               </div>
               <div class="form-group"><label>Enquiries Recipient Email</label><input class="form-control" value="print@bluepriint.in"/></div>
               <div style="display:flex;gap:10px;">
@@ -1231,12 +1466,34 @@
             </div>
           </div>
           <div class="settings-section card" id="settings-security">
-            <div class="card-header"><div class="card-title">Security</div></div>
+            <div class="card-header"><div class="card-title">🔐 Security</div></div>
             <div class="card-body">
-              <div class="form-group"><label>Current Password</label><input class="form-control" type="password" placeholder="Enter current password"/></div>
-              <div class="form-group"><label>New Password</label><input class="form-control" type="password" placeholder="Enter new password"/></div>
-              <div class="form-group"><label>Confirm New Password</label><input class="form-control" type="password" placeholder="Repeat new password"/></div>
-              <button class="btn-save" onclick="showToast('Password updated ✓','success')">Update Password</button>
+              <div style="background:var(--blue-pale);border:1.5px solid rgba(41,128,217,0.2);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--blue);margin-bottom:18px;line-height:1.7;">
+                <strong>Backend-secured authentication.</strong><br>
+                Passwords are never stored in the browser. They live only as environment variables on the server.<br>
+                Set <code style="background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px;">ROOT_PASSWORD</code>,
+                <code style="background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px;">EMPLOYEE_PASSWORD</code>, and
+                <code style="background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px;">JWT_SECRET</code>
+                in your Render / Railway / .env environment variables. Changing them takes effect on the next server restart.
+              </div>
+              <div class="form-group">
+                <label>Session Status</label>
+                <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+                  <span id="tokenStatusDot" style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;display:inline-block;"></span>
+                  <span id="tokenStatusText" style="font-size:13px;">Active — verified with server</span>
+                  <button onclick="verifySessionNow()" style="margin-left:auto;padding:5px 14px;background:var(--blue-pale);color:var(--blue);border:1.5px solid rgba(41,128,217,0.25);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Re-verify Now</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Session Expires</label>
+                <div id="tokenExpiry" style="font-size:13px;color:var(--grey);margin-top:4px;">Loading…</div>
+              </div>
+              <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;"/>
+              <div style="font-size:12.5px;color:var(--grey);line-height:1.8;">
+                ⚙️ To rotate all active sessions immediately, change <code style="background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px;">JWT_SECRET</code> and restart the server.<br>
+                ⏱ Default session lifetime: 12 hours. Configurable via <code style="background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px;">JWT_TTL_HOURS</code> env var.<br>
+                🔒 Tokens are verified on every page load — a tampered or expired token forces re-login.
+              </div>
             </div>
           </div>
         </div>
@@ -1512,18 +1769,20 @@
 
 <script>
 /* ══════════════════════════════════════════
-   AUTH — Dual login system
-   Passwords are defined here (client-side only — upgrade to server-side for production)
-   ROOT_PASS   : full access to everything
-   EMPLOYEE_PASS: read-only + notes, no money
+   AUTH — Backend-verified JWT login
+   ─────────────────────────────────────────
+   HOW IT WORKS:
+   1. User enters role + password → POST /api/auth/login
+   2. Server verifies against env vars (ROOT_PASSWORD, EMPLOYEE_PASSWORD)
+   3. Server returns a signed JWT — stored in sessionStorage
+   4. On every page load, GET /api/auth/verify validates the token
+   5. On 401 → auto-logout (token expired or tampered)
+   6. NO passwords are stored, compared, or visible in the frontend
 ══════════════════════════════════════════ */
-const CREDENTIALS = {
-  root:     { pass: 'j3',       role: 'root',     name: 'Root Admin',  initial: 'R' },
-  employee: { pass: 'staff2025', role: 'employee', name: 'Team Member', initial: 'T' },
-};
 
-let CURRENT_ROLE = null;     // 'root' | 'employee'
+let CURRENT_ROLE      = null;   // set only after server confirms token
 let _loginSelectedRole = 'root';
+let _authToken         = null;   // JWT — server-issued, never frontend-generated
 
 function selectRole(r) {
   _loginSelectedRole = r;
@@ -1534,33 +1793,53 @@ function selectRole(r) {
   document.getElementById('loginPass').focus();
 }
 
-function doLogin() {
-  const pass   = document.getElementById('loginPass').value;
-  const cred   = CREDENTIALS[_loginSelectedRole];
-  const errEl  = document.getElementById('loginError');
+async function doLogin() {
+  const pass  = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  const btn   = document.querySelector('#loginScreen button[onclick="doLogin()"]');
 
   if (!pass) { errEl.textContent = 'Please enter your password.'; return; }
-  if (pass !== cred.pass) {
-    errEl.textContent = '✖ Incorrect password. Try again.';
-    document.getElementById('loginPass').value = '';
-    document.getElementById('loginPass').focus();
-    return;
-  }
 
-  // Auth success
-  CURRENT_ROLE = cred.role;
-  sessionStorage.setItem('bp_role', CURRENT_ROLE);
-  sessionStorage.setItem('bp_name', cred.name);
-  applyRole(CURRENT_ROLE, cred);
-  document.getElementById('loginScreen').classList.add('hidden');
-  init(); // boot the dashboard
+  // Disable button & show loading state
+  if (btn) { btn.textContent = 'Verifying…'; btn.disabled = true; }
+  errEl.textContent = '';
+
+  try {
+    const res  = await fetch(`${_getApiBase()}/api/auth/login`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ role: _loginSelectedRole, password: pass }),
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      errEl.textContent = '✖ ' + (data.error || 'Incorrect password. Try again.');
+      document.getElementById('loginPass').value = '';
+      document.getElementById('loginPass').focus();
+      return;
+    }
+
+    // Verified by server — store token, never the password
+    _authToken   = data.token;
+    CURRENT_ROLE = data.role;
+    sessionStorage.setItem('bp_token', data.token);
+
+    applyRole(data.role, { name: data.name, initial: data.initial });
+    document.getElementById('loginScreen').classList.add('hidden');
+    init();
+
+  } catch (err) {
+    errEl.textContent = '✖ Could not reach server. Check your connection.';
+    console.error('[Auth] Login request failed:', err);
+  } finally {
+    if (btn) { btn.textContent = 'Sign In'; btn.disabled = false; }
+  }
 }
 
 function applyRole(role, cred) {
   document.body.classList.remove('role-root', 'role-employee');
   document.body.classList.add('role-' + role);
 
-  // Update sidebar user info
   const avatar = cred?.initial || (role === 'root' ? 'R' : 'T');
   const name   = cred?.name    || (role === 'root' ? 'Root Admin' : 'Team Member');
   document.getElementById('sidebarAvatar').textContent  = avatar;
@@ -1569,7 +1848,6 @@ function applyRole(role, cred) {
   document.getElementById('tbAvatar').textContent   = avatar;
   document.getElementById('tbAdminName').textContent = name;
 
-  // Hide Settings & Content pages from employees
   if (role === 'employee') {
     document.querySelectorAll('.nav-item').forEach(n => {
       const txt = n.textContent.trim();
@@ -1581,7 +1859,8 @@ function applyRole(role, cred) {
 }
 
 function logout() {
-  sessionStorage.clear();
+  sessionStorage.removeItem('bp_token');
+  _authToken   = null;
   CURRENT_ROLE = null;
   document.body.classList.remove('role-root', 'role-employee');
   document.getElementById('loginPass').value = '';
@@ -1589,15 +1868,49 @@ function logout() {
   document.getElementById('loginScreen').classList.remove('hidden');
 }
 
-// Auto-restore session on reload
-(function checkSession() {
-  const saved = sessionStorage.getItem('bp_role');
-  if (saved && CREDENTIALS[saved]) {
-    CURRENT_ROLE = CREDENTIALS[saved].role || saved;
-    applyRole(saved, CREDENTIALS[saved]);
+/** Called on every page load — verifies the stored token with the server */
+async function checkSession() {
+  const token = sessionStorage.getItem('bp_token');
+  if (!token) return; // no session — stay on login screen
+
+  try {
+    const res  = await fetch(`${_getApiBase()}/api/auth/verify`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      // Token invalid or expired — clear it and force re-login
+      sessionStorage.removeItem('bp_token');
+      const errEl = document.getElementById('loginError');
+      if (errEl) errEl.textContent = data.error || 'Session expired — please log in again.';
+      return;
+    }
+
+    // Token confirmed valid by server
+    _authToken   = token;
+    CURRENT_ROLE = data.role;
+    applyRole(data.role, { name: data.name, initial: data.initial });
     document.getElementById('loginScreen').classList.add('hidden');
-    // init() will be called by the DOMContentLoaded flow below
+    // init() will fire via DOMContentLoaded
+
+  } catch (err) {
+    console.warn('[Auth] Session check failed (server unreachable?):', err);
+    // Don't force logout if server is temporarily down — let user try to login
   }
+}
+
+// Helper used by doLogin + checkSession before ADMIN_API_BASE is declared
+function _getApiBase() {
+  const h = window.location.hostname;
+  return (h === 'localhost' || h === '127.0.0.1')
+    ? 'http://localhost:3000'
+    : 'https://bluepriint-test.onrender.com';
+}
+
+// Boot auth check immediately on script parse
+(async function () {
+  await checkSession();
 })();
 
 /* ══════════════════════════════════════════
@@ -1615,13 +1928,24 @@ const ENQUIRIES_API = `${ADMIN_API_BASE}/api/enquiries`;
 const ORDERS_API    = `${ADMIN_API_BASE}/api/orders`;
 const STATS_API     = `${ADMIN_API_BASE}/api/stats`;
 
-// Admin key — must match ADMIN_API_KEY in server.js
-// Default "bluepriint-admin-2025" works out of the box.
-// To use a custom key: localStorage.setItem('bp_admin_key', 'your-key')
-let ADMIN_KEY = localStorage.getItem('bp_admin_key') || 'bluepriint-admin-2025';
+// Admin key — still sent for write operations for backwards compat with requireAdminKey middleware.
+// The JWT token is the primary auth; the admin key is a secondary layer for mutating routes.
+// Both are environment variables on the server — the frontend only holds the JWT.
+let ADMIN_KEY = (sessionStorage.getItem('bp_admin_key') || '').trim() || 'bluepriint-admin-2025';
 function ensureAdminKey() {
   if (CURRENT_ROLE === 'employee') return ''; // employees never write
   return ADMIN_KEY;
+}
+
+/** Returns headers for authenticated API requests.
+ *  Always includes Authorization: Bearer <jwt> for verify-able auth.
+ *  Mutating requests also include x-admin-key for backwards compat.
+ */
+function authHeaders(mutating = false) {
+  const h = { 'Content-Type': 'application/json' };
+  if (_authToken) h['Authorization'] = `Bearer ${_authToken}`;
+  if (mutating && CURRENT_ROLE !== 'employee') h['x-admin-key'] = ensureAdminKey();
+  return h;
 }
 
 /* ══════════════════════════════════════════
@@ -1632,10 +1956,14 @@ let _editingOrderId = null;
 
 async function apiOrders(method, id, body) {
   const url = id ? `${ORDERS_API}/${id}` : `${ORDERS_API}?limit=200`;
-  const headers = { 'Content-Type': 'application/json' };
-  if (method !== 'GET') headers['x-admin-key'] = ensureAdminKey();
+  const mutating = method !== 'GET';
   try {
-    const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    const res = await fetch(url, {
+      method,
+      headers: authHeaders(mutating),
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if (res.status === 401) { logout(); return { success: false, error: 'Session expired' }; }
     return await res.json();
   } catch (err) {
     console.error('[BP Admin] Orders API error:', err);
@@ -1662,8 +1990,8 @@ async function loadOrdersFromAPI() {
     renderRecentOrders(ORDERS_DATA.slice(0, 5));
     renderOrderStatusDonut(ORDERS_DATA);
 
-    const newOrders     = ORDERS_DATA.filter(o => o.status === 'new').length;
-    const payPending    = ORDERS_DATA.filter(o => o.status === 'delivered' && _pendingAmt(o) > 0).length;
+    const newOrders  = ORDERS_DATA.filter(o => o.status === 'new').length;
+    const payPending = ORDERS_DATA.filter(o => o.status === 'delivered' && _pendingAmt(o) > 0).length;
     const badge = document.getElementById('nb-orders');
     if (badge) {
       const total = newOrders + payPending;
@@ -1672,6 +2000,9 @@ async function loadOrdersFromAPI() {
     }
     const info = document.getElementById('ordersPaginationInfo');
     if (info) info.textContent = `${ORDERS_DATA.length} total orders`;
+
+    // Refresh analytics + activity (will be called again after all APIs load in init())
+    renderAnalyticsPage();
   } else {
     showToast('Could not load orders from API', 'error');
   }
@@ -1692,7 +2023,7 @@ async function loadStatsFromAPI() {
     const el = (id) => document.getElementById(id);
     if (el('stat-total-orders'))   el('stat-total-orders').textContent   = d.totalOrders.toLocaleString('en-IN');
     if (el('stat-open-enquiries')) el('stat-open-enquiries').textContent = d.openEnquiries;
-    if (el('stat-new-customers'))  el('stat-new-customers').textContent  = d.totalCustomers.toLocaleString('en-IN');
+    // Note: stat-new-customers replaced by stat-pending-payments (updated in renderAnalyticsPage)
 
     // Monthly revenue — format as ₹X.XL or ₹XXK
     if (el('stat-monthly-revenue')) {
@@ -1716,22 +2047,12 @@ async function loadStatsFromAPI() {
       el('stat-orders-delta').innerHTML = `<span style="color:var(--grey);font-weight:400">Total all time</span>`;
     }
 
-    // ── Bar Charts (Revenue by Month) ──
+    // ── Bar Charts (Revenue by Month — dashboard overview) ──
     if (d.revenueByMonth && d.revenueByMonth.length) {
       renderBarChart('barChart', d.revenueByMonth.slice(-7));
-      renderBarChart('barChartFull', d.revenueByMonth);
     }
 
-    // ── Donut — order status donut is driven by loadOrdersFromAPI, not stats ──
-
-    // ── Analytics stat cards ──
-    if (el('analytics-avg-order')) {
-      const avg = d.totalOrders > 0 ? Math.round(d.monthlyRevenue / Math.max(1, (d.revenueByMonth.slice(-1)[0]?.orders || 1))) : 0;
-      el('analytics-avg-order').textContent = avg > 0 ? `₹${avg.toLocaleString('en-IN')}` : '—';
-    }
-
-    // ── Top Products by revenue ──
-    renderTopProductsFromOrders();
+    // ── Analytics page is rendered via renderAnalyticsPage() after orders load ──
 
   } catch (err) {
     console.error('[BP Stats] load error:', err);
@@ -1745,10 +2066,14 @@ let ENQUIRIES_DATA = [];
 
 async function apiEnquiries(method, id, body) {
   const url = id ? `${ENQUIRIES_API}/${id}` : `${ENQUIRIES_API}?limit=100`;
-  const headers = { 'Content-Type': 'application/json' };
-  if (method !== 'GET') headers['x-admin-key'] = ensureAdminKey();
+  const mutating = method !== 'GET';
   try {
-    const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    const res = await fetch(url, {
+      method,
+      headers: authHeaders(mutating),
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if (res.status === 401) { logout(); return { success: false, error: 'Session expired' }; }
     return await res.json();
   } catch (err) {
     console.error('[BP Admin] Enquiry API error:', err);
@@ -1787,16 +2112,15 @@ let PRODUCTS_DATA = []; // populated from API on load
 let _editingProductId = null; // tracks whether modal is add or edit
 
 async function apiProducts(method, id, body) {
-  // REST paths: /api/products for collection, /api/products/:id for single doc
   const url = id ? `${PRODUCTS_API}/${id}` : `${PRODUCTS_API}?limit=100`;
-  const headers = { 'Content-Type': 'application/json' };
-  if (method !== 'GET') headers['x-admin-key'] = ensureAdminKey();
+  const mutating = method !== 'GET';
   try {
     const res = await fetch(url, {
       method,
-      headers,
+      headers: authHeaders(mutating),
       body: body ? JSON.stringify(body) : undefined,
     });
+    if (res.status === 401) { logout(); return { success: false, error: 'Session expired' }; }
     return await res.json();
   } catch (err) {
     console.error('[BP Admin] API error:', err);
@@ -1861,14 +2185,14 @@ let _editingCustomerId = null; // tracks add vs edit in customer modal
 
 async function apiCustomers(method, id, body) {
   const url = id ? `${CUSTOMERS_API}/${id}` : `${CUSTOMERS_API}?limit=100`;
-  const headers = { 'Content-Type': 'application/json' };
-  if (method !== 'GET') headers['x-admin-key'] = ensureAdminKey();
+  const mutating = method !== 'GET';
   try {
     const res = await fetch(url, {
       method,
-      headers,
+      headers: authHeaders(mutating),
       body: body ? JSON.stringify(body) : undefined,
     });
+    if (res.status === 401) { logout(); return { success: false, error: 'Session expired' }; }
     return await res.json();
   } catch (err) {
     console.error('[BP Admin] Customer API error:', err);
@@ -1907,14 +2231,113 @@ function updateCustomerCount(count) {
   if (info) info.textContent = `${count} customer${count !== 1 ? 's' : ''}`;
 }
 
-const ACTIVITY = [
-  { type:'order',   icon:'🧾', bg:'ad-order',   text:'<strong>New order #BP-1042</strong>', sub:'Ravi Sharma — ACP Fascia Sign Board ×2', time:'2 min ago' },
-  { type:'enquiry', icon:'💬', bg:'ad-enquiry',  text:'<strong>Enquiry from Manish Kapoor</strong>', sub:'Mall signage project — High priority', time:'18 min ago' },
-  { type:'product', icon:'📦', bg:'ad-product',  text:'<strong>Product updated</strong>', sub:'Backlit Flex Banner — price adjusted to ₹850', time:'1 hr ago' },
-  { type:'order',   icon:'🧾', bg:'ad-order',   text:'<strong>Order #BP-1041 in progress</strong>', sub:'Neha Gupta — Backlit Flex ×5', time:'2 hr ago' },
-  { type:'enquiry', icon:'💬', bg:'ad-enquiry',  text:'<strong>Enquiry from Tarun Bhatia</strong>', sub:'OOH + BTL for auto expo', time:'3 hr ago' },
-  { type:'user',    icon:'👥', bg:'ad-user',     text:'<strong>New customer registered</strong>', sub:'Kavita Reddy — Reddy Fashion', time:'5 hr ago' },
-];
+/* ══════════════════════════════════════════
+   ACTIVITY FEED — built from real backend data (orders + enquiries + customers)
+   Static dummy entries are ONLY used if the API returns no data at all.
+══════════════════════════════════════════ */
+let ACTIVITY = []; // starts empty — populated from real API data
+
+/**
+ * Build ACTIVITY array from live backend data.
+ * Call this after loadOrdersFromAPI + loadEnquiriesFromAPI + loadCustomersFromAPI finish.
+ */
+function buildActivityFromBackend() {
+  const events = [];
+
+  // ── Orders → events ──
+  ORDERS_DATA.forEach(o => {
+    const ts = o.createdAt ? new Date(o.createdAt) : null;
+    const paid = _totalAdvance(o);
+    const pending = _pendingAmt(o);
+
+    // New order placed
+    events.push({
+      type: 'order', icon: '🧾', bg: 'ad-order',
+      text: `New order ${o.orderId || o.id}`,
+      sub:  `${o.customer}${o.company ? ' — ' + o.company : ''} · ₹${Number(o.value).toLocaleString('en-IN')}`,
+      ts,
+      rawTime: ts,
+    });
+
+    // Payment received (if advance paid)
+    if (paid > 0) {
+      const lastPay = Array.isArray(o.advances) && o.advances.length
+        ? o.advances[o.advances.length - 1]
+        : null;
+      events.push({
+        type: 'payment', icon: '💳', bg: 'ad-payment',
+        text: `Payment received — ${o.orderId || o.id}`,
+        sub:  `₹${paid.toLocaleString('en-IN')} from ${o.customer}${pending > 0 ? ` · ₹${pending.toLocaleString('en-IN')} still pending` : ' · Fully paid'}`,
+        ts,
+        rawTime: ts,
+      });
+    }
+
+    // Order status if delivered/complete
+    if (['delivered','complete'].includes(o.status)) {
+      events.push({
+        type: 'order', icon: '✅', bg: 'ad-complete',
+        text: `Order ${o.status === 'delivered' ? 'delivered' : 'completed'} — ${o.orderId || o.id}`,
+        sub:  `${o.customer} · ${o.product}`,
+        ts,
+        rawTime: ts,
+      });
+    }
+  });
+
+  // ── Enquiries → events ──
+  ENQUIRIES_DATA.forEach(e => {
+    const ts = e.createdAt ? new Date(e.createdAt) : null;
+    events.push({
+      type: 'enquiry', icon: '💬', bg: 'ad-enquiry',
+      text: `Enquiry from ${e.name}`,
+      sub:  `${e.company ? e.company + ' · ' : ''}${(e.services || []).join(', ') || 'General'}`,
+      ts,
+      rawTime: ts,
+    });
+  });
+
+  // ── Customers → events ──
+  CUSTOMERS_DATA.forEach(c => {
+    const ts = c.createdAt ? new Date(c.createdAt) : null;
+    if (ts) {
+      events.push({
+        type: 'user', icon: '👥', bg: 'ad-user',
+        text: `New customer registered`,
+        sub:  `${c.name}${c.company ? ' — ' + c.company : ''}`,
+        ts,
+        rawTime: ts,
+      });
+    }
+  });
+
+  // Sort by most recent first
+  events.sort((a, b) => {
+    if (!a.ts && !b.ts) return 0;
+    if (!a.ts) return 1;
+    if (!b.ts) return -1;
+    return b.ts - a.ts;
+  });
+
+  // Format time labels
+  const now = Date.now();
+  events.forEach(ev => {
+    if (!ev.ts) { ev.time = 'Recently'; return; }
+    const diff = now - ev.ts.getTime();
+    const mins = Math.floor(diff / 60000);
+    const hrs  = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    if (mins < 2)    ev.time = 'Just now';
+    else if (mins < 60) ev.time = `${mins} min ago`;
+    else if (hrs < 24)  ev.time = `${hrs} hr ago`;
+    else if (days < 7)  ev.time = `${days}d ago`;
+    else ev.time = ev.ts.toLocaleDateString('en-IN', { day:'numeric', month:'short' });
+  });
+
+  // Take top 15
+  ACTIVITY = events.slice(0, 15);
+  renderActivity();
+}
 
 const CHART_DATA = [
   { month:'Sep', val:220000 },{ month:'Oct', val:285000 },{ month:'Nov', val:310000 },
@@ -2213,10 +2636,31 @@ function filterCustomers(q) {
 
 function renderActivity() {
   const feed = document.getElementById('activityFeed');
+  if (!feed) return;
+
+  if (!ACTIVITY.length) {
+    feed.innerHTML = `<div style="text-align:center;padding:32px;color:var(--grey);font-size:13px;">
+      <div style="font-size:28px;opacity:.2;margin-bottom:8px;">📋</div>No activity yet — actions will appear here in real time.
+    </div>`;
+    return;
+  }
+
+  const bgMap = {
+    'ad-order':    '#e8f1fb',
+    'ad-enquiry':  '#fff8e6',
+    'ad-product':  '#e6f7f0',
+    'ad-payment':  '#f0faf4',
+    'ad-complete': '#e6f7f0',
+    'ad-user':     '#f3eeff',
+  };
+
   feed.innerHTML = ACTIVITY.map(a => `
     <div class="activity-item">
-      <div class="activity-dot ${a.bg}">${a.icon}</div>
-      <div class="activity-text"><strong>${a.text.replace(/<\/?strong>/g,'')}</strong><p>${a.sub}</p></div>
+      <div class="activity-dot ${a.bg}" style="background:${bgMap[a.bg]||'#e8f1fb'};">${a.icon}</div>
+      <div class="activity-text">
+        <strong>${a.text}</strong>
+        <p>${a.sub}</p>
+      </div>
       <div class="activity-time">${a.time}</div>
     </div>
   `).join('');
@@ -2327,53 +2771,437 @@ function renderDonutFromData(data) {
 }
 
 /* ══════════════════════════════════════════
-   TOP PRODUCTS LIST
+   ANALYTICS ENGINE
+   All logic is driven from ORDERS_DATA, CUSTOMERS_DATA, ENQUIRIES_DATA.
+   No static/mock data used.
 ══════════════════════════════════════════ */
-function renderTopProducts() { renderTopProductsFromOrders(); }
 
-function renderTopProductsFromOrders() {
-  const el = document.getElementById('topProductsList');
+let _analyticsRange = '7d'; // '7d' | '30d' | '90d' | 'all'
+
+function setAnalyticsRange(range, btn) {
+  _analyticsRange = range;
+  document.querySelectorAll('.ar-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const labels = { '7d':'last 7 days', '30d':'last 30 days', '90d':'last 3 months', 'all':'all time' };
+  const lbl = document.getElementById('analytics-range-label');
+  if (lbl) lbl.textContent = 'Showing: ' + (labels[range] || range);
+  renderAnalyticsPage();
+}
+
+/** Filter orders by the selected date range */
+function _filteredOrders() {
+  if (_analyticsRange === 'all') return ORDERS_DATA;
+  const days = { '7d': 7, '30d': 30, '90d': 90 }[_analyticsRange] || 30;
+  const cutoff = Date.now() - days * 86400000;
+  return ORDERS_DATA.filter(o => {
+    const ts = o.createdAt ? new Date(o.createdAt).getTime() : 0;
+    return ts >= cutoff;
+  });
+}
+
+function renderAnalyticsPage() {
+  if (!ORDERS_DATA.length) return; // Wait for data
+  _renderAnalyticsKPIs();
+  _renderPendingPaymentsTable();
+  _renderTopCustomers();
+  _renderTopProducts();
+  _renderClearedPayments();
+  _renderRevenueTrendChart(_currentTrendMode || 'revenue');
+  _renderAnalyticsDonut();
+}
+
+/* ── KPI Cards ── */
+function _renderAnalyticsKPIs() {
+  const orders   = _filteredOrders();
+  const allOrders = ORDERS_DATA;
+
+  // Revenue metrics (all time for total, range for context)
+  const lifetimeRevenue  = allOrders.reduce((s, o) => s + (o.status !== 'cancelled' ? Number(o.value)||0 : 0), 0);
+  const rangeRevenue     = orders.reduce((s, o) => s + (o.status !== 'cancelled' ? Number(o.value)||0 : 0), 0);
+  const totalCollected   = allOrders.reduce((s, o) => s + _totalAdvance(o), 0);
+  const totalPending     = allOrders.reduce((s, o) => s + _pendingAmt(o), 0);
+  const pendingOrders    = allOrders.filter(o => _pendingAmt(o) > 0);
+  const completedOrders  = orders.filter(o => ['complete','delivered'].includes(o.status));
+  const cancelledOrders  = orders.filter(o => o.status === 'cancelled');
+  const pendingStatusO   = orders.filter(o => ['new','pending','progress'].includes(o.status));
+  const avgOrder         = completedOrders.length > 0
+    ? Math.round(completedOrders.reduce((s, o) => s + (Number(o.value)||0), 0) / completedOrders.length)
+    : 0;
+
+  // Active customers = unique customers in orders
+  const activeCustomerSet = new Set(ORDERS_DATA.map(o => (o.customer||'').toLowerCase().trim()).filter(Boolean));
+
+  const fmt = v => v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : v >= 1000 ? `₹${(v/1000).toFixed(1)}K` : `₹${v.toLocaleString('en-IN')}`;
+  const pct = (a, b) => b > 0 ? Math.round((a/b)*100) : 0;
+
+  const set = (id, val) => { const el = document.getElementById(id); if (el) { const sp = el.querySelector('span'); if (sp) sp.textContent = val; else el.textContent = val; } };
+  const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const setHTML = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
+
+  // Row 1
+  set('an-total-revenue', fmt(lifetimeRevenue));
+  setText('an-revenue-sub', `Lifetime · ${fmt(rangeRevenue)} in range`);
+  set('an-avg-order', avgOrder > 0 ? fmt(avgOrder) : '—');
+  setText('an-avg-sub', `Across ${completedOrders.length} completed orders`);
+  set('an-pending-payments', fmt(totalPending));
+  setHTML('an-pending-count', `<span style="color:var(--red)">From ${pendingOrders.length} order${pendingOrders.length !== 1 ? 's' : ''}</span>`);
+  set('an-total-collected', fmt(totalCollected));
+  const paidPct = pct(totalCollected, lifetimeRevenue);
+  setHTML('an-paid-ratio', `<span class="${paidPct >= 80 ? 'delta-up' : 'delta-down'}">${paidPct}% of total collected</span>`);
+
+  // Row 2
+  setText('an-total-orders', orders.length);
+  setText('an-orders-sub', `${_analyticsRange === 'all' ? 'All time' : 'In selected range'}`);
+  setText('an-orders-pending', pendingStatusO.length);
+  setText('an-orders-complete', completedOrders.length);
+  const completeRate = pct(completedOrders.length, orders.length);
+  setHTML('an-complete-rate', `<span class="delta-up">${completeRate}% completion rate</span>`);
+  setText('an-orders-cancelled', cancelledOrders.length);
+  const cancelRate = pct(cancelledOrders.length, orders.length);
+  setHTML('an-cancel-rate', `<span class="${cancelRate > 10 ? 'delta-down' : ''}">${cancelRate}% of orders</span>`);
+  setText('an-active-customers', activeCustomerSet.size);
+
+  // Update dashboard stat card - pending payments
+  const pendingSpan = document.querySelector('#stat-pending-payments span');
+  if (pendingSpan) pendingSpan.textContent = fmt(totalPending);
+  const pendingDelta = document.getElementById('stat-pending-delta');
+  if (pendingDelta) {
+    pendingDelta.className = totalPending > 0 ? 'stat-delta delta-down' : 'stat-delta delta-up';
+    pendingDelta.innerHTML = totalPending > 0
+      ? `<span style="color:var(--red);">⚠ ${pendingOrders.length} orders unpaid</span>`
+      : `<span style="color:var(--green);">✓ All payments cleared</span>`;
+  }
+}
+
+/* ── Pending Payments Table ── */
+function _renderPendingPaymentsTable() {
+  const tbody = document.getElementById('an-pending-table');
+  if (!tbody) return;
+
+  const pendingOrders = ORDERS_DATA
+    .filter(o => _pendingAmt(o) > 0 && o.status !== 'cancelled')
+    .sort((a, b) => _pendingAmt(b) - _pendingAmt(a))
+    .slice(0, 8);
+
+  if (!pendingOrders.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--green);font-weight:600;">✓ No pending payments — all orders are settled!</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = pendingOrders.map(o => {
+    const paid    = _totalAdvance(o);
+    const pending = _pendingAmt(o);
+    const fmt = v => `₹${Number(v).toLocaleString('en-IN')}`;
+    return `<tr>
+      <td><span style="font-weight:700;color:var(--blue);">${o.orderId || o.id}</span></td>
+      <td><div class="td-name">${o.customer}</div><div class="td-sub">${o.company||''}</div></td>
+      <td style="font-weight:600;">${fmt(o.value)}</td>
+      <td style="color:var(--green);font-weight:600;">${fmt(paid)}</td>
+      <td style="color:var(--red);font-weight:700;">${fmt(pending)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Top Customers ── */
+function _renderTopCustomers() {
+  const el = document.getElementById('an-top-customers');
   if (!el) return;
 
-  // Aggregate revenue by product from live ORDERS_DATA
+  // Aggregate revenue per unique customer name
   const map = {};
   ORDERS_DATA.forEach(o => {
     if (o.status === 'cancelled') return;
-    map[o.product] = (map[o.product] || 0) + Number(o.value);
+    const key = (o.customer || 'Unknown').trim();
+    if (!map[key]) map[key] = { name: key, company: o.company || '', revenue: 0, orders: 0 };
+    map[key].revenue += Number(o.value) || 0;
+    map[key].orders++;
   });
 
-  let tops = Object.entries(map)
-    .sort(([,a],[,b]) => b - a)
-    .slice(0, 5)
-    .map(([name, rev]) => ({ name, rev }));
+  const tops = Object.values(map).sort((a, b) => b.revenue - a.revenue).slice(0, 6);
 
-  // Fallback if no real orders yet
   if (!tops.length) {
-    tops = [
-      { name:'ACP Fascia Sign Board', rev:96000 },
-      { name:'3D LED Facade Sign',    rev:76500 },
-      { name:'Backlit Flex Banner',   rev:51000 },
-      { name:'Acrylic UV Print',      rev:36000 },
-      { name:'One Way Vision Film',   rev:22800 },
-    ];
+    el.innerHTML = `<div style="color:var(--grey);font-size:13px;padding:16px 0;">No order data yet.</div>`;
+    return;
   }
 
-  const maxRev = tops[0].rev;
-  el.innerHTML = tops.map(t => `
-    <div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
-        <span style="font-size:13px;font-weight:600;color:var(--ink);">${t.name}</span>
-        <span style="font-size:12.5px;font-weight:700;color:var(--blue);">₹${(t.rev/1000).toFixed(0)}K</span>
+  const maxRev = tops[0].revenue;
+  el.innerHTML = tops.map((c, i) => {
+    const fmt = v => v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : `₹${(v/1000).toFixed(1)}K`;
+    return `<div class="top-cust-row">
+      <div class="top-cust-info">
+        <div>
+          <div class="top-cust-name">${i+1}. ${c.name}</div>
+          ${c.company ? `<div style="font-size:11px;color:var(--grey);">${c.company} · ${c.orders} order${c.orders!==1?'s':''}</div>` : ''}
+        </div>
+        <div class="top-cust-rev">${fmt(c.revenue)}</div>
+      </div>
+      <div class="top-cust-bar-bg">
+        <div class="top-cust-bar-fill" style="width:${Math.round((c.revenue/maxRev)*100)}%"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Top Products ── */
+function _renderTopProducts() {
+  const el = document.getElementById('an-top-products');
+  if (!el) return;
+
+  const orders = _filteredOrders().filter(o => o.status !== 'cancelled');
+  const map = {};
+  orders.forEach(o => {
+    const key = (o.product || 'Unknown').trim();
+    if (!map[key]) map[key] = { name: key, revenue: 0, orders: 0 };
+    map[key].revenue += Number(o.value) || 0;
+    map[key].orders++;
+  });
+
+  const tops = Object.values(map).sort((a, b) => b.revenue - a.revenue).slice(0, 6);
+
+  if (!tops.length) {
+    el.innerHTML = `<div style="color:var(--grey);font-size:13px;padding:16px 0;">No product data in selected range.</div>`;
+    return;
+  }
+
+  const maxRev = tops[0].revenue;
+  el.innerHTML = tops.map((p, i) => {
+    const fmt = v => v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : `₹${(v/1000).toFixed(1)}K`;
+    const barColor = i === 0 ? 'var(--gold)' : i < 3 ? 'var(--blue-light)' : 'var(--grey-light)';
+    return `<div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--ink);">${i === 0 ? '🏆 ' : ''}${p.name}</div>
+          <div style="font-size:11px;color:var(--grey);">${p.orders} order${p.orders!==1?'s':''}</div>
+        </div>
+        <span style="font-size:13px;font-weight:700;color:var(--blue);">${fmt(p.revenue)}</span>
       </div>
       <div style="height:6px;background:var(--border);border-radius:3px;">
-        <div style="height:6px;background:var(--blue-light);border-radius:3px;width:${Math.round((t.rev/maxRev)*100)}%;transition:width 0.6s ease;"></div>
+        <div style="height:6px;background:${barColor};border-radius:3px;width:${Math.round((p.revenue/maxRev)*100)}%;transition:width 0.6s ease;"></div>
       </div>
+    </div>`;
+  }).join('');
+
+  // Also update topProductsList on dashboard (for backwards compat)
+  const dashEl = document.getElementById('topProductsList');
+  if (dashEl) dashEl.innerHTML = el.innerHTML;
+}
+
+/* ── Cleared Payments ── */
+function _renderClearedPayments() {
+  const el = document.getElementById('an-cleared-payments');
+  if (!el) return;
+
+  const cleared = ORDERS_DATA
+    .filter(o => o.status === 'delivered' && _pendingAmt(o) === 0 && _totalAdvance(o) > 0)
+    .sort((a, b) => {
+      const ta = a.createdAt ? new Date(a.createdAt) : 0;
+      const tb = b.createdAt ? new Date(b.createdAt) : 0;
+      return tb - ta;
+    })
+    .slice(0, 6);
+
+  if (!cleared.length) {
+    el.innerHTML = `<div style="color:var(--grey);font-size:13px;padding:16px 0;">No fully-cleared delivered orders yet.</div>`;
+    return;
+  }
+
+  el.innerHTML = cleared.map(o => {
+    const paid = _totalAdvance(o);
+    return `<div class="cleared-row">
+      <div class="cleared-icon">✅</div>
+      <div class="cleared-info">
+        <div class="cleared-name">${o.customer}</div>
+        <div class="cleared-meta">${o.orderId || o.id} · ${o.product}</div>
+      </div>
+      <div class="cleared-amt">₹${paid.toLocaleString('en-IN')}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Revenue Trend Line Chart ── */
+let _currentTrendMode = 'revenue';
+
+function switchTrendChart(mode, btn) {
+  _currentTrendMode = mode;
+  document.querySelectorAll('.card-action-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  _renderRevenueTrendChart(mode);
+}
+
+function _renderRevenueTrendChart(mode) {
+  const el = document.getElementById('revenueTrendChart');
+  if (!el) return;
+
+  // Build monthly buckets from all orders (12 months rolling)
+  const now = new Date();
+  const months = [];
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      label: d.toLocaleString('en-IN', { month: 'short' }),
+      year:  d.getFullYear(),
+      month: d.getMonth(),
+      val:   0,
+      orders: 0,
+    });
+  }
+
+  ORDERS_DATA.forEach(o => {
+    if (o.status === 'cancelled') return;
+    if (!o.createdAt) return;
+    const d = new Date(o.createdAt);
+    const bucket = months.find(m => m.year === d.getFullYear() && m.month === d.getMonth());
+    if (bucket) {
+      bucket.val    += Number(o.value) || 0;
+      bucket.orders += 1;
+    }
+  });
+
+  const values = months.map(m => mode === 'revenue' ? m.val : m.orders);
+  const maxVal = Math.max(...values, 1);
+  const W = 600, H = 160, PAD = { top: 18, right: 12, bottom: 24, left: 44 };
+  const iW = W - PAD.left - PAD.right;
+  const iH = H - PAD.top - PAD.bottom;
+  const pts = values.map((v, i) => ({
+    x: PAD.left + (i / (months.length - 1)) * iW,
+    y: PAD.top  + iH - (v / maxVal) * iH,
+    v,
+  }));
+
+  const pathD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const areaD = pathD + ` L${pts[pts.length-1].x.toFixed(1)},${(PAD.top+iH).toFixed(1)} L${pts[0].x.toFixed(1)},${(PAD.top+iH).toFixed(1)} Z`;
+
+  // Y-axis labels
+  const yTicks = [0, 0.25, 0.5, 0.75, 1].map(t => ({
+    y: PAD.top + iH - t * iH,
+    label: mode === 'revenue'
+      ? (maxVal * t >= 100000 ? `${((maxVal*t)/100000).toFixed(0)}L` : `${((maxVal*t)/1000).toFixed(0)}K`)
+      : Math.round(maxVal * t),
+  }));
+
+  el.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:${H}px;overflow:visible;">
+      <defs>
+        <linearGradient id="lc-gradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--blue-light)" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="var(--blue-light)" stop-opacity="0.02"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Grid lines -->
+      ${yTicks.map(t => `
+        <line class="lc-grid-line" x1="${PAD.left}" y1="${t.y.toFixed(1)}" x2="${W-PAD.right}" y2="${t.y.toFixed(1)}"/>
+        <text class="lc-axis-label" x="${PAD.left - 6}" y="${(t.y+3.5).toFixed(1)}" text-anchor="end">${t.label}</text>
+      `).join('')}
+
+      <!-- Area fill -->
+      <path class="lc-area" d="${areaD}"/>
+
+      <!-- Line -->
+      <path class="lc-line" d="${pathD}"/>
+
+      <!-- Month labels + dots -->
+      ${pts.map((p, i) => `
+        <text class="lc-axis-label" x="${p.x.toFixed(1)}" y="${(PAD.top+iH+14).toFixed(1)}" text-anchor="middle">${months[i].label}</text>
+        ${p.v > 0 ? `
+          <circle class="lc-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4">
+            <title>${months[i].label}: ${mode === 'revenue' ? '₹' + p.v.toLocaleString('en-IN') : p.v + ' orders'}</title>
+          </circle>
+          ${i === pts.length - 1 || p.v === Math.max(...values) ? `
+            <text class="lc-value-label" x="${p.x.toFixed(1)}" y="${(p.y - 8).toFixed(1)}" text-anchor="middle">
+              ${mode === 'revenue' ? (p.v >= 100000 ? '₹'+(p.v/100000).toFixed(1)+'L' : '₹'+(p.v/1000).toFixed(0)+'K') : p.v}
+            </text>` : ''}
+        ` : ''}
+      `).join('')}
+    </svg>
+  `;
+}
+
+/* ── Analytics Donut (separate from dashboard donut) ── */
+function _renderAnalyticsDonut() {
+  const orders  = _filteredOrders();
+  const counts  = { new:0, pending:0, progress:0, complete:0, cancelled:0 };
+  orders.forEach(o => {
+    const s = (o.status || 'new').replace('in-progress','progress').replace('in_progress','progress');
+    if (counts[s] !== undefined) counts[s]++;
+    else counts.new++;
+  });
+
+  const total = Object.values(counts).reduce((a,b) => a+b, 0);
+  const center = document.getElementById('donutCenterVal2');
+  if (center) center.textContent = total || '—';
+
+  const data = Object.entries(counts)
+    .filter(([,v]) => v > 0)
+    .map(([k, v]) => ({ label: ORDER_STATUS_LABELS[k], val: v, color: ORDER_STATUS_COLORS[k] }));
+
+  if (!data.length) return;
+
+  const r = 38, cx = 50, cy = 50, circ = 2 * Math.PI * r;
+  let offset = 0;
+  const segs = document.getElementById('donutSegments2');
+  const leg  = document.getElementById('donutLegend2');
+  if (!segs || !leg) return;
+
+  segs.innerHTML = data.map(d => {
+    const len = (d.val / total) * circ;
+    const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${d.color}"
+      stroke-width="16" stroke-dasharray="${len - 2} ${circ - len + 2}"
+      stroke-dashoffset="${-offset + circ * 0.25}" transform="rotate(-90 ${cx} ${cy})"/>`;
+    offset += len;
+    return el;
+  }).join('');
+
+  leg.innerHTML = data.map(d => `
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${d.color}"></div>
+      <span class="legend-label">${d.label}</span>
+      <span class="legend-val">${d.val}</span>
     </div>
   `).join('');
 }
 
 /* ══════════════════════════════════════════
+   TOP PRODUCTS LIST (dashboard page compat)
+══════════════════════════════════════════ */
+function renderTopProducts() { _renderTopProducts(); }
+
+function renderTopProductsFromOrders() {
+  _renderTopProducts();
+}
+
+/* ══════════════════════════════════════════
    PRODUCT REORDER — drag-and-drop + number input
+  const dot  = document.getElementById('tokenStatusDot');
+  const text = document.getElementById('tokenStatusText');
+  const exp  = document.getElementById('tokenExpiry');
+  if (text) text.textContent = 'Verifying…';
+
+  try {
+    const res  = await fetch(`${ADMIN_API_BASE}/api/auth/verify`, {
+      headers: { 'Authorization': `Bearer ${_authToken || sessionStorage.getItem('bp_token') || ''}` },
+    });
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      if (dot)  { dot.style.background  = 'var(--green)'; }
+      if (text) { text.textContent = `✓ Valid — ${data.role} session confirmed`; }
+      if (exp && data.expiresAt) {
+        const d = new Date(data.expiresAt);
+        const diff = Math.round((d - Date.now()) / 3600000);
+        exp.textContent = `${d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })} (${diff > 0 ? `in ~${diff}h` : 'expired'})`;
+      }
+    } else {
+      if (dot)  { dot.style.background  = 'var(--red)'; }
+      if (text) { text.textContent = '✖ ' + (data.error || 'Session invalid'); }
+      if (exp)  { exp.textContent = 'N/A'; }
+      setTimeout(() => logout(), 2000);
+    }
+  } catch {
+    if (dot)  { dot.style.background = 'var(--orange)'; }
+    if (text) { text.textContent = '⚠ Server unreachable — could not verify'; }
+  }
+}
 ══════════════════════════════════════════ */
 let _reorderMode = false;
 let _dragSrc     = null;  // dragged <tr>
@@ -2533,17 +3361,17 @@ async function saveProductOrder() {
   }));
 
   // Use PATCH /api/products/:id to save sortOrder for each
-  const adminKey = ensureAdminKey();
   let success = 0;
   let failed  = 0;
 
   for (const u of updates) {
     try {
       const res = await fetch(`${ADMIN_API_BASE}/api/products/${u.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
-        body: JSON.stringify({ sortOrder: u.sortOrder }),
+        method:  'PATCH',
+        headers: authHeaders(true),
+        body:    JSON.stringify({ sortOrder: u.sortOrder }),
       });
+      if (res.status === 401) { logout(); return; }
       const json = await res.json();
       if (json.success) success++;
       else failed++;
@@ -2790,13 +3618,26 @@ For queries call: +91 9717027607`;
   showToast(`Order ${_editingOrderId ? 'updated' : 'created'} ✓`, 'success');
   await Promise.all([loadOrdersFromAPI(), loadStatsFromAPI()]);
 
+  // Push to activity feed with real data
+  const paid = advances.reduce((s, a) => s + (Number(a.amount)||0), 0);
   ACTIVITY.unshift({
-    type:'order', icon:'🧾', bg:'ad-order',
-    text:`<strong>Order ${_editingOrderId ? 'updated' : 'created'}</strong>`,
-    sub: `${customer} — ${product} ×${qty} — ₹${value.toLocaleString('en-IN')}`,
-    time:'Just now',
+    type: 'order', icon: '🧾', bg: 'ad-order',
+    text: `Order ${_editingOrderId ? 'updated' : 'created'} — ${product}`,
+    sub:  `${customer} · ₹${value.toLocaleString('en-IN')}${paid > 0 ? ` · ₹${paid.toLocaleString('en-IN')} advance paid` : ''}`,
+    time: 'Just now',
+    ts: new Date(),
   });
+  if (paid > 0) {
+    ACTIVITY.unshift({
+      type: 'payment', icon: '💳', bg: 'ad-payment',
+      text: `Payment received — ${product}`,
+      sub:  `₹${paid.toLocaleString('en-IN')} from ${customer}`,
+      time: 'Just now',
+      ts: new Date(),
+    });
+  }
   renderActivity();
+  renderAnalyticsPage();
 }
 
 async function deleteOrder(id, btn) {
@@ -2815,6 +3656,7 @@ async function deleteOrder(id, btn) {
   setTimeout(() => row.remove(), 300);
   ORDERS_DATA = ORDERS_DATA.filter(o => o.id !== id);
   await loadStatsFromAPI();
+  renderAnalyticsPage();
   showToast('Order deleted', '');
 }
 async function deleteProduct(id, btn) {
@@ -2960,11 +3802,13 @@ async function saveCustomer() {
 
   ACTIVITY.unshift({
     type:'user', icon:'👥', bg:'ad-user',
-    text:`<strong>Customer ${_editingCustomerId ? 'updated' : 'added'}</strong>`,
+    text:`Customer ${_editingCustomerId ? 'updated' : 'registered'}`,
     sub: `${name}${company ? ' — ' + company : ''}`,
     time:'Just now',
+    ts: new Date(),
   });
   renderActivity();
+  renderAnalyticsPage();
 }
 
 async function deleteCustomer(id, btn) {
@@ -3170,7 +4014,7 @@ async function saveWorkNote(orderId) {
   try {
     const res = await fetch(`${ORDERS_API}/${orderId}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'x-admin-key': ensureAdminKey() },
+      headers: authHeaders(true),
       body: JSON.stringify({ workNotes: note }),
     });
     const json = await res.json();
@@ -3244,13 +4088,13 @@ async function saveProduct() {
 
   await loadProductsFromAPI();
 
-  const actItem = {
+  ACTIVITY.unshift({
     type: 'product', icon: '📦', bg: 'ad-product',
-    text: `<strong>Product ${_editingProductId ? 'updated' : 'created'}</strong>`,
-    sub:  `${name} — ${_editingProductId ? 'fields updated' : 'added to catalogue'}`,
+    text: `Product ${_editingProductId ? 'updated' : 'created'} — ${name}`,
+    sub:  `${category} · ₹${price.toLocaleString('en-IN')} · ${_editingProductId ? 'fields updated' : 'added to catalogue'}`,
     time: 'Just now',
-  };
-  ACTIVITY.unshift(actItem);
+    ts: new Date(),
+  });
   renderActivity();
 }
 
@@ -3379,9 +4223,10 @@ async function saveEnquiry() {
 
   ACTIVITY.unshift({
     type:'enquiry', icon:'💬', bg:'ad-enquiry',
-    text:`<strong>Enquiry ${_editingEnquiryId ? 'updated' : 'added'}</strong>`,
-    sub: `${name}${company ? ' — ' + company : ''} · ${services.join(', ') || 'General'}`,
+    text:`Enquiry ${_editingEnquiryId ? 'updated' : 'received'} — ${name}`,
+    sub: `${company ? company + ' · ' : ''}${services.join(', ') || 'General'}`,
     time:'Just now',
+    ts: new Date(),
   });
   renderActivity();
 }
@@ -3437,11 +4282,10 @@ document.getElementById('enquiryModal').addEventListener('click', e => {
    INIT — boot sequence
 ══════════════════════════════════════════ */
 async function init() {
-  renderActivity();
+  renderActivity(); // renders empty state while loading
   renderDonut();
   // Render placeholder bar chart with static data until API responds
   renderBarChart('barChart', CHART_DATA);
-  renderBarChart('barChartFull', CHART_DATA);
 
   // Loading placeholders
   document.getElementById('productsTableBody').innerHTML = `
@@ -3466,7 +4310,10 @@ async function init() {
     loadStatsFromAPI(),
   ]);
 
-  // Analytics chart (full 12-month — will be overwritten by loadStatsFromAPI if data exists)
+  // After ALL data is loaded: rebuild activity feed and analytics from real data
+  buildActivityFromBackend();
+  renderAnalyticsPage();
+
   const pill = document.getElementById('apiStatusPill');
   if (pill) { pill.className = 'api-status'; pill.innerHTML = '<span class="api-status-dot"></span> API live'; }
 
@@ -3474,9 +4321,12 @@ async function init() {
   if (statusDot) { statusDot.style.background = '#22a06b'; statusDot.title = 'API connected'; }
 }
 
-// Auto-boot if session was restored at page load
-if (sessionStorage.getItem('bp_role')) {
-  document.addEventListener('DOMContentLoaded', () => init());
+// Auto-boot: if session restored by checkSession() above, fire init() after DOM is ready
+if (sessionStorage.getItem('bp_token')) {
+  document.addEventListener('DOMContentLoaded', () => {
+    // checkSession() already ran above — if CURRENT_ROLE is set, token was valid
+    if (CURRENT_ROLE) init();
+  });
 }
 </script>
 </body>
