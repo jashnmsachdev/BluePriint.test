@@ -882,6 +882,156 @@ app.get("/api/seed", async (req, res) => {
 
 
 /* ════════════════════════════════════════════════════════════
+   🔐  AUTH ROUTES  — POST /api/auth/login, GET /api/auth/verify
+   Passwords live ONLY in environment variables — never in client code.
+
+   Required env vars:
+     ROOT_PASSWORD      — root admin password  (default: change-me-root)
+     EMPLOYEE_PASSWORD  — employee password     (default: change-me-staff)
+     JWT_SECRET         — secret for signing tokens (default: dev-secret-change-this)
+
+   Token payload: { role, name, initial, iat, exp }
+   Token lifetime: 12 hours (configurable via JWT_TTL_HOURS env var)
+════════════════════════════════════════════════════════════ */
+
+let jwt;
+try {
+  jwt = require("jsonwebtoken");
+} catch (_) {
+  // If jsonwebtoken not installed yet, log a warning and stub it
+  console.warn("⚠️  jsonwebtoken not found — run: npm install jsonwebtoken");
+  jwt = {
+    sign:   (payload, secret, opts) => Buffer.from(JSON.stringify({ ...payload, _stub: true })).toString("base64"),
+    verify: (token, secret)          => { try { return JSON.parse(Buffer.from(token, "base64").toString()); } catch { throw new Error("invalid"); } },
+  };
+}
+
+const JWT_SECRET   = (process.env.JWT_SECRET         || "dev-secret-bluepriint-change-this-in-prod").trim();
+const JWT_TTL_HRS  = parseInt(process.env.JWT_TTL_HOURS || "12", 10);
+
+const AUTH_ROLES = {
+  root: {
+    password: (process.env.ROOT_PASSWORD     || "change-me-root").trim(),
+    role:     "root",
+    name:     "Root Admin",
+    initial:  "R",
+  },
+  employee: {
+    password: (process.env.EMPLOYEE_PASSWORD || "change-me-staff").trim(),
+    role:     "employee",
+    name:     "Team Member",
+    initial:  "T",
+  },
+};
+
+/** Rate-limit login attempts per IP — max 10 per 15-minute window */
+const loginAttempts = new Map(); // ip → { count, resetAt }
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const window = 15 * 60 * 1000; // 15 min
+  const maxAttempts = 10;
+  let entry = loginAttempts.get(ip);
+  if (!entry || now > entry.resetAt) {
+    entry = { count: 0, resetAt: now + window };
+    loginAttempts.set(ip, entry);
+  }
+  entry.count++;
+  if (entry.count > maxAttempts) {
+    const wait = Math.ceil((entry.resetAt - now) / 60000);
+    return { blocked: true, wait };
+  }
+  return { blocked: false };
+}
+
+/** POST /api/auth/login
+ *  Body: { role: "root"|"employee", password: "..." }
+ *  Returns: { success, token, role, name, initial }
+ */
+app.post("/api/auth/login", (req, res) => {
+  const ip = req.ip || req.connection.remoteAddress || "unknown";
+  const { blocked, wait } = checkRateLimit(ip);
+  if (blocked) {
+    return res.status(429).json({
+      success: false,
+      error: `Too many login attempts. Try again in ${wait} minute${wait !== 1 ? "s" : ""}.`,
+    });
+  }
+
+  const { role, password } = req.body || {};
+
+  if (!role || !password) {
+    return res.status(400).json({ success: false, error: "Role and password are required." });
+  }
+
+  const cred = AUTH_ROLES[role];
+  if (!cred) {
+    return res.status(400).json({ success: false, error: "Invalid role." });
+  }
+
+  // Constant-time comparison to prevent timing attacks
+  const inputBuf    = Buffer.from(password);
+  const expectedBuf = Buffer.from(cred.password);
+  const match = inputBuf.length === expectedBuf.length &&
+    require("crypto").timingSafeEqual(inputBuf, expectedBuf);
+
+  if (!match) {
+    console.warn(`[Auth] Failed login attempt — role: ${role}, ip: ${ip}`);
+    return res.status(401).json({ success: false, error: "Incorrect password." });
+  }
+
+  // Sign JWT
+  const token = jwt.sign(
+    { role: cred.role, name: cred.name, initial: cred.initial },
+    JWT_SECRET,
+    { expiresIn: `${JWT_TTL_HRS}h` }
+  );
+
+  console.log(`[Auth] ✅ Login success — role: ${role}, ip: ${ip}`);
+  res.json({ success: true, token, role: cred.role, name: cred.name, initial: cred.initial });
+});
+
+/** GET /api/auth/verify
+ *  Header: Authorization: Bearer <token>
+ *  Returns: { success, role, name, initial, expiresAt }
+ */
+app.get("/api/auth/verify", (req, res) => {
+  const header = req.headers["authorization"] || "";
+  const token  = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
+
+  if (!token) {
+    return res.status(401).json({ success: false, error: "No token provided." });
+  }
+
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    res.json({
+      success:   true,
+      role:      payload.role,
+      name:      payload.name,
+      initial:   payload.initial,
+      expiresAt: payload.exp ? new Date(payload.exp * 1000).toISOString() : null,
+    });
+  } catch (err) {
+    const msg = err.name === "TokenExpiredError" ? "Session expired — please log in again." : "Invalid session token.";
+    res.status(401).json({ success: false, error: msg });
+  }
+});
+
+/** Middleware to protect any route requiring a valid JWT (optional — for future API-only routes) */
+function requireAuth(req, res, next) {
+  const header = req.headers["authorization"] || "";
+  const token  = header.startsWith("Bearer ") ? header.slice(7).trim() : "";
+  if (!token) return res.status(401).json({ success: false, error: "Authentication required." });
+  try {
+    req.authUser = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch {
+    res.status(401).json({ success: false, error: "Invalid or expired session." });
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════
    🚀  START SERVER
 ════════════════════════════════════════════════════════════ */
 const PORT = process.env.PORT || 3000;
